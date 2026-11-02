@@ -111,7 +111,7 @@ open(lst, 'w').write(''.join(f"file 'scene_{s['n']:02d}.mp4'\n" for s in T['scen
 run = lambda *a: subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', *a], check=True)
 run('-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', os.path.join(D, '_mudo.mp4'))
 tmp = os.path.join(D, f'{VID}.tmp.mp4')
-run('-i', os.path.join(D, '_mudo.mp4'), '-i', os.path.join(D, 'mezcla.wav'), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
+run('-i', os.path.join(D, '_mudo.mp4'), '-i', os.path.join(D, 'mezcla.wav'), '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-preset', 'medium', '-crf', '24', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k',
     '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-shortest', '-movflags', '+faststart', tmp)
 os.replace(tmp, os.path.join(D, f'{VID}.mp4'))
 run('-i', os.path.join(D, f'{VID}.mp4'), '-vf', 'scale=720:1280', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '26', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', os.path.join(D, f'{VID}_720.mp4'))

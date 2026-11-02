@@ -228,12 +228,13 @@ function raro(o){
   const sx=(1+0.3*sq)*(o.spin? Math.max(0.06,Math.abs(Math.cos(o.spin*Math.PI*2))) : 1), sy=(1-0.3*sq)*breath;
   const alto=o.alto||0;
   // sombra en el suelo
-  ctx.save(); ctx.globalAlpha=0.22*clamp(1-alto/700); ctx.fillStyle='#000000';
-  ctx.beginPath(); ctx.ellipse(o.x,o.y+6,165*s*(1+0.3*sq)*clamp(1-alto/1400,0.4),26*s,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  if(!o.sinSombra){ ctx.save(); ctx.globalAlpha=0.22*clamp(1-alto/700); ctx.fillStyle='#000000';
+  ctx.beginPath(); ctx.ellipse(o.x,o.y+6,165*s*(1+0.3*sq)*clamp(1-alto/1400,0.4),26*s,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
 
   ctx.save(); ctx.translate(o.x,o.y-alto); ctx.rotate(o.tilt||0); ctx.scale(s*sx,s*sy);
   if(o.espejo) ctx.scale(-1,1);
   const D = typeof o.disfraz==='string'? DISFRACES[o.disfraz] : o.disfraz;
+  if(typeof ocupa==='function'){ ocupa(-165,-520,165,-160,o.npc_peso??(npc?1.5:3)); ocupa(-175,-160,175,0,npc?0.6:1); }
   if(D&&D.atras) D.atras(o);
   piernas(o,base,sombra);
   // rim light (contraluz del color complementario)
@@ -338,6 +339,32 @@ const DISFRACES = {
       ctx.fillStyle='#22223B'; ctx.beginPath(); ctx.ellipse(-50,-290,34,38,0,0,Math.PI*2); ctx.fill();
     }
   },
+  piyama: {
+    cuerpo(o){ // piyama azul cielo a rayas con botones
+      ctx.fillStyle='#9FD8FF'; ctx.fillRect(-200,-200,400,170);
+      ctx.fillStyle='#6FB8F0'; for(let x=-190;x<200;x+=44) ctx.fillRect(x,-200,16,170);
+      ctx.fillStyle='#FFFFFF'; for(const y of [-160,-118,-76]){ctx.beginPath();ctx.arc(0,y,8,0,Math.PI*2);ctx.fill();}
+    },
+    cabeza(o){ // gorro de dormir con pompón que se bambolea
+      const w=o.wob||0, v=o.viento||0; ctx.save(); ctx.translate(0,-350);
+      ctx.fillStyle='#6FB8F0'; ctx.beginPath(); ctx.ellipse(0,0,140,26,0,0,Math.PI*2); ctx.fill();
+      const tx=-150-v*90+Math.sin(o.t*3)*20+w*60, ty=-40+Math.cos(o.t*2.6)*16;
+      ctx.fillStyle='#9FD8FF'; ctx.beginPath(); ctx.moveTo(-120,-6); ctx.quadraticCurveTo(-40,-170,tx,ty); ctx.quadraticCurveTo(40,-90,120,-6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(tx,ty,26,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFFFFF'; rr(-146,-10,292,30,15); ctx.fill(); ctx.restore();
+    }
+  },
+  abrigo: {
+    cuerpo(o){ // parka rojo con cierre
+      ctx.fillStyle='#FF4D5E'; ctx.fillRect(-200,-200,400,170);
+      ctx.strokeStyle='#C7303F'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(0,-200); ctx.lineTo(0,-40); ctx.stroke();
+      ctx.fillStyle='#C7303F'; for(const s of [-1,1]) rr(s*70-28,-120,56,40,10), ctx.fill();
+    },
+    cabeza(o){ // capucha con borde de peluche
+      ctx.fillStyle='#FF4D5E'; ctx.beginPath(); ctx.moveTo(-160,-200); ctx.bezierCurveTo(-190,-470,190,-470,160,-200); ctx.lineTo(126,-210); ctx.bezierCurveTo(140,-400,-140,-400,-126,-210); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FFF4E0'; for(let i=0;i<=16;i++){ const a=Math.PI*(0.98+i/16*1.04); ctx.beginPath(); ctx.arc(Math.cos(a)*140,-282+Math.sin(a)*120,24+Math.sin(i*2.1)*4,0,Math.PI*2); ctx.fill(); }
+    }
+  },
   cavernicola: {
     cuerpo(o){ // piel de leopardo de un solo hombro
       ctx.fillStyle='#F4A52B'; ctx.beginPath(); ctx.moveTo(-200,-120); ctx.lineTo(160,-215); ctx.lineTo(200,-205); ctx.lineTo(200,-70);
@@ -435,6 +462,7 @@ function letrero(txt,x,y,k,tipo='madera',opts={}){
   if(k<=0.001) return; const tam=opts.tam||72; ctx.save(); ctx.translate(x,y);
   const sw=opts.t!=null&&opts.t0!=null? wobble(opts.t,opts.t0,0.25):0; ctx.rotate(sw); ctx.scale(k,k);
   ctx.font=fuente(tam); const w=Math.max(opts.ancho||0, ctx.measureText(txt).width+tam*1.2), h=tam*1.7;
+  if(typeof ocupa==='function') ocupa(-w/2,-h/2,w/2,h/2,2.5);
   ctx.textAlign='center'; ctx.textBaseline='middle';
   if(tipo==='madera'){
     ctx.fillStyle='#7A4A22'; ctx.fillRect(-14,h/2-6,28,260);

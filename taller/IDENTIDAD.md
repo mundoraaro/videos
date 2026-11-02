@@ -80,7 +80,8 @@ Coordenadas locales de Raro con `s=1`: origen entre los pies; cuerpo de y=-40 a 
 
 - Fuente fija: **Fredoka Bold**, archivo `taller/fuentes/Fredoka-Bold.ttf` (o `Fredoka.ttf` variable). Si `render.py` avisa que no la encontró, el video sale con Inter de respaldo: dilo en el mensaje final para que Héctor suba la fuente.
 - Captions blancos con contorno grueso oscuro y sombra; la palabra clave en verde lima, más grande y con pop: `window.KEYWORDS=[índices de palabra]` (1 por frase, la que carga el dato o el remate).
-- Palabra por palabra, sincronizado con la voz, máximo 3-4 palabras, en el tercio central (y≈700 por defecto, arriba de la cabeza de Raro; `window.CAPTION_Y` para moverlo si algo lo tapa).
+- Palabra por palabra, sincronizado con la voz, máximo 3-4 palabras, tamaño moderado (80 px; `window.CAPTION_SIZE` solo si hace falta).
+- **Acomodo automático (pedido de Héctor: que nunca tapen de más):** `raro()`, `gomita()` y `letrero()` registran su zona y el motor coloca cada frase en el hueco que menos tape, prefiriendo y≈700 (tercio central) y nunca debajo de y≈1440. Cualquier otro objeto importante de la escena (un planeta, un dato dibujado a mano) se marca con `ocupa(x0,y0,x1,y1,peso)` para que el caption lo esquive. La posición se fija por frase, no brinca. En la hoja de contacto revisa que ningún caption tape la cara de Raro ni un letrero.
 - Fechas, números y datos aparecen como objetos del mundo: `letrero(txt,x,y,popIn(t,at(i)),'madera'|'panel'|'pergamino'|'piedra',{t,t0:at(i)})`, entre y=330 y y=520. Nada de texto flotante tipo diapositiva; `label()` solo para lo que no tenga objeto posible.
 
 ## 8. Sonido (`cues.json`)

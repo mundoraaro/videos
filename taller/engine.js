@@ -120,6 +120,20 @@ function label(txt,x,y,size,color,k=1,bg=null){
 function chip(txt,t,t0){ const k=typeof popIn==='function'?popIn(t,t0,.35):pop(t,t0,.4); if(k<=0) return; ctx.save(); ctx.translate(540,222); ctx.rotate(-0.04+Math.sin(t*3)*0.02);
   label(txt,0,0,40,'#1E1A2E',k,COL.lime); ctx.restore(); }
 
+// ---------- zonas ocupadas (para que los captions no tapen a Raro ni los datos) ----------
+// raro() y letrero() registran solas su caja; una escena puede marcar otra zona importante con ocupa(x0,y0,x1,y1,peso) en sus coordenadas.
+let OCUP=[], CAPPOS={};
+function ocupa(x0,y0,x1,y1,peso=1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e, m.b*x+m.d*y+m.f]);
+  const xs=P.map(p=>p[0]), ys=P.map(p=>p[1]); OCUP.push([Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys),peso]); }
+function lugarCaption(w,h){ // elige la y del caption que menos tape (preferencia: CAPTION_Y, tercio central)
+  const pref=window.CAPTION_Y||700, x0=540-w/2-24, x1=540+w/2+24; let best=pref, bs=1e9;
+  for(let y=560;y<=1440;y+=20){ const y0=y-h/2-18, y1=y+h/2+18; let sc=0;
+    for(const [a,b,c,d,p] of OCUP){ const ox=Math.max(0,Math.min(x1,c)-Math.max(x0,a)), oy=Math.max(0,Math.min(y1,d)-Math.max(y0,b)); sc+=p*ox*oy/((x1-x0)*(y1-y0)); }
+    sc+=Math.abs(y-pref)*0.0011 + (y>1280?0.25:0);
+    if(sc<bs){bs=sc;best=y;} }
+  return best;
+}
+
 function buildChunks(){
   CH=[]; let cur=[];
   W.forEach((w,i)=>{cur.push(i); const len=cur.map(j=>W[j].t).join(' ').length;
@@ -131,12 +145,14 @@ function captions(t){
   let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
   if(ci<0) return; const ch=CH[ci]; const last=W[ch[ch.length-1]];
   if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
-  const KW=window.KEYWORDS||[]; const y=window.CAPTION_Y||700;
-  let size=92; const words=ch.map(i=>W[i].t.toUpperCase());
-  const big=i=>KW.includes(i)?1.28:1;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
   const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
   ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
-  if(total>860){size=Math.floor(size*860/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci];
   let x=540-total/2;
   ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
   ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i);
@@ -144,7 +160,7 @@ function captions(t){
     if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(0.6,1,k)*(kw?1:1); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
       ctx.font=fuente(sz);
       ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);            // sombra
-      ctx.lineWidth=sz*0.2; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);       // contorno grueso
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);       // contorno grueso
       ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
     x+=wd+sp*1.25;});
 }
@@ -193,6 +209,7 @@ function logoEye(x,y,s){
 function render(t){
   let si=0; for(let i=0;i<SC.length;i++) if(t>=SC[i].start) si=i;
   const sc=SC[si], lt=t-sc.start, n=si+1;
+  OCUP=[];
   ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
   // cámara viva: punch-in al cortar, zoom lento, paneo suave y sacudidas en palabras de impacto
   const punch=si>0?1.07-0.07*easeOut(lt/0.28):1, drift=1+0.035*clamp(lt/(sc.end-sc.start));
