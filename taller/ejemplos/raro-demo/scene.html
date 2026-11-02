@@ -63,8 +63,9 @@ function S4(t,sc){ // pattern interrupt: mira a cámara "¿en serio?" con freeze
 }
 const SCENES=[S1,S2,S3,S4];
 const CHIPS={};
-window.FONDOS={1:{pal:'magenta',tipo:'cerros'},2:{pal:'turquesa',tipo:'interior'},3:{pal:'violeta',tipo:'espacio'},4:{pal:'mandarina',tipo:'cielo'}};
-window.TRANS={2:'bufanda'};          // escena 3 entra con "salto de escena" (Raro sale arriba en S2 y cae en S3)
+window.FONDOS={1:{pal:'magenta',tipo:'cerros'},2:{pal:'turquesa',tipo:'selva'},3:{pal:'violeta',tipo:'espacio'},4:{pal:'cielo',tipo:'mar'}};
+window.TOMAS={1:{mov:'paneo-der'},2:{mov:'push',z:1.1,foco:[540,1100]},4:{mov:'orbita'}};
+window.TRANS={2:'latigazo',4:'zoom'};          // escena 3 entra con "salto de escena" (Raro sale arriba en S2 y cae en S3)
 window.KEYWORDS=[3,10,12,16,19,21,25];
 window.SHAKES=[6,19];
 window.FLASHES=[[10,'#FFFFFF'],[19,'#BFF4FF']];

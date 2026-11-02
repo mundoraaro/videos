@@ -1,6 +1,6 @@
 /* Motor de animación de Mundo Raaro.
  * Canvas 1080x1920 a 30 fps. Ver taller/GUIA.md e IDENTIDAD.md. El personaje RARO y su mundo están en raro.js.
- * Escena: SCENES, FONDOS ({n:{pal,tipo}}), TRANS ({n:'bufanda'}), KEYWORDS (índices de palabra en lima), SHAKES, FLASHES, CHIPS.
+ * Escena: SCENES, FONDOS ({n:{pal,tipo,pp}}), TOMAS ({n:{mov,z,foco}}), TRANS ({n:'bufanda'|'latigazo'|'zoom'}), KEYWORDS (índices de palabra en lima), SHAKES, FLASHES, CHIPS.
  * Componentes del motor: label, chip, captions (Fredoka). Heredados del piloto (estilo viejo, no usar en videos nuevos): background, octopus, heart, logoEye.
  * Helpers: clamp, lerp, easeOut, easeIn, easeInOut, back, at(i)=inicio de la palabra i, pop(t,t0), prog(t,t0,d), mix(colorA,colorB,u), rand(seed), rr(x,y,w,h,r).
  */
@@ -206,26 +206,53 @@ function logoEye(x,y,s){
 
 // ---------- motor: cámara, escenas, captions ----------
 // La escena define: SCENES (array de funciones (t,sc)), CHIPS ({n:"texto"}), SHAKES (índices de palabra), DARK_SCENES ([n]).
+// Tomas de cámara por escena: window.TOMAS={n:{mov, z, foco:[x,y]}}.
+//   mov: push (acerca) | pull (aleja) | paneo-izq | paneo-der | sube | baja | orbita | fija ; z: zoom base (>=1); foco: punto que encuadra.
+// Si una escena no declara toma, el motor alterna movimientos para que dos escenas seguidas nunca se muevan igual.
+const MOV_AUTO=['push','paneo-der','pull','paneo-izq','sube','orbita'];
+function camara(si,lt,dur){
+  const TM=(window.TOMAS||{})[si+1]||{}; const mov=TM.mov||MOV_AUTO[si%MOV_AUTO.length];
+  const u=easeInOut(clamp(lt/Math.max(dur,0.5))); let z=Math.max(1,TM.z||1), ox=0, oy=0, rot=0;
+  if(mov==='push') z*=lerp(1,1.13,u); else if(mov==='pull') z*=lerp(1.13,1,u);
+  else if(mov==='paneo-izq'){ z*=1.06; ox=lerp(70,-70,u); } else if(mov==='paneo-der'){ z*=1.06; ox=lerp(-70,70,u); }
+  else if(mov==='sube'){ z*=1.06; oy=lerp(60,-60,u); } else if(mov==='baja'){ z*=1.06; oy=lerp(-60,60,u); }
+  else if(mov==='orbita'){ z*=1.08; ox=Math.sin(u*Math.PI)*-50; rot=lerp(-0.025,0.025,u); }
+  const f=TM.foco||[540,960];
+  return {z,ox,oy,rot,fx:f[0],fy:f[1]};
+}
+// Transiciones: TRANS={n:'bufanda'|'latigazo'|'zoom'}. latigazo = paneo de látigo con estelas; zoom = entra atravesando con líneas de velocidad.
+function estelas(u,dir){ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=0.7*Math.sin(u*Math.PI); ctx.fillStyle='#FFFFFF';
+  for(let i=0;i<26;i++){ const y=rand(i)*1920, w=300+rand(i+1)*700, x=((rand(i+2)*1600+dir*u*2400)%1600+1600)%1600-300; ctx.fillRect(x,y,w,6+rand(i+3)*16);} ctx.restore(); }
 function render(t){
   let si=0; for(let i=0;i<SC.length;i++) if(t>=SC[i].start) si=i;
-  const sc=SC[si], lt=t-sc.start, n=si+1;
+  const sc=SC[si], lt=t-sc.start, n=si+1, dur=sc.end-sc.start, TR=window.TRANS||{};
   OCUP=[];
-  ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
-  // cámara viva: punch-in al cortar, zoom lento, paneo suave y sacudidas en palabras de impacto
-  const punch=si>0?1.07-0.07*easeOut(lt/0.28):1, drift=1+0.035*clamp(lt/(sc.end-sc.start));
-  const pan=Math.sin(t*0.45)*18;
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; ctx.filter='none';
+  // cámara viva: toma por escena + punch-in al cortar + sacudidas en palabras de impacto
+  const cam=camara(si,lt,dur);
+  let punch=si>0?1.07-0.07*easeOut(lt/0.28):1, tx=0;
+  if(TR[n]==='zoom' && lt<0.24) punch*=lerp(1.9,1,easeOut(lt/0.24));
+  const dir=si%2?-1:1;
+  if(TR[n]==='latigazo' && lt<0.2) tx=-dir*lerp(900,0,easeOut(lt/0.2));
+  if(si+1<SC.length && TR[n+1]==='latigazo' && t>SC[si+1].start-0.14) tx=dir*lerp(0,900,easeIn((t-(SC[si+1].start-0.14))/0.14));
   let sx=0,sy=0; for(const wi of (window.SHAKES||[])){const d=t-at(wi); if(d>0&&d<0.35){const a=(1-d/0.35)*18;sx+=Math.sin(d*90)*a;sy+=Math.cos(d*77)*a;}}
+  const pan=cam.ox*0.8+Math.sin(t*0.45)*12;
   const F=(window.FONDOS||{})[n];
-  ctx.save(); ctx.translate(540+sx,960+sy); ctx.scale(punch*drift,punch*drift); ctx.translate(-540,-960);
+  ctx.save(); ctx.translate(540+sx+cam.ox+tx,960+sy+cam.oy); ctx.rotate(cam.rot); ctx.scale(punch*cam.z,punch*cam.z); ctx.translate(-cam.fx,-cam.fy);
   if(F) fondo(t,F.pal,F.tipo||'cerros',pan); else if(typeof fondo==='function') fondo(t,'turquesa','cerros',pan); else background(t,(window.DARK_SCENES||[]).includes(n)?easeOut(lt/0.4):0);
-  ctx.translate(pan*0.5,0);
+  ctx.save(); ctx.translate(pan*0.5,0);
   SCENES[si](t,sc);
   ctx.restore();
+  if(typeof primerPlano==='function' && !(F&&F.pp===false)) primerPlano(t,pan);
+  ctx.restore();
+  if(typeof vineta==='function') vineta();
+  if(TR[n]==='latigazo' && lt<0.2) estelas(lt/0.2,-dir);
+  if(si+1<SC.length && TR[n+1]==='latigazo' && t>SC[si+1].start-0.14) estelas((t-(SC[si+1].start-0.14))/0.14,dir);
+  if(TR[n]==='zoom' && typeof lineasVelocidad==='function') lineasVelocidad(t,sc.start,540,900,'#FFFFFF',0.3);
   for(const [wi,c] of (window.FLASHES||[]).map(f=>Array.isArray(f)?f:[f,'#FFFFFF'])) flashColor(t,at(wi),c);
   if(CHIPS[n]) chip(CHIPS[n],t,sc.start+0.1);
   captions(t);
   // transición de firma: la bufanda cruza la pantalla
-  const TR=window.TRANS||{};
   if(si+1<SC.length && TR[n+1]==='bufanda' && t>SC[si+1].start-0.2) barridoBufanda((t-(SC[si+1].start-0.2))/0.2,true);
   if(TR[n]==='bufanda' && lt<0.22) barridoBufanda(lt/0.22,false);
   if(window.PROGRESS!==false){const p=clamp(t/TL.duration);ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fillRect(0,0,W_,10);ctx.fillStyle=COL.lime;ctx.fillRect(0,0,W_*p,10);}

@@ -24,12 +24,12 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo retuvo solo ~4 s. Diagnóstico: el primer cuadro salía casi vacío (el pulpo aparecía "creciendo" desde cero), el dato visual llegaba hasta el segundo 1.6, la narración era lenta, con pausas largas y relleno ("Sí, en serio"), y en 75 s tenía pocos reenganches. Reglas obligatorias:
 
-- **Duración 62–72 s** (más de 1 minuto para monetizar en TikTok, sin pasarse). Para que se sostenga: cada 15–20 s llega un dato o giro nuevo que reengancha ("pero eso no es lo más raro"), y nunca hay un tramo explicativo largo.
+- **Duración 62–72 s** (más de 1 minuto para monetizar en TikTok, sin pasarse). Para que se sostenga: cada 15–20 s llega un giro que cambia lo que el espectador creía (ver "Cómo enganchar sin anunciarlo"), y nunca hay un tramo explicativo largo.
 - **El cuadro 0 ya es el gancho:** Raro ya disfrazado en plena situación, con el objeto o el letrero del dato desde el primer cuadro. Nada aparece "creciendo desde cero" al inicio, ni fundidos, ni logo, ni fondo vacío.
 - **La primera frase dice lo más impactante en menos de 2 s.** Nada de contexto, saludo ni relleno ("Sí, en serio", "Oye, ¿sabías que…?").
 - **Ritmo rápido:** `tempo` 1.15–1.2 y `pausa` 0.12 en escenas.json. La voz no se detiene más de 0.3 s.
 - **Un cambio de toma cada 1.5–2.5 s** (cambio de plano, zoom fuerte, objeto nuevo o corte), además de los eventos por palabra. Escenas de 2 a 4 s, nunca de 8 a 10.
-- **Bucle abierto en los primeros 3 s** que se cierra hasta el final ("y lo tercero es lo más raro").
+- **Pregunta abierta en los primeros 3 s**, sembrada por la imagen y la primera frase (no anunciada): el espectador se queda porque quiere saber por qué. Se responde por completo hasta el final.
 - **Barra de progreso** delgada arriba (ya la dibuja el motor): ayuda a que la gente aguante hasta el final.
 - **Sin final largo:** el cierre dura máximo 1.5 s: gesto cómico de Raro que conecta con el primer cuadro para que el video se repita.
 - Antes de renderizar, revisa la hoja de contacto de los primeros 3 s (cuadros en 0.0, 0.5, 1.0, 2.0 y 3.0 s): en todos debe haber algo grande y claro en pantalla.
@@ -45,10 +45,40 @@ Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo 
   - Prueba antes de grabar: lee el guion en voz alta. Si una línea te daría pena decírsela a un amigo en persona, quítala. Máximo un remate cada 10–15 s; si dudas, menos humor y más dato.
 - El humor nunca cambia el dato ni se burla de personas, grupos o víctimas. En temas trágicos (guerras, desastres, muertes) el tono es respetuoso: humor solo en lo absurdo de la situación, o nada.
 
+## Cómo enganchar sin anunciarlo (decisión de Héctor, 2 nov 2026)
+
+Prohibido anunciar listas o cuentas: nada de "DATO 1 DE 4", "el cuarto es el mejor", "quédate al final", "espera al final", "el último te va a volar la cabeza". Suena a fórmula y la gente lo detecta. La retención sale de la historia misma:
+
+1. **Gancho = imagen + frase.** En el cuadro 0, Raro ya está metido en la situación absurda (con un letrero que la resume para quien ve sin sonido) y la primera frase afirma algo que provoca un "¿por qué?". La pregunta se la hace el espectador solo; no la decimos por él.
+2. **Cadena de consecuencias.** Cada frase responde a la anterior y abre algo nuevo. Conectores naturales: "y por eso…", "o sea que…", "el problema es que…", "y aquí viene lo feo…", "¿y para qué quiere tres?". Nunca "dato número dos".
+3. **Escalada.** Cada giro es peor, más raro o más cercano a la vida del espectador que el anterior. Raro reacciona cada vez más exagerado.
+4. **Revelación fuerte cerca del final (75–90 %)**, sin anunciarla: es la respuesta completa a la pregunta del gancho o el giro que le cambia el sentido.
+5. **Loop.** La última frase desemboca en la primera ("…y por eso nadar le cuesta un corazón." → "Si fueras pulpo, nadar te apagaría el corazón."), y el último cuadro se parece al primero (misma posición de Raro y mismo fondo). Nada de pantalla final con logo.
+
+Ejemplo (pulpo). Antes: "El pulpo tiene tres corazones… DATO 1 DE 4". Ahora: "Si fueras pulpo, nadar te apagaría el corazón. [Raro pulpo nadando, un corazón se apaga] Tienes tres, y uno se detiene cada vez que nadas. O sea que nadar te cansa muchísimo… por eso los pulpos prefieren caminar. Sí, caminan. Y tu sangre sería azul…"
+
+## Fórmula viral (investigación, nov 2026)
+
+Lo que más pesa en TikTok, Shorts y Reels, y cómo lo aplicamos:
+- **Que lo repitan (loop) y lo vean completo.** Hoy es la señal número uno, por encima de los seguidores. Por eso es obligatorio el loop de frase e imagen.
+- **Los primeros 3 s deciden todo:** si menos del ~65 % pasa del segundo 3, el video se queda en unos cientos de vistas. Abrir con intro o logo pierde a la mayoría. Cuadro 0 = gancho, siempre.
+- **Cambio visual cada ~2.5 s como máximo** (toma, zoom, objeto nuevo), con texto en pantalla porque muchos ven sin sonido.
+- **Compartidos y comentarios** pesan mucho. Los temas que más se comparten son los que el espectador siente que "le pasan a él" (formato "si fueras…", "esto te pasaría si…") y los que uno quiere mandarle a alguien. Escoge ideas con ese ángulo y cierra el caption con una pregunta fácil de contestar.
+- **Series por partes** hacen que vean el siguiente y sigan la cuenta.
+- **Videos de 60–120 s** sí se distribuyen bien siempre que sostengan la atención: el ritmo manda, no la duración.
+
+## Video estrella (control de calidad reforzado)
+
+Cada video se hace como si fuera a ser el más visto de la cuenta. Antes de renderizar todo:
+1. **Guion en voz alta** contra la regla de cero cringe y la de "enganchar sin anunciarlo". Si alguna frase suena a fórmula, reescríbela.
+2. **Storyboard por escena** (en un comentario arriba de cada `S#` en `scene.html`): qué hace Raro (acción, no estar parado), fondo y profundidad (tipo + primer plano), toma de cámara (`TOMAS`) y el evento visual de cada palabra clave.
+3. **Hoja de contacto de 12 cuadros** repartidos en todo el video + 5 cuadros del primer segundo. Califica del 1 al 5: gancho del cuadro 0, profundidad del fondo, Raro actuando, variedad de tomas, legibilidad de textos, cero segundos muertos, loop final→inicio. **Todo debe sacar 4 o más**; si no, corrige y vuelve a revisar (hasta 2 rondas).
+4. Después del render final, revisa con ffmpeg los últimos 2 s y los primeros 2 s juntos para confirmar que el loop se siente continuo.
+
 ## Estrategia para crecer
 
 - Gancho en el primer 1.5 s con imagen y texto en pantalla; nunca empieces con contexto.
-- Bucles abiertos: "y el dato 4 es el más raro", "quédate al final". El cierre conecta con el inicio para que el video se repita.
+- Curiosidad natural (ver "Cómo enganchar sin anunciarlo"). El cierre conecta con el inicio para que el video se repita.
 - Series por partes cuando un tema dé para más: "Parte 2 en mi perfil". Las series hacen que la gente siga la cuenta.
 - Cierra con una pregunta que provoque comentarios ("¿tú qué harías?", "¿cuál te voló la cabeza?") en voz y en el texto de la publicación.
 - Títulos de YouTube con palabras que la gente busca ("datos curiosos", "qué pasaría si", el animal o lugar).
@@ -64,7 +94,7 @@ Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo 
 
 - Duración de la narración: 62–72 s (ver Retención).
 - **Gancho**: la primera frase, de 8 palabras o menos, es una afirmación sorprendente. Nada de intro ni saludo.
-- Estructura: gancho → "Sí, en serio" o reacción → 3–4 datos numerados (chip "DATO 1 DE 4") → un giro a la mitad ("Pero espérate, que se pone más raro") → un pattern interrupt cada 8-12 s (Raro mira a cámara: "¿en serio?") → cierre que regresa a la frase del gancho para que el video se repita → "Esto es Mundo Raaaro".
+- Estructura: **historia en cadena**, no lista. Gancho (situación absurda + afirmación) → la pregunta que se hace el espectador → cada respuesta trae una consecuencia que abre la siguiente pregunta → 2 o 3 giros que escalan → la revelación más fuerte cerca del final → última frase que regresa a la primera para que el video se repita. Detalle y ejemplo en "Cómo enganchar sin anunciarlo". Pattern interrupt cada 8–12 s (Raro mira a cámara, freeze con zoom, cambio de disfraz). Cierre corto: "Esto es Mundo Raaaro" solo si cabe en el loop.
 - Desde el guion decide el disfraz de Raro (y sus cambios) y la situación absurda del cuadro 1: la premisa "Si vivieras en…" / "Esto te pasaría si…" queda planteada antes del segundo 2.
 - Oraciones cortas, lenguaje mexicano natural ("oye", "neta", "imagínate") sin exagerar.
 - **Verificación obligatoria**: cada dato con WebSearch y abriendo la fuente con WebFetch. Si un dato no se puede confirmar, se quita. Guarda las fuentes (nombre del medio y del artículo) en el campo `fuentes`.
@@ -86,11 +116,11 @@ Trabaja en `taller/trabajo/<id>/` (no se sube a git). Copia `ejemplos/raro-demo/
 
 - `escenas.json`: `{"inicios": [índice de palabra donde empieza cada escena], "tempo": 1.15, "pausa": 0.12}`. Escenas de 2 a 4 s; un dato puede ocupar varias escenas cortas.
 - `python3 ../../timeline.py .` → `voz_final.wav` y `timeline.json`. Revisa los avisos de pausas largas.
-- En `scene.html` escribe una función por escena `S1..Sn(t, sc)` y define `SCENES`, `CHIPS`, `FONDOS` (color distinto en cada escena), `TRANS` (bufanda), `KEYWORDS` (palabra clave en lima), `SHAKES` (palabras de impacto) y `FLASHES`.
+- En `scene.html` escribe una función por escena `S1..Sn(t, sc)` y define `SCENES`, `FONDOS` (color y tipo de fondo distintos en cada escena), `TOMAS` (movimiento de cámara por escena), `TRANS` (bufanda, latigazo o zoom), `KEYWORDS` (palabra clave en lima), `SHAKES` (palabras de impacto) y `FLASHES`.
 - **Regla de cero momentos muertos**: antes de dibujar, haz una lista de eventos visuales ligados a palabras clave (`pop(t, at(i))`, `prog(t, at(i), d)`). Cada palabra importante dispara algo: un objeto que entra, un número que crece, el personaje que reacciona, un icono, un cambio de color. Nunca dejes un hueco de más de 1.2 s sin evento. Los personajes siempre se mueven (respiran, parpadean, ondulan) y la cámara nunca está quieta: agrega paneos o zooms propios dentro de cada escena.
 - Estilo: el de `IDENTIDAD.md`. Raro siempre con `raro()`; otros personajes con `gomita()` en pastel; objetos y escenarios con formas grandes y redondeadas en los tonos de la paleta de la escena, sin contorno negro; datos como objetos del mundo con `letrero()`; tipografía Fredoka Bold.
 - Zonas seguras del lienzo 1080×1920: arriba de y=180 lo tapan las pestañas de la app; abajo de y=1500 y a la derecha de x=940, los botones. Chips en y=222, letreros de datos entre y=330 y y=520, captions en y≈700 (tercio central, ya lo hace el motor), pies de Raro en `SUELO` (y=1440).
-- `python3 ../../render.py . preview <8 a 10 tiempos con más cosas en pantalla>` y mira `contact.jpg`. Corrige textos encimados o cortados, y huecos sin movimiento, y pasa el control de calidad de `IDENTIDAD.md`. Una sola ronda de correcciones.
+- `python3 ../../render.py . preview <12 tiempos repartidos + 0 0.25 0.5 0.75 1.0>` y mira `contact.jpg`. Corrige textos encimados o cortados y huecos sin movimiento, y pasa el control de "Video estrella" y el de `IDENTIDAD.md` (hasta 2 rondas).
 - `python3 ../../render.py . all` (unos 2 minutos).
 - `cues.json` con efectos en índices de palabra: `puf` (cada cambio de disfraz), `boing` (cada aterrizaje de Raro), `pop` (algo aparece), `click`, `whoosh`, `thud` (impacto), `chispa`, `blip`; además `musica` por época o lugar y `corte` en cada remate (ver `IDENTIDAD.md`). Luego `python3 ../../mix.py . <id>` → `<id>.mp4` (para publicar) y `<id>_720.mp4` (para el Estudio).
 - Mira 2 cuadros del video final con ffmpeg antes de entregar y repite el control de calidad de `IDENTIDAD.md`. Si `render.py` avisó que faltaba Fredoka, dilo en tu mensaje final.

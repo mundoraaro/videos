@@ -47,7 +47,8 @@ Coordenadas locales de Raro con `s=1`: origen entre los pies; cuerpo de y=-40 a 
 
 - Fondos muy saturados tipo dulce; cada escena con un color dominante: `turquesa`, `magenta`, `mandarina`, `limon`, `violeta`, `cielo` (`PALETAS` en `raro.js`, cada una con claro, medio, oscuro y su color complementario para el contraluz).
 - Escenarios en 3-4 tonos del MISMO color, formas grandes y redondeadas. Raro blanco siempre resalta.
-- **Cada cambio de escena cambia el color de fondo.** Se declara por escena: `window.FONDOS={1:{pal:'magenta',tipo:'cerros'}, 2:{pal:'turquesa',tipo:'interior'}, ...}`. Tipos: `cerros`, `cielo`, `olas`, `espacio`, `interior`, `liso` (para escenarios propios: castillo, barco, cueva… dibújalos con los tonos de `PAL_ACTUAL`).
+- **Cada cambio de escena cambia el color de fondo.** Se declara por escena: `window.FONDOS={1:{pal:'magenta',tipo:'cerros'}, 2:{pal:'turquesa',tipo:'selva'}, ...}`. Tipos: `cerros`, `cielo`, `olas`, `espacio`, `interior`, `mar` (bajo el agua), `selva`, `ciudad`, `desierto`, `nieve`, `liso` (para escenarios propios: castillo, barco, cueva… dibújalos con los tonos de `PAL_ACTUAL`). Escoge el tipo que cuente dónde está Raro; no repitas el mismo tipo en dos escenas seguidas.
+- **Profundidad (pedido de Héctor: que los fondos no se vean planos).** El motor ya pone en todos: cielo con degradado, halo de luz detrás de Raro (`HALO_X/HALO_Y` si Raro no está al centro), partículas de ambiente según el tipo (motas, hojas, burbujas, nieve, arena), **primer plano desenfocado** que pasa por delante (`pp:false` en `FONDOS` para quitarlo en una escena) y viñeta del color de la escena. Un escenario propio (`liso`) debe tener al menos 3 capas: fondo lejano claro, capa media y algo cerca de cámara.
 - Contraluz (rim light) del color complementario detrás de Raro: automático en `raro()`.
 - Grano sutil encima de todo: automático en el motor.
 
@@ -59,7 +60,10 @@ Coordenadas locales de Raro con `s=1`: origen entre los pies; cuerpo de y=-40 a 
 - Movimiento secundario: casco, plumas, harapos y bufanda siguen moviéndose (`wob`, `viento`).
 - Raro respira y parpadea siempre (automático). Nunca está congelado.
 - Objetos que caen, se apilan o encajan "con click" (sonido `click`).
-- Cambio visual cada 1.5-2.5 s y cámara siempre viva: el motor ya hace punch-in al cortar, zoom lento, paneo y parallax de 3 capas en los fondos.
+- Cambio visual cada 1.5-2.5 s y cámara siempre viva. Cada escena declara su toma: `window.TOMAS={n:{mov:'push'|'pull'|'paneo-izq'|'paneo-der'|'sube'|'baja'|'orbita'|'fija', z:1.0-1.8, foco:[x,y]}}`. Varía el tamaño de plano: abierto (z 1, todo el mundo), medio (z 1.2-1.3) y cerrado a la cara de Raro (z 1.6-1.8, `foco` en sus ojos) para reacciones. Sin `TOMAS`, el motor alterna movimientos solo.
+- **Raro nunca está solo parado al centro.** En cada escena hace algo: corre, carga, flota, se esconde, empuja, cae, interactúa con el objeto del dato. Cambia de lugar en pantalla entre escenas (izquierda, derecha, cerca, lejos).
+- **Los números se ven, no solo se dicen.** Usa comparaciones de escala dibujadas: `cascada()` para mostrar cantidades con objetos que aparecen en cascada, objetos al lado de Raro para tamaños, `contador()` para cifras que crecen.
+- **Golpes en las revelaciones:** `lineasVelocidad(t,at(i),x,y)` (líneas radiales tipo anime), `ondaChoque(t,at(i),x,y)` en aterrizajes fuertes, con `SHAKES` y `FLASHES` en la misma palabra.
 
 ## 5. Ritmo y retención
 
@@ -74,6 +78,9 @@ Coordenadas locales de Raro con `s=1`: origen entre los pies; cuerpo de y=-40 a 
 - **Puf de disfraz** (cambio de época o situación): ver punto 2.
 - **Salto de escena**: Raro brinca fuera de cuadro hacia arriba (`saleArriba(t,sc.end)` al final de la escena) y cae en la siguiente con otro color (`caida(t,sc.start)` + "boing").
 - **Bufanda**: la bufanda lima cruza la pantalla y revela la escena siguiente: `window.TRANS={n:'bufanda'}` (la dibuja el motor).
+- **Latigazo**: paneo rápido con estelas hacia la escena siguiente, para "mientras tanto" o cambios de lugar: `TRANS={n:'latigazo'}`.
+- **Zoom**: la cámara entra atravesando con líneas de velocidad, para revelaciones: `TRANS={n:'zoom'}`.
+- Varía: en un video usa al menos 3 tipos distintos de transición, y nunca la misma dos veces seguidas.
 - Sin transición declarada hay corte seco con punch-in. Nada de fades ni deslizados genéricos.
 
 ## 7. Texto y captions
@@ -97,11 +104,13 @@ Coordenadas locales de Raro con `s=1`: origen entre los pies; cuerpo de y=-40 a 
 - Fondos blancos, grises, oscuros apagados o con degradados genéricos (el fondo índigo del piloto ya no se usa).
 - Realismo, stock, clipart, emojis, partículas sin motivo.
 - Escenas sin reacción de Raro, segundos sin movimiento, texto tipo diapositiva.
+- Chips o textos que numeren la estructura ("DATO 1 DE 4") y anuncios tipo "el último es el mejor" (ver GUIA, "Cómo enganchar sin anunciarlo").
 
 ## Control de calidad (antes de mandar a aprobación)
 
 Revisa la hoja de contacto y 2 cuadros del video final y responde:
-1. Si pauso en cualquier cuadro, ¿se reconoce que es Mundo Raaro (Raro blanco con bufanda lima, fondo de dulce)?
+1. Si pauso en cualquier cuadro, ¿se reconoce que es Mundo Raaro (Raro blanco con bufanda lima, fondo de dulce)? ¿El fondo tiene profundidad (capas, luz, primer plano) y no se ve plano?
+1b. ¿Raro está haciendo algo en cada escena, y las tomas cambian de tamaño y movimiento?
 2. ¿Los colores se ven vivos y "antojables" en el celular?
 3. ¿Cada acción tiene rebote, sonido y jugo?
 4. ¿Hay algún segundo muerto?
