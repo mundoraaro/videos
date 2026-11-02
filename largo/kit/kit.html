@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="emblem.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:transparent;font-family:'Inter Display',sans-serif}
+.gold{color:#EDBB4F}.sil{background:linear-gradient(#fff,#8d99a6);-webkit-background-clip:text;color:transparent}</style></head><body>
+<div id="avatar" style="width:800px;height:800px;background:radial-gradient(circle at 32% 28%,#1f2738,#0b0f17 68%);display:flex;align-items:center;justify-content:center">
+ <svg width="560" height="560" viewBox="0 0 200 200" id="e1"></svg></div>
+<div id="wm" style="width:150px;height:150px;display:flex;align-items:center;justify-content:center"><svg width="150" height="150" viewBox="0 0 200 200" id="e2"></svg></div>
+<div id="banner" style="width:2560px;height:1440px;position:relative;overflow:hidden;background:#0b0f17">
+ <div style="position:absolute;inset:0;background:radial-gradient(ellipse 900px 700px at 22% 50%,#3a2a0c 0%,transparent 70%),radial-gradient(ellipse 900px 700px at 80% 50%,#16233a 0%,transparent 70%)"></div>
+ <svg style="position:absolute;inset:0" width="2560" height="1440" id="circ"></svg>
+ <div style="position:absolute;left:507px;top:508px;width:1546px;height:423px;display:flex;align-items:center;justify-content:center;gap:56px">
+  <svg width="300" height="300" viewBox="0 0 200 200" id="e3"></svg>
+  <div><div style="font-size:150px;font-weight:900;letter-spacing:-2px;line-height:1"><span class="gold">ORO</span> <span style="font-weight:300;color:#7f8a9a">y</span> <span class="sil">SILICIO</span></div>
+  <div style="font-size:46px;color:#c9d1dc;margin-top:22px;letter-spacing:1px">Dinero · Tecnología · Inteligencia artificial</div>
+  <div style="font-size:34px;color:#EDBB4F;margin-top:16px;font-weight:600;letter-spacing:6px">VIDEO NUEVO CADA SEMANA</div></div></div></div>
+<script>
+document.getElementById('e1').innerHTML=emblem('a');document.getElementById('e2').innerHTML=emblem('b');document.getElementById('e3').innerHTML=emblem('c');
+// trazos de circuito decorativos a la derecha y vetas doradas a la izquierda
+let s='';const R=(a,b)=>a+Math.random()*(b-a);Math.random=(()=>{let x=7;return()=>((x=Math.imul(x,48271)%2147483647)&0x7fffffff)/2147483647})();
+for(let i=0;i<26;i++){const y=R(60,1380),x=R(2080,2300),l=R(120,320),up=Math.random()<.5?-1:1,d=R(30,70);
+s+=`<polyline points="${x},${y} ${x+l*.4},${y} ${x+l*.4+d},${y+up*d} ${x+l},${y+up*d}" fill="none" stroke="#8994A3" stroke-width="3" opacity="${R(.12,.3)}"/><rect x="${x+l-5}" y="${y+up*d-5}" width="10" height="10" rx="2" fill="#8994A3" opacity=".3"/>`;}
+for(let i=0;i<30;i++){const cx=R(80,430),cy=R(60,1380),r=R(20,70);s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EDBB4F" stroke-width="3" opacity="${R(.06,.18)}"/>`;}
+document.getElementById('circ').innerHTML=s;
+</script></body></html>
