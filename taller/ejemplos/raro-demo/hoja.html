@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="2160" height="1920"></canvas>
+<script src="../../engine.js"></script><script src="../../raro.js"></script>
+<script>
+// Hoja de modelo de RARO: expresiones base y disfraces de la biblioteca. Referencia obligatoria (ver IDENTIDAD.md).
+async function hoja(){
+  await document.fonts.load('900 60px Inter');
+  for(const u of ['../../fuentes/Fredoka-Bold.ttf','../../fuentes/Fredoka.ttf']){try{const f=new FontFace('Fredoka',`url(${u})`,{weight:'300 700'});await f.load();document.fonts.add(f);FONT='Fredoka';FW=700;break;}catch(e){FONT='Inter';FW=900;}}
+  const t=0.7, pals=['turquesa','magenta','mandarina','limon','violeta','cielo'];
+  const ex=['neutral','asombro','terror','asco','risa','llanto','orgullo','sospecha','yavalio','apenado','feliz'];
+  const bz={terror:'arriba',risa:'idle',llanto:'cara',orgullo:'jarras',asombro:'cara',sospecha:'idle',yavalio:'idle',apenado:'frente',feliz:'saluda'};
+  ctx.fillStyle='#1E1A2E'; ctx.fillRect(0,0,2160,1920);
+  ex.forEach((e,i)=>{ const cx=(i%6)*360, cy=Math.floor(i/6)*560+80, P=PALETAS[pals[i%6]];
+    ctx.fillStyle=P.medio; rr(cx+10,cy,340,540,30); ctx.fill();
+    ctx.save(); rr(cx+10,cy,340,540,30); ctx.clip(); ctx.fillStyle=P.oscuro; ctx.fillRect(cx,cy+430,360,120); ctx.restore();
+    PAL_ACTUAL=P; raro({x:cx+180,y:cy+440,s:0.82,t:t+i*0.37,expr:e,brazos:bz[e]||'idle',seed:i});
+    label(e.toUpperCase(),cx+180,cy+500,34,'#FFFFFF',1); });
+  const ds=['campesino','caballero','astronauta','pirata','cavernicola'];
+  ds.forEach((d,i)=>{ const cx=i*432, cy=1220, P=PALETAS[pals[(i+2)%6]];
+    ctx.fillStyle=P.medio; rr(cx+12,cy,408,620,30); ctx.fill();
+    ctx.save(); rr(cx+12,cy,408,620,30); ctx.clip(); ctx.fillStyle=P.oscuro; ctx.fillRect(cx,cy+510,432,120); ctx.restore();
+    PAL_ACTUAL=P; raro({x:cx+216,y:cy+520,s:0.92,t:t+i,expr:['orgullo','asombro','feliz','sospecha','risa'][i],brazos:['jarras','frente','saluda','senala','idle'][i],disfraz:d,seed:i});
+    label(d.toUpperCase(),cx+216,cy+580,36,'#FFFFFF',1); });
+  label('RARO · HOJA DE MODELO',1080,40,44,COL.lime,1);
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(30); ctx.textAlign='center'; ctx.fillText('Blanco #FAF7F2 · sombra #D9D4E8 · bufanda lima #D7FF3D · ojos ovalados con brillo · cejas flotantes · sin contorno',1080,1200);
+  return C.toDataURL('image/png');
+}
+</script></body></html>

@@ -1,0 +1,9 @@
+{"musica":[{"t":0,"estilo":"medieval"},{"w":13,"estilo":"espacio"},{"w":20,"estilo":"aventura"}],
+ "corte":[21],
+ "puf":[10,{"t":7.8},25],
+ "boing":[{"t":4.3},{"t":5.52},{"t":8.15}],
+ "pop":[3,12,17],
+ "thud":[6,19],
+ "chispa":[6,12,19],
+ "whoosh":[{"t":5.0}],
+ "whoosh_escenas":false}

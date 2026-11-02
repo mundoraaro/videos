@@ -4,7 +4,8 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 - Estudio (base de datos): https://claude.ai/artifact/LsmiZWxSLDCBdtJ6BUT9q3 — colecciones `ideas` y `videos` (herramienta ArtifactData).
 - Repo: `mundoraaro/videos`. Los videos finales van en `videos/<id>.mp4`; su enlace público es `https://raw.githubusercontent.com/mundoraaro/videos/main/videos/<id>.mp4`.
-- Ejemplo completo y aprobado: `taller/ejemplos/pulpo-001/` (le gustó mucho a Héctor).
+- **Identidad visual obligatoria: `taller/IDENTIDAD.md`** (Raro disfrazado, fondos de dulce, animación jugosa, transiciones y sonidos de firma). Léela completa antes de animar; en diseño manda sobre todo lo demás.
+- Referencia visual: `taller/ejemplos/raro-demo/` (hoja de modelo y demo de 10 s). Referencia de proceso y ritmo: `taller/ejemplos/pulpo-001/` (su diseño ya no se usa).
 
 ## Lo que Héctor pidió (reglas fijas)
 
@@ -24,23 +25,23 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo retuvo solo ~4 s. Diagnóstico: el primer cuadro salía casi vacío (el pulpo aparecía "creciendo" desde cero), el dato visual llegaba hasta el segundo 1.6, la narración era lenta, con pausas largas y relleno ("Sí, en serio"), y en 75 s tenía pocos reenganches. Reglas obligatorias:
 
 - **Duración 62–72 s** (más de 1 minuto para monetizar en TikTok, sin pasarse). Para que se sostenga: cada 15–20 s llega un dato o giro nuevo que reengancha ("pero eso no es lo más raro"), y nunca hay un tramo explicativo largo.
-- **El cuadro 0 ya es el gancho:** el personaje, el objeto y un texto grande en pantalla desde el primer cuadro. Nada aparece "creciendo desde cero" al inicio, ni fundidos, ni logo, ni fondo vacío.
+- **El cuadro 0 ya es el gancho:** Raro ya disfrazado en plena situación, con el objeto o el letrero del dato desde el primer cuadro. Nada aparece "creciendo desde cero" al inicio, ni fundidos, ni logo, ni fondo vacío.
 - **La primera frase dice lo más impactante en menos de 2 s.** Nada de contexto, saludo ni relleno ("Sí, en serio", "Oye, ¿sabías que…?").
 - **Ritmo rápido:** `tempo` 1.15–1.2 y `pausa` 0.12 en escenas.json. La voz no se detiene más de 0.3 s.
 - **Un cambio de toma cada 1.5–2.5 s** (cambio de plano, zoom fuerte, objeto nuevo o corte), además de los eventos por palabra. Escenas de 2 a 4 s, nunca de 8 a 10.
 - **Bucle abierto en los primeros 3 s** que se cierra hasta el final ("y lo tercero es lo más raro").
 - **Barra de progreso** delgada arriba (ya la dibuja el motor): ayuda a que la gente aguante hasta el final.
-- **Sin final largo:** el cierre de marca dura máximo 1.5 s y conecta con la primera frase para que el video se repita.
+- **Sin final largo:** el cierre dura máximo 1.5 s: gesto cómico de Raro que conecta con el primer cuadro para que el video se repita.
 - Antes de renderizar, revisa la hoja de contacto de los primeros 3 s (cuadros en 0.0, 0.5, 1.0, 2.0 y 3.0 s): en todos debe haber algo grande y claro en pantalla.
 
 ## Tono: curioso y cómico (pedido por Héctor)
 
 - El narrador es un amigo que te cuenta algo increíble y exagera con gracia. Un chiste o remate cada 10–15 s, sin tapar el dato.
-- Recursos: comparaciones absurdas con la vida diaria mexicana ("duró menos que tu fila en el banco"), reacciones exageradas del personaje (ojos que se salen, sudor, cara de "¿neta?"), pausa cómica antes del remate, efectos de gag (boing, rayón de disco, grillos; sintetízalos en mix.py, nunca audio con derechos).
-- **El Ojo** del logo es co-presentador recurrente: aparece en una esquina reaccionando a los datos (se sorprende, se ríe, se asusta). Da identidad de marca y hace cada video único.
+- Recursos: comparaciones absurdas con la vida diaria mexicana ("duró menos que tu fila en el banco"), reacciones exageradas de Raro (ojos al doble, sudor, cara de "¿neta?"), pausa cómica antes del remate, efectos de gag (boing, rayón de disco, grillos; sintetízalos en mix.py, nunca audio con derechos).
+- **Raro** es el protagonista de todos los videos: vive el dato disfrazado y reacciona a todo (ver `IDENTIDAD.md`). El Ojo del logo ya no aparece en los videos.
 - **Cero cringe (regla de Héctor, obligatoria).** El humor sale del dato mismo, no de chistes metidos a la fuerza. Suena como un amigo de 20 y tantos platicando, no como locutor de radio ni como adulto intentando sonar joven.
   - Prohibido: "¡Hola, amigos!", "¡No vas a creer esto!", "¡Wow!", "¡Increíble!", "chavos", "bro", "literal" de relleno, memes viejos o forzados, risas grabadas, repetir el mismo chiste, explicar el chiste, exclamaciones en cada frase y más de una etiqueta [laughs] por video.
-  - Sí: ironía seca, remates cortos de 3 a 8 palabras, comparaciones cotidianas inesperadas y dejar que la imagen haga el chiste (el Ojo reaccionando vale más que una frase).
+  - Sí: ironía seca, remates cortos de 3 a 8 palabras, comparaciones cotidianas inesperadas y dejar que la imagen haga el chiste (Raro reaccionando vale más que una frase).
   - Prueba antes de grabar: lee el guion en voz alta. Si una línea te daría pena decírsela a un amigo en persona, quítala. Máximo un remate cada 10–15 s; si dudas, menos humor y más dato.
 - El humor nunca cambia el dato ni se burla de personas, grupos o víctimas. En temas trágicos (guerras, desastres, muertes) el tono es respetuoso: humor solo en lo absurdo de la situación, o nada.
 
@@ -63,7 +64,8 @@ Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo 
 
 - Duración de la narración: 62–72 s (ver Retención).
 - **Gancho**: la primera frase, de 8 palabras o menos, es una afirmación sorprendente. Nada de intro ni saludo.
-- Estructura: gancho → "Sí, en serio" o reacción → 3–4 datos numerados (chip "DATO 1 DE 4") → un giro a la mitad ("Pero espérate, que se pone más raro") → cierre que regresa a la frase del gancho para que el video se repita → "Esto es Mundo Raaaro".
+- Estructura: gancho → "Sí, en serio" o reacción → 3–4 datos numerados (chip "DATO 1 DE 4") → un giro a la mitad ("Pero espérate, que se pone más raro") → un pattern interrupt cada 8-12 s (Raro mira a cámara: "¿en serio?") → cierre que regresa a la frase del gancho para que el video se repita → "Esto es Mundo Raaaro".
+- Desde el guion decide el disfraz de Raro (y sus cambios) y la situación absurda del cuadro 1: la premisa "Si vivieras en…" / "Esto te pasaría si…" queda planteada antes del segundo 2.
 - Oraciones cortas, lenguaje mexicano natural ("oye", "neta", "imagínate") sin exagerar.
 - **Verificación obligatoria**: cada dato con WebSearch y abriendo la fuente con WebFetch. Si un dato no se puede confirmar, se quita. Guarda las fuentes (nombre del medio y del artículo) en el campo `fuentes`.
 - Prohibido: personajes con derechos (Disney, Marvel, Pokémon…), personas reales dibujadas, música comercial, temas médicos o políticos, desinformación. Historias delicadas (guerras, tragedias) se cuentan con respeto, sin morbo.
@@ -80,18 +82,18 @@ Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo 
 
 ## 3. Animación
 
-Trabaja en `taller/trabajo/<id>/` (no se sube a git). Copia `ejemplos/pulpo-001/scene.html` como base: carga `../../engine.js`, que ya trae fondo submarino animado, cámara (punch-in por escena y deriva lenta), captions palabra por palabra, chips, el personaje `octopus()`, `heart()`, `label()` y `logoEye()`.
+Trabaja en `taller/trabajo/<id>/` (no se sube a git). Copia `ejemplos/raro-demo/scene.html` como base: carga `../../engine.js` (cámara viva, captions Fredoka palabra por palabra con palabra clave en lima, chips, barrido de bufanda, flashes y grano) y `../../raro.js` (Raro, disfraces, gomitas, fondos de dulce por escena, jugo y letreros). Todo lo visual sigue `IDENTIDAD.md`.
 
 - `escenas.json`: `{"inicios": [índice de palabra donde empieza cada escena], "tempo": 1.15, "pausa": 0.12}`. Escenas de 2 a 4 s; un dato puede ocupar varias escenas cortas.
 - `python3 ../../timeline.py .` → `voz_final.wav` y `timeline.json`. Revisa los avisos de pausas largas.
-- En `scene.html` escribe una función por escena `S1..Sn(t, sc)` y define `SCENES`, `CHIPS`, `SHAKES` (palabras de impacto) y `DARK_SCENES` (para "lo más raro").
+- En `scene.html` escribe una función por escena `S1..Sn(t, sc)` y define `SCENES`, `CHIPS`, `FONDOS` (color distinto en cada escena), `TRANS` (bufanda), `KEYWORDS` (palabra clave en lima), `SHAKES` (palabras de impacto) y `FLASHES`.
 - **Regla de cero momentos muertos**: antes de dibujar, haz una lista de eventos visuales ligados a palabras clave (`pop(t, at(i))`, `prog(t, at(i), d)`). Cada palabra importante dispara algo: un objeto que entra, un número que crece, el personaje que reacciona, un icono, un cambio de color. Nunca dejes un hueco de más de 1.2 s sin evento. Los personajes siempre se mueven (respiran, parpadean, ondulan) y la cámara nunca está quieta: agrega paneos o zooms propios dentro de cada escena.
-- Estilo: formas simples dibujadas en canvas 2D, contorno `#16122E` de 7 a 10 px, colores de marca (fondo índigo `#231B52`→`#0D0A24`, lima `#D7FF3D`, coral `#FF6A4D`, blanco `#F5F3FF`), tipografía Inter 900. Para otros animales u objetos, crea tus propios dibujos con el mismo estilo que el pulpo.
-- Zonas seguras del lienzo 1080×1920: arriba de y=180 lo tapan las pestañas de la app; abajo de y=1500 y a la derecha de x=940, los botones. Chips en y=215, títulos de escena entre y=300 y y=560, captions en y=1330 (ya lo hace el motor).
-- `python3 ../../render.py . preview <8 a 10 tiempos con más cosas en pantalla>` y mira `contact.jpg`. Corrige textos encimados o cortados, y huecos sin movimiento. Una sola ronda de correcciones.
+- Estilo: el de `IDENTIDAD.md`. Raro siempre con `raro()`; otros personajes con `gomita()` en pastel; objetos y escenarios con formas grandes y redondeadas en los tonos de la paleta de la escena, sin contorno negro; datos como objetos del mundo con `letrero()`; tipografía Fredoka Bold.
+- Zonas seguras del lienzo 1080×1920: arriba de y=180 lo tapan las pestañas de la app; abajo de y=1500 y a la derecha de x=940, los botones. Chips en y=222, letreros de datos entre y=330 y y=520, captions en y≈700 (tercio central, ya lo hace el motor), pies de Raro en `SUELO` (y=1440).
+- `python3 ../../render.py . preview <8 a 10 tiempos con más cosas en pantalla>` y mira `contact.jpg`. Corrige textos encimados o cortados, y huecos sin movimiento, y pasa el control de calidad de `IDENTIDAD.md`. Una sola ronda de correcciones.
 - `python3 ../../render.py . all` (unos 2 minutos).
-- `cues.json` con efectos en índices de palabra: `pop` (algo aparece), `thud` (impacto), `blip` (etiquetas). Luego `python3 ../../mix.py . <id>` → `<id>.mp4` (para publicar) y `<id>_720.mp4` (para el Estudio).
-- Mira 2 cuadros del video final con ffmpeg antes de entregar.
+- `cues.json` con efectos en índices de palabra: `puf` (cada cambio de disfraz), `boing` (cada aterrizaje de Raro), `pop` (algo aparece), `click`, `whoosh`, `thud` (impacto), `chispa`, `blip`; además `musica` por época o lugar y `corte` en cada remate (ver `IDENTIDAD.md`). Luego `python3 ../../mix.py . <id>` → `<id>.mp4` (para publicar) y `<id>_720.mp4` (para el Estudio).
+- Mira 2 cuadros del video final con ffmpeg antes de entregar y repite el control de calidad de `IDENTIDAD.md`. Si `render.py` avisó que faltaba Fredoka, dilo en tu mensaje final.
 
 ## 4. Entrega
 

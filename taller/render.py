@@ -15,7 +15,9 @@ with sync_playwright() as p:
     b = p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox', '--allow-file-access-from-files'])
     pg = b.new_page(viewport={'width': 1080, 'height': 1920})
     pg.goto('file://' + os.path.join(D, 'scene.html'))
-    pg.evaluate('tl => init(tl)', TL)
+    font = pg.evaluate('tl => init(tl)', TL)
+    if font != 'Fredoka':
+        print('AVISO: no se encontró taller/fuentes/Fredoka-Bold.ttf; se usó Inter como respaldo. Ver IDENTIDAD.md', flush=True)
     if mode == 'preview':
         from PIL import Image
         ts = sys.argv[3:]; ims = []

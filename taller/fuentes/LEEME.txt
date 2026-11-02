@@ -1,0 +1,2 @@
+Coloca aquí Fredoka-Bold.ttf (o el archivo variable Fredoka.ttf) de Google Fonts (licencia OFL).
+El motor la carga sola; si falta, render.py avisa y usa Inter de respaldo.
