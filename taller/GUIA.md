@@ -12,6 +12,35 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 2. **Cero momentos muertos.** Siempre hay movimiento: nunca más de 1.2 s sin que algo nuevo aparezca, cambie o reaccione en pantalla. Que la gente no quiera quitarlo.
 3. Atractivo y con gancho desde el primer segundo.
 
+## Meta: monetización (todo se decide por esto)
+
+- TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto → todos los videos duran 61–80 s.
+- YouTube Shorts: 1,000 suscriptores + 10 M vistas de Shorts en 90 días (20 M para quien solicite desde el 1 de febrero de 2027).
+- Facebook Estrellas: 500 seguidores.
+- Lo que más empuja: retención (que lo vean completo y lo repitan), comentarios, compartidos y constancia (2 videos diarios, 12:00 y 18:00).
+
+## Tono: curioso y cómico (pedido por Héctor)
+
+- El narrador es un amigo que te cuenta algo increíble y exagera con gracia. Un chiste o remate cada 10–15 s, sin tapar el dato.
+- Recursos: comparaciones absurdas con la vida diaria mexicana ("duró menos que tu fila en el banco"), reacciones exageradas del personaje (ojos que se salen, sudor, cara de "¿neta?"), pausa cómica antes del remate, efectos de gag (boing, rayón de disco, grillos; sintetízalos en mix.py, nunca audio con derechos).
+- **El Ojo** del logo es co-presentador recurrente: aparece en una esquina reaccionando a los datos (se sorprende, se ríe, se asusta). Da identidad de marca y hace cada video único.
+- El humor nunca cambia el dato ni se burla de personas, grupos o víctimas. En temas trágicos (guerras, desastres, muertes) el tono es respetuoso: humor solo en lo absurdo de la situación, o nada.
+
+## Estrategia para crecer
+
+- Gancho en el primer 1.5 s con imagen y texto en pantalla; nunca empieces con contexto.
+- Bucles abiertos: "y el dato 4 es el más raro", "quédate al final". El cierre conecta con el inicio para que el video se repita.
+- Series por partes cuando un tema dé para más: "Parte 2 en mi perfil". Las series hacen que la gente siga la cuenta.
+- Cierra con una pregunta que provoque comentarios ("¿tú qué harías?", "¿cuál te voló la cabeza?") en voz y en el texto de la publicación.
+- Títulos de YouTube con palabras que la gente busca ("datos curiosos", "qué pasaría si", el animal o lugar).
+- Temas que mejor funcionan en este nicho: animales extremos, espacio, cuerpo humano (sin consejos médicos), historia rara, México curioso, "qué pasaría si".
+- Mezcla semanal: la mitad del formato que más retiene según los datos, un tercio en prueba y el resto series.
+
+## Aprendizajes de los datos
+
+(Lo actualiza la revisión semanal. Úsalo para decidir guion, duración y formato.)
+- Aún no hay datos suficientes.
+
 ## 1. Guion
 
 - Duración de la narración: 65–85 s (TikTok solo paga videos de más de 1 minuto).
