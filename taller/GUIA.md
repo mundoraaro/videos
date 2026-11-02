@@ -14,16 +14,16 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 ## Meta: monetización (todo se decide por esto)
 
-- TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto. Mientras la cuenta crece (menos de 10,000 seguidores) los videos duran 25–40 s para maximizar retención; después, 61–80 s.
+- TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto → todos los videos duran 62–72 s (decisión de Héctor: desde ya, para que los que peguen cuenten para monetizar). La retención se logra con ritmo, no acortando.
 - YouTube Shorts: 1,000 suscriptores + 10 M vistas de Shorts en 90 días (20 M para quien solicite desde el 1 de febrero de 2027).
 - Facebook Estrellas: 500 seguidores.
 - Lo que más empuja: retención (que lo vean completo y lo repitan), comentarios, compartidos y constancia (2 videos diarios, 12:00 y 18:00).
 
 ## Retención (lo más importante, pedido por Héctor)
 
-Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo retuvo solo ~4 s. Diagnóstico: el primer cuadro salía casi vacío (el pulpo aparecía "creciendo" desde cero), el dato visual llegaba hasta el segundo 1.6, la narración era lenta, con pausas largas y relleno ("Sí, en serio"), y duraba 75 s para una cuenta nueva. Reglas obligatorias:
+Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo retuvo solo ~4 s. Diagnóstico: el primer cuadro salía casi vacío (el pulpo aparecía "creciendo" desde cero), el dato visual llegaba hasta el segundo 1.6, la narración era lenta, con pausas largas y relleno ("Sí, en serio"), y en 75 s tenía pocos reenganches. Reglas obligatorias:
 
-- **Fase de crecimiento (hasta 10,000 seguidores en TikTok): videos de 25 a 40 s.** Los videos cortos se terminan y se repiten más, y eso es lo que hace que el algoritmo los empuje. Los de más de 1 minuto (los que paga TikTok) se retoman al llegar a 10,000.
+- **Duración 62–72 s** (más de 1 minuto para monetizar en TikTok, sin pasarse). Para que se sostenga: cada 15–20 s llega un dato o giro nuevo que reengancha ("pero eso no es lo más raro"), y nunca hay un tramo explicativo largo.
 - **El cuadro 0 ya es el gancho:** el personaje, el objeto y un texto grande en pantalla desde el primer cuadro. Nada aparece "creciendo desde cero" al inicio, ni fundidos, ni logo, ni fondo vacío.
 - **La primera frase dice lo más impactante en menos de 2 s.** Nada de contexto, saludo ni relleno ("Sí, en serio", "Oye, ¿sabías que…?").
 - **Ritmo rápido:** `tempo` 1.15–1.2 y `pausa` 0.12 en escenas.json. La voz no se detiene más de 0.3 s.
@@ -61,7 +61,7 @@ Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo 
 
 ## 1. Guion
 
-- Duración de la narración: 25–40 s en fase de crecimiento (ver Retención); 61–80 s cuando TikTok ya tenga 10,000 seguidores.
+- Duración de la narración: 62–72 s (ver Retención).
 - **Gancho**: la primera frase, de 8 palabras o menos, es una afirmación sorprendente. Nada de intro ni saludo.
 - Estructura: gancho → "Sí, en serio" o reacción → 3–4 datos numerados (chip "DATO 1 DE 4") → un giro a la mitad ("Pero espérate, que se pone más raro") → cierre que regresa a la frase del gancho para que el video se repita → "Esto es Mundo Raaaro".
 - Oraciones cortas, lenguaje mexicano natural ("oye", "neta", "imagínate") sin exagerar.
