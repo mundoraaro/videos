@@ -24,6 +24,10 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 - El narrador es un amigo que te cuenta algo increíble y exagera con gracia. Un chiste o remate cada 10–15 s, sin tapar el dato.
 - Recursos: comparaciones absurdas con la vida diaria mexicana ("duró menos que tu fila en el banco"), reacciones exageradas del personaje (ojos que se salen, sudor, cara de "¿neta?"), pausa cómica antes del remate, efectos de gag (boing, rayón de disco, grillos; sintetízalos en mix.py, nunca audio con derechos).
 - **El Ojo** del logo es co-presentador recurrente: aparece en una esquina reaccionando a los datos (se sorprende, se ríe, se asusta). Da identidad de marca y hace cada video único.
+- **Cero cringe (regla de Héctor, obligatoria).** El humor sale del dato mismo, no de chistes metidos a la fuerza. Suena como un amigo de 20 y tantos platicando, no como locutor de radio ni como adulto intentando sonar joven.
+  - Prohibido: "¡Hola, amigos!", "¡No vas a creer esto!", "¡Wow!", "¡Increíble!", "chavos", "bro", "literal" de relleno, memes viejos o forzados, risas grabadas, repetir el mismo chiste, explicar el chiste, exclamaciones en cada frase y más de una etiqueta [laughs] por video.
+  - Sí: ironía seca, remates cortos de 3 a 8 palabras, comparaciones cotidianas inesperadas y dejar que la imagen haga el chiste (el Ojo reaccionando vale más que una frase).
+  - Prueba antes de grabar: lee el guion en voz alta. Si una línea te daría pena decírsela a un amigo en persona, quítala. Máximo un remate cada 10–15 s; si dudas, menos humor y más dato.
 - El humor nunca cambia el dato ni se burla de personas, grupos o víctimas. En temas trágicos (guerras, desastres, muertes) el tono es respetuoso: humor solo en lo absurdo de la situación, o nada.
 
 ## Estrategia para crecer
