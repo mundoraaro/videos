@@ -14,10 +14,24 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 ## Meta: monetización (todo se decide por esto)
 
-- TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto → todos los videos duran 61–80 s.
+- TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto. Mientras la cuenta crece (menos de 10,000 seguidores) los videos duran 25–40 s para maximizar retención; después, 61–80 s.
 - YouTube Shorts: 1,000 suscriptores + 10 M vistas de Shorts en 90 días (20 M para quien solicite desde el 1 de febrero de 2027).
 - Facebook Estrellas: 500 seguidores.
 - Lo que más empuja: retención (que lo vean completo y lo repitan), comentarios, compartidos y constancia (2 videos diarios, 12:00 y 18:00).
+
+## Retención (lo más importante, pedido por Héctor)
+
+Meta mínima: que la gente vea al menos la mitad del video. El piloto del pulpo retuvo solo ~4 s. Diagnóstico: el primer cuadro salía casi vacío (el pulpo aparecía "creciendo" desde cero), el dato visual llegaba hasta el segundo 1.6, la narración era lenta, con pausas largas y relleno ("Sí, en serio"), y duraba 75 s para una cuenta nueva. Reglas obligatorias:
+
+- **Fase de crecimiento (hasta 10,000 seguidores en TikTok): videos de 25 a 40 s.** Los videos cortos se terminan y se repiten más, y eso es lo que hace que el algoritmo los empuje. Los de más de 1 minuto (los que paga TikTok) se retoman al llegar a 10,000.
+- **El cuadro 0 ya es el gancho:** el personaje, el objeto y un texto grande en pantalla desde el primer cuadro. Nada aparece "creciendo desde cero" al inicio, ni fundidos, ni logo, ni fondo vacío.
+- **La primera frase dice lo más impactante en menos de 2 s.** Nada de contexto, saludo ni relleno ("Sí, en serio", "Oye, ¿sabías que…?").
+- **Ritmo rápido:** `tempo` 1.15–1.2 y `pausa` 0.12 en escenas.json. La voz no se detiene más de 0.3 s.
+- **Un cambio de toma cada 1.5–2.5 s** (cambio de plano, zoom fuerte, objeto nuevo o corte), además de los eventos por palabra. Escenas de 2 a 4 s, nunca de 8 a 10.
+- **Bucle abierto en los primeros 3 s** que se cierra hasta el final ("y lo tercero es lo más raro").
+- **Barra de progreso** delgada arriba (ya la dibuja el motor): ayuda a que la gente aguante hasta el final.
+- **Sin final largo:** el cierre de marca dura máximo 1.5 s y conecta con la primera frase para que el video se repita.
+- Antes de renderizar, revisa la hoja de contacto de los primeros 3 s (cuadros en 0.0, 0.5, 1.0, 2.0 y 3.0 s): en todos debe haber algo grande y claro en pantalla.
 
 ## Tono: curioso y cómico (pedido por Héctor)
 
@@ -47,7 +61,7 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 ## 1. Guion
 
-- Duración de la narración: 65–85 s (TikTok solo paga videos de más de 1 minuto).
+- Duración de la narración: 25–40 s en fase de crecimiento (ver Retención); 61–80 s cuando TikTok ya tenga 10,000 seguidores.
 - **Gancho**: la primera frase, de 8 palabras o menos, es una afirmación sorprendente. Nada de intro ni saludo.
 - Estructura: gancho → "Sí, en serio" o reacción → 3–4 datos numerados (chip "DATO 1 DE 4") → un giro a la mitad ("Pero espérate, que se pone más raro") → cierre que regresa a la frase del gancho para que el video se repita → "Esto es Mundo Raaaro".
 - Oraciones cortas, lenguaje mexicano natural ("oye", "neta", "imagínate") sin exagerar.
@@ -68,7 +82,7 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 Trabaja en `taller/trabajo/<id>/` (no se sube a git). Copia `ejemplos/pulpo-001/scene.html` como base: carga `../../engine.js`, que ya trae fondo submarino animado, cámara (punch-in por escena y deriva lenta), captions palabra por palabra, chips, el personaje `octopus()`, `heart()`, `label()` y `logoEye()`.
 
-- `escenas.json`: `{"inicios": [índice de palabra donde empieza cada escena], "tempo": 1.10, "pausa": 0.22}`. Una escena por idea o dato, de 4 a 10 s.
+- `escenas.json`: `{"inicios": [índice de palabra donde empieza cada escena], "tempo": 1.15, "pausa": 0.12}`. Escenas de 2 a 4 s; un dato puede ocupar varias escenas cortas.
 - `python3 ../../timeline.py .` → `voz_final.wav` y `timeline.json`. Revisa los avisos de pausas largas.
 - En `scene.html` escribe una función por escena `S1..Sn(t, sc)` y define `SCENES`, `CHIPS`, `SHAKES` (palabras de impacto) y `DARK_SCENES` (para "lo más raro").
 - **Regla de cero momentos muertos**: antes de dibujar, haz una lista de eventos visuales ligados a palabras clave (`pop(t, at(i))`, `prog(t, at(i), d)`). Cada palabra importante dispara algo: un objeto que entra, un número que crece, el personaje que reacciona, un icono, un cambio de color. Nunca dejes un hueco de más de 1.2 s sin evento. Los personajes siempre se mueven (respiran, parpadean, ondulan) y la cámara nunca está quieta: agrega paneos o zooms propios dentro de cada escena.

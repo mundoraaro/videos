@@ -172,6 +172,7 @@ function render(t){
   ctx.restore();
   if(CHIPS[si+1]) chip(CHIPS[si+1],t,sc.start+0.1);
   captions(t);
+  if(window.PROGRESS!==false){const p=clamp(t/TL.duration);ctx.fillStyle='rgba(245,243,255,0.18)';ctx.fillRect(0,0,W_,10);ctx.fillStyle=COL.lime;ctx.fillRect(0,0,W_*p,10);}
   if(si>0&&lt<0.12){ctx.fillStyle=`rgba(255,255,255,${0.35*(1-lt/0.12)})`;ctx.fillRect(0,0,W_,H_);}
 }
 async function init(tl){TL=tl;W=tl.words;SC=tl.scenes;buildChunks();await document.fonts.load('900 96px Inter');await document.fonts.load('800 34px Inter');return true;}

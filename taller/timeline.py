@@ -13,7 +13,7 @@ import numpy as np
 D = sys.argv[1]
 SR = 48000
 cfg = json.load(open(os.path.join(D, 'escenas.json')))
-TEMPO, GAP, TAIL = cfg.get('tempo', 1.10), cfg.get('pausa', 0.22), cfg.get('cola', 1.2)
+TEMPO, GAP, TAIL = cfg.get('tempo', 1.15), cfg.get('pausa', 0.12), cfg.get('cola', 0.8)
 subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', os.path.join(D, 'voz.wav'), '-ac', '1', '-ar', str(SR), '-sample_fmt', 's16', os.path.join(D, '_voz48.wav')], check=True)
 w = wave.open(os.path.join(D, '_voz48.wav')); audio = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32); w.close()
 total = len(audio) / SR
