@@ -5,7 +5,7 @@
 // Hoja de modelo de RARO: expresiones base y disfraces de la biblioteca. Referencia obligatoria (ver IDENTIDAD.md).
 async function hoja(){
   await document.fonts.load('900 60px Inter');
-  for(const u of ['../../fuentes/Fredoka-Bold.ttf','../../fuentes/Fredoka.ttf']){try{const f=new FontFace('Fredoka',`url(${u})`,{weight:'300 700'});await f.load();document.fonts.add(f);FONT='Fredoka';FW=700;break;}catch(e){FONT='Inter';FW=900;}}
+  for(const u of ['../../fuentes/Fredoka-Bold.ttf','../../fuentes/Fredoka.ttf']){try{const f=new FontFace('Fredoka',`url(${u})`,{weight:u.includes('Bold')?'700':'300 700'});await f.load();document.fonts.add(f);FONT='Fredoka';FW=700;break;}catch(e){FONT='Inter';FW=900;}}
   const t=0.7, pals=['turquesa','magenta','mandarina','limon','violeta','cielo'];
   const ex=['neutral','asombro','terror','asco','risa','llanto','orgullo','sospecha','yavalio','apenado','feliz'];
   const bz={terror:'arriba',risa:'idle',llanto:'cara',orgullo:'jarras',asombro:'cara',sospecha:'idle',yavalio:'idle',apenado:'frente',feliz:'saluda'};

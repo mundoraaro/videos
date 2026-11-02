@@ -218,7 +218,7 @@ async function init(tl){TL=tl;W=tl.words;SC=tl.scenes;buildChunks();
   await document.fonts.load('900 96px Inter');
   FONT='Inter'; FW=900;
   for(const u of (window.FONT_URLS||['../../fuentes/Fredoka-Bold.ttf','../../fuentes/Fredoka.ttf','../fuentes/Fredoka-Bold.ttf','../fuentes/Fredoka.ttf'])){
-    try{ const f=new FontFace('Fredoka',`url(${u})`,{weight:'300 700'}); await f.load(); document.fonts.add(f); FONT='Fredoka'; FW=700; break; }catch(e){}
+    try{ const f=new FontFace('Fredoka',`url(${u})`,{weight:u.includes('Bold')?'700':'300 700'}); await f.load(); document.fonts.add(f); FONT='Fredoka'; FW=700; break; }catch(e){}
   }
   return FONT;}
 function frame(t){render(t);return C.toDataURL('image/jpeg',0.92);}

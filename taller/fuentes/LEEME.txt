@@ -1,2 +1,2 @@
-Coloca aquí Fredoka-Bold.ttf (o el archivo variable Fredoka.ttf) de Google Fonts (licencia OFL).
-El motor la carga sola; si falta, render.py avisa y usa Inter de respaldo.
+Fuente de marca: Fredoka Bold (licencia SIL OFL 1.1, ver OFL.txt). El motor carga Fredoka-Bold.ttf de esta carpeta.
+Fredoka.zip es el paquete completo que subió Héctor (otros pesos y la versión variable).
