@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -364,6 +364,32 @@ const DISFRACES = {
       ctx.fillStyle='#FF4D5E'; ctx.beginPath(); ctx.moveTo(-160,-200); ctx.bezierCurveTo(-190,-470,190,-470,160,-200); ctx.lineTo(126,-210); ctx.bezierCurveTo(140,-400,-140,-400,-126,-210); ctx.closePath(); ctx.fill();
       ctx.fillStyle='#FFF4E0'; for(let i=0;i<=16;i++){ const a=Math.PI*(0.98+i/16*1.04); ctx.beginPath(); ctx.arc(Math.cos(a)*140,-282+Math.sin(a)*120,24+Math.sin(i*2.1)*4,0,Math.PI*2); ctx.fill(); }
     }
+  },
+  ingeniero: { // ingeniero de los años 40: camisa caqui con bolsillo y pluma, corbata, gorra de tela
+    cuerpo(o){
+      ctx.fillStyle='#C9B68A'; ctx.fillRect(-200,-200,400,170);
+      ctx.fillStyle='#B39F72'; ctx.beginPath(); ctx.moveTo(-60,-205); ctx.lineTo(0,-150); ctx.lineTo(60,-205); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#3E5C8A'; ctx.beginPath(); ctx.moveTo(-14,-176); ctx.lineTo(14,-176); ctx.lineTo(22,-70); ctx.lineTo(0,-50); ctx.lineTo(-22,-70); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#B39F72'; rr(46,-150,62,52,8); ctx.fill(); ctx.fillStyle='#2B4F7E'; ctx.fillRect(60,-172,8,40); ctx.fillStyle='#E8E2CF'; ctx.fillRect(74,-166,6,32);
+      ctx.fillStyle='#8E7B52'; for(const y of [-130,-96]){ctx.beginPath();ctx.arc(-40,y,6,0,Math.PI*2);ctx.fill();}
+    },
+    cabeza(o){ // gorra de tela con visera
+      const w=o.wob||0; ctx.save(); ctx.translate(0,-352); ctx.rotate(-0.06+w*0.06);
+      ctx.fillStyle='#4A5A78'; ctx.beginPath(); ctx.ellipse(0,-10,132,62,0,Math.PI,0); ctx.fill();
+      ctx.fillStyle='#5C6E90'; ctx.beginPath(); ctx.ellipse(-30,-44,50,16,-0.2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#2E3A52'; ctx.beginPath(); ctx.ellipse(70,-6,110,20,0.08,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(0,-34,12,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  },
+  anciano: { // abuelo: bigote y cejas de algodón, chaleco tejido y bastón
+    cuerpo(o){ ctx.fillStyle='#8C6BB8'; ctx.fillRect(-200,-200,400,170); ctx.fillStyle='#F2EEF8'; ctx.beginPath(); ctx.moveTo(-50,-205); ctx.lineTo(0,-120); ctx.lineTo(50,-205); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#73559C'; ctx.lineWidth=5; for(let y=-180;y<-40;y+=24){ctx.beginPath();ctx.moveTo(-200,y);ctx.lineTo(200,y);ctx.stroke();} },
+    cabeza(o){ ctx.fillStyle='#FFFFFF'; for(const s of [-1,1]) for(let i=0;i<4;i++){ ctx.beginPath(); ctx.arc(s*(126+i*6),-300+i*26,22,0,Math.PI*2); ctx.fill(); } },
+    frente(o,B){ // bigote blanco + bastón en la mano derecha
+      ctx.fillStyle='#FFFFFF'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*26,-250,30,14,s*0.25,0,Math.PI*2); ctx.fill(); }
+      const h=B[1].h; ctx.strokeStyle='#7A4A22'; ctx.lineWidth=14; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(h[0],h[1]); ctx.lineTo(h[0]+10,h[1]+150); ctx.stroke();
+      ctx.beginPath(); ctx.arc(h[0]-16,h[1],18,Math.PI,0); ctx.stroke(); }
   },
   cavernicola: {
     cuerpo(o){ // piel de leopardo de un solo hombro

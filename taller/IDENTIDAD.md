@@ -24,7 +24,7 @@ raro({x:540, y:SUELO, s:1.3, t,
   expr:'terror',          // neutral feliz asombro terror asco risa llanto orgullo sospecha yavalio apenado
   brazos:'arriba',        // idle arriba saluda jarras cara senala corre carga frente  (o manos:{i:[x,y], d:[x,y]})
   piernas:'corre',        // quieto corre camina flota
-  disfraz:'campesino',    // campesino caballero astronauta pirata cavernicola, o un objeto {atras,cuerpo,cabeza,frente}
+  disfraz:'campesino',    // campesino caballero astronauta pirata cavernicola piyama abrigo ingeniero anciano, o un objeto {atras,cuerpo,cabeza,frente}
   sq, alto, wob,          // aplastamiento, altura de salto, movimiento secundario (de gelatina/brinco/caida)
   spin,                   // giro del "puf de disfraz" (de pufCambio)
   tilt, viento, ojos, mira:{x,y}, rubor, roto });
