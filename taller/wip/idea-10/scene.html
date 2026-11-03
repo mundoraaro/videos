@@ -201,7 +201,7 @@ function S12(t,sc){
   const rx=360, hx=rx+150*1.2, hy=SUELO-210*1.2;
   raro({x:rx,y:SUELO,s:1.2,t,expr:!off?'feliz':(t<at(127)?'terror':'risa'),disfraz:'piyama',manos:{d:[150,-210]},brazos:'idle',sq:gelatina(t,at(127)),wob:wobble(t,at(127))});
   ctx.save(); ctx.translate(hx,hy); ctx.rotate(busca); ctx.fillStyle='#22223B'; rr(-20,-36,40,72,10); ctx.fill(); ctx.fillStyle='#4CC9F0'; rr(-14,-28,28,48,6); ctx.fill(); ctx.restore();
-  if(off){ const L=1400, a=busca+0.05, w=0.28; ctx.save(); ctx.globalAlpha=0.74; ctx.fillStyle='#120A22'; ctx.beginPath(); ctx.rect(-600,-600,2400,3200);
+  if(off){ const L=1400, a=busca+0.05, w=0.28; ctx.save(); ctx.globalAlpha=0.6; ctx.fillStyle='#2A1650'; ctx.beginPath(); ctx.rect(-600,-600,2400,3200);
     ctx.moveTo(hx,hy); ctx.lineTo(hx+Math.cos(a-w)*L,hy+Math.sin(a-w)*L); ctx.lineTo(hx+Math.cos(a+w)*L,hy+Math.sin(a+w)*L); ctx.closePath(); ctx.fill('evenodd');
     ctx.globalAlpha=0.18; ctx.fillStyle='#FFF4C2'; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx+Math.cos(a-w)*L,hy+Math.sin(a-w)*L); ctx.lineTo(hx+Math.cos(a+w)*L,hy+Math.sin(a+w)*L); ctx.fill(); ctx.restore();
     ctx.fillStyle='#FFFFFF'; for(const s of [-1,1]) blob(rx+s*60,SUELO-290*1.2,6+3*Math.sin(t*8)); }
