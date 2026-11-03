@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / estudiante (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -506,6 +506,43 @@ const DISFRACES = {
       ctx.strokeStyle='#3E4A66'; ctx.lineWidth=14; ctx.beginPath(); ctx.arc(0,-62,62,0,Math.PI*2); ctx.stroke();
       ctx.fillStyle='rgba(190,235,255,0.35)'; ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.ellipse(-22,-84,18,8,-0.6,0,Math.PI*2); ctx.fill();
       ctx.restore(); }
+  },
+  faraon: { // faraón/realeza egipcia: nemes a rayas oro y azul con cobra al frente, collar ancho de colores y faldellín blanco; o.cetro=true pone un cayado en la mano derecha
+    cuerpo(o){ ctx.fillStyle='#FFF6E6'; ctx.fillRect(-200,-205,400,210);
+      ctx.fillStyle='#F2C14E'; ctx.fillRect(-200,-74,400,22); ctx.fillStyle='#2E5BBA'; for(let x=-190;x<200;x+=40) ctx.fillRect(x,-70,18,14);
+      ctx.strokeStyle='#E8DCC4'; ctx.lineWidth=5; for(let x=-150;x<=150;x+=50){ ctx.beginPath(); ctx.moveTo(x,-50); ctx.lineTo(x*1.1,0); ctx.stroke(); }
+      for(const [r,c] of [[150,'#F2C14E'],[128,'#2E5BBA'],[108,'#F2C14E'],[88,'#17C6B4'],[68,'#F2C14E']]){ ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,-212,r*1.25,r,0,0,Math.PI); ctx.fill(); }
+      ctx.fillStyle='#FF5FA2'; for(let i=0;i<9;i++){ const a=Math.PI*(0.08+i/8*0.84); ctx.beginPath(); ctx.arc(Math.cos(a)*170,-212+Math.sin(a)*136,8,0,Math.PI*2); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.rotate(w*0.03);
+      const nemes=()=>{ ctx.beginPath(); ctx.moveTo(-178,-150); ctx.lineTo(-166,-300); ctx.bezierCurveTo(-170,-450,170,-450,166,-300); ctx.lineTo(178,-150); ctx.lineTo(128,-150);
+        ctx.lineTo(124,-300); ctx.bezierCurveTo(118,-352,-118,-352,-124,-300); ctx.lineTo(-128,-150); ctx.closePath(); };
+      ctx.save(); nemes(); ctx.clip(); ctx.fillStyle='#F2C14E'; ctx.fillRect(-200,-470,400,330);
+      ctx.fillStyle='#2E5BBA'; for(let y=-450;y<-140;y+=36) ctx.fillRect(-200,y,400,16);
+      ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-70,-400,50,16,-0.4,0,Math.PI*2); ctx.fill(); ctx.restore();
+      ctx.fillStyle='#F2C14E'; rr(-128,-352,256,22,11); ctx.fill();
+      // cobra (uraeus)
+      ctx.save(); ctx.translate(0,-356); ctx.rotate(Math.sin(o.t*4)*0.06+w*0.2); ctx.fillStyle='#E0A82E'; ctx.beginPath(); ctx.ellipse(0,-26,20,30,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FF4D6D'; ctx.beginPath(); ctx.ellipse(0,-30,8,12,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.arc(-6,-44,3,0,Math.PI*2); ctx.arc(6,-44,3,0,Math.PI*2); ctx.fill(); ctx.restore();
+      ctx.restore(); },
+    frente(o,B){ if(!o.cetro) return; const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(0.15+Math.sin(o.t*3)*0.05+(o.wob||0)*0.3);
+      ctx.lineCap='round'; ctx.lineWidth=18; for(let y=-150;y<120;y+=36){ ctx.strokeStyle=((y/36)|0)%2?'#2E5BBA':'#F2C14E'; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(0,y+36); ctx.stroke(); }
+      ctx.strokeStyle='#F2C14E'; ctx.beginPath(); ctx.arc(-36,-150,36,0,Math.PI,true); ctx.stroke(); ctx.restore(); }
+  },
+  estudiante: { // universitario de toga y birrete (borla que se balancea); o.diploma=true pone un diploma enrollado en la mano derecha
+    cuerpo(o){ ctx.fillStyle='#2B2140'; ctx.fillRect(-200,-205,400,210);
+      ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-70,-208); ctx.lineTo(0,-130); ctx.lineTo(70,-208); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#8D4DFF'; for(const s of [-1,1]){ ctx.beginPath(); ctx.moveTo(s*70,-208); ctx.lineTo(s*20,-140); ctx.lineTo(s*20,0); ctx.lineTo(s*60,0); ctx.lineTo(s*110,-208); ctx.closePath(); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-372); ctx.rotate(-0.08+w*0.08);
+      ctx.fillStyle='#2B2140'; rr(-96,-10,192,50,16); ctx.fill();
+      ctx.fillStyle='#1B1530'; ctx.beginPath(); ctx.moveTo(-190,-10); ctx.lineTo(0,-62); ctx.lineTo(190,-10); ctx.lineTo(0,40); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#3A2F58'; ctx.beginPath(); ctx.moveTo(-170,-12); ctx.lineTo(0,-56); ctx.lineTo(40,-46); ctx.lineTo(-130,0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#F2C14E'; ctx.beginPath(); ctx.arc(0,-12,9,0,Math.PI*2); ctx.fill();
+      const a=0.3+Math.sin(o.t*3.5)*0.25+w*0.8; ctx.strokeStyle='#F2C14E'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(120,-2); ctx.lineTo(120+Math.sin(a)*70,-2+Math.cos(a)*70); ctx.stroke();
+      ctx.fillStyle='#F2C14E'; ctx.beginPath(); ctx.ellipse(120+Math.sin(a)*78,-2+Math.cos(a)*78,12,20,-a,0,Math.PI*2); ctx.fill();
+      ctx.restore(); },
+    frente(o,B){ if(!o.diploma) return; const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(-0.6+Math.sin(o.t*3)*0.06+(o.wob||0)*0.3);
+      ctx.fillStyle='#FFF4DC'; rr(-22,-90,44,170,20); ctx.fill(); ctx.fillStyle='#E9D9B0'; ctx.beginPath(); ctx.ellipse(0,-90,22,10,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FF4D6D'; ctx.fillRect(-24,-6,48,16); ctx.restore(); }
   },
 };
 

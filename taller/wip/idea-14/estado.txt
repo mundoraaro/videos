@@ -1,1 +1,1 @@
-id: cleopatra-001; etapa: voz (1 toma: Speko sin crédito para la 2a y para transcribir; tiempos alineados localmente con alinear por silencios)
+id: cleopatra-001; etapa: hoja de contacto revisada (scene.html listo; falta render, cues y mezcla)
