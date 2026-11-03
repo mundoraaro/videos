@@ -1,1 +1,0 @@
-id: cleopatra-001; etapa: hoja de contacto revisada (scene.html listo; falta render, cues y mezcla)
