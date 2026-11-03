@@ -391,6 +391,36 @@ const DISFRACES = {
       const h=B[1].h; ctx.strokeStyle='#7A4A22'; ctx.lineWidth=14; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(h[0],h[1]); ctx.lineTo(h[0]+10,h[1]+150); ctx.stroke();
       ctx.beginPath(); ctx.arc(h[0]-16,h[1],18,Math.PI,0); ctx.stroke(); }
   },
+  arbitro: { // árbitro/cronometrista: playera a rayas, gorra negra, silbato colgando; o.crono='38:00' pone un cronómetro en la mano derecha; o.silbato=true lo lleva a la boca
+    cuerpo(o){ ctx.fillStyle='#FFFFFF'; ctx.fillRect(-200,-200,400,170);
+      ctx.fillStyle='#22223B'; for(let x=-196;x<200;x+=56) ctx.fillRect(x,-200,26,170);
+      ctx.fillStyle='#22223B'; ctx.beginPath(); ctx.moveTo(-56,-204); ctx.lineTo(0,-160); ctx.lineTo(56,-204); ctx.closePath(); ctx.fill(); },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-352); ctx.rotate(0.05+w*0.06);
+      ctx.fillStyle='#22223B'; ctx.beginPath(); ctx.ellipse(0,-8,128,58,0,Math.PI,0); ctx.fill();
+      ctx.fillStyle='#3A3A5C'; ctx.beginPath(); ctx.ellipse(-34,-40,46,14,-0.2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#14142A'; ctx.beginPath(); ctx.ellipse(-80,-4,100,18,-0.08,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#D7FF3D'; ctx.beginPath(); ctx.arc(0,-30,10,0,Math.PI*2); ctx.fill(); ctx.restore(); },
+    frente(o,B){
+      const sil=o.silbato; ctx.strokeStyle='#FF5FA2'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-40,-196); ctx.quadraticCurveTo(0,sil?-215:-140,sil?18:10,sil?-238:-136); ctx.stroke();
+      ctx.save(); ctx.translate(sil?26:14,sil?-238:-130); ctx.rotate(sil?-0.2:0.3); ctx.fillStyle='#C9CFDA'; rr(-22,-14,52,28,12); ctx.fill(); ctx.fillStyle='#9AA3B5'; ctx.beginPath(); ctx.arc(-6,0,12,0,Math.PI*2); ctx.fill(); ctx.restore();
+      if(o.crono!=null){ const h=B[1].h; ctx.save(); ctx.translate(h[0]+10,h[1]-40); ctx.rotate(0.1+Math.sin(o.t*3)*0.05+(o.wob||0)*0.3);
+        ctx.fillStyle='#C9CFDA'; rr(-22,-150,44,40,10); ctx.fill(); ctx.fillStyle='#FF4D6D'; ctx.beginPath(); ctx.arc(0,-152,16,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#E9ECF3'; ctx.beginPath(); ctx.arc(0,-20,104,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(0,-20,86,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1E1A2E'; ctx.font=fuente(50); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(o.crono,0,-16);
+        ctx.strokeStyle='#FF4D6D'; ctx.lineWidth=6; ctx.lineCap='round'; const a=o.t*6; ctx.beginPath(); ctx.moveTo(0,-20); ctx.lineTo(Math.cos(a)*70,-20+Math.sin(a)*70); ctx.globalAlpha=0.35; ctx.stroke(); ctx.globalAlpha=1; ctx.restore(); }
+    }
+  },
+  cobrador: { // cobrador/contador antiguo: camisa blanca, chaleco verde, ligas en las mangas, visera verde translúcida y lápiz en la oreja
+    cuerpo(o){ ctx.fillStyle='#F4F1E8'; ctx.fillRect(-200,-200,400,170);
+      ctx.fillStyle='#2E8B57'; ctx.beginPath(); ctx.moveTo(-200,-200); ctx.lineTo(-40,-200); ctx.lineTo(0,-90); ctx.lineTo(40,-200); ctx.lineTo(200,-200); ctx.lineTo(200,-30); ctx.lineTo(-200,-30); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FFD23F'; for(const y of [-150,-115,-80]){ ctx.beginPath(); ctx.arc(-24,y+30,6,0,Math.PI*2); ctx.fill(); }
+      ctx.fillStyle='#8B1E3F'; ctx.beginPath(); ctx.moveTo(-14,-196); ctx.lineTo(14,-196); ctx.lineTo(0,-176); ctx.closePath(); ctx.fill(); },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-388); ctx.rotate(-0.04+w*0.06);
+      ctx.fillStyle='#1E7A4C'; rr(-142,-24,284,22,11); ctx.fill();
+      ctx.fillStyle='rgba(60,200,120,0.65)'; ctx.beginPath(); ctx.moveTo(-138,-6); ctx.lineTo(138,-6); ctx.lineTo(110,46); ctx.quadraticCurveTo(0,64,-110,46); ctx.closePath(); ctx.fill();
+      ctx.save(); ctx.translate(128,-40); ctx.rotate(0.9); ctx.fillStyle='#FFD23F'; ctx.fillRect(-8,-50,16,90); ctx.fillStyle='#FF9EBB'; ctx.fillRect(-8,-62,16,14); ctx.fillStyle='#3A2A1A'; ctx.beginPath(); ctx.moveTo(-8,40); ctx.lineTo(8,40); ctx.lineTo(0,58); ctx.fill(); ctx.restore();
+      ctx.restore(); }
+  },
   cavernicola: {
     cuerpo(o){ // piel de leopardo de un solo hombro
       ctx.fillStyle='#F4A52B'; ctx.beginPath(); ctx.moveTo(-200,-120); ctx.lineTo(160,-215); ctx.lineTo(200,-205); ctx.lineTo(200,-70);
