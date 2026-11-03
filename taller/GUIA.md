@@ -133,3 +133,7 @@ Trabaja en `taller/trabajo/<id>/` (no se sube a git). Copia `ejemplos/raro-demo/
 4. En la idea: `update` con `estado: "producida"` y `videoId`.
 
 Ids de video: tema corto en minúsculas más número, por ejemplo `venus-002`. Si es una nueva versión por cambios, agrega `-v2`.
+
+
+## Puntos de guardado (obligatorio)
+Si los créditos se acaban, la sesión se corta y se pierde lo que no esté en el repo. Al empezar, revisa si hay una carpeta `taller/wip/<idea>/` de una ejecución anterior con la misma idea y retoma desde ahí. Haz commit + `git pull --rebase` + push de `taller/wip/<idea>/` al terminar el guion, al terminar la voz (mp3 de 128k + tiempos) y al terminar la hoja de contacto. Al entregar el video, borra la carpeta wip de esa idea.

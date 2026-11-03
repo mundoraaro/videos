@@ -19,6 +19,13 @@ Guía completa del canal (tono, metas, ideas): https://claude.ai/artifact/4LZ5VP
 - Números escritos con palabras (la voz los lee mejor). Etiquetas de voz v3: `[whispers]`, `[curious]`, `[surprised]`, `[excited]`, `[laughs softly]` — máximo 2 por parte.
 - Si el tema se conecta con un video anterior del canal, menciónalo (ej. "Así fue como cayó FTX").
 
+
+## Puntos de guardado (obligatorio)
+Si los créditos se acaban, la sesión se corta y se pierde todo lo que no esté en el repo. Por eso:
+1. Al empezar, revisa si existe `largo/<id>/` o `largo/wip/<tema>/` con trabajo de una ejecución anterior del mismo tema. Si existe, **retoma desde ahí** (no repitas guion ni voz ya hechos).
+2. Haz commit + `git pull --rebase` + push de `largo/<id>/` en cuanto termines cada etapa: (a) guion.txt, (b) voz (P*.raw comprimidos a `voz_P*.mp3` con ffmpeg -b:a 128k, más w_P*.txt y words.json), (c) storyboard.py + timeline.json + contact.jpg, (d) miniatura y publicacion.txt. Nunca subas video_mudo.mp4 ni archivos de más de 50 MB.
+3. Anota en `largo/<id>/ESTADO.md` la última etapa terminada y lo que falta.
+
 ## Pipeline (carpeta nueva `largo/<id>/`, copia scripts de `largo/ejemplos/bybit/`)
 1. **Guion:** `guion.txt`.
 2. **Voz:** por cada parte, `audio_synthesize` (Speko) con body `{text, intent:{language:'es'}, voice:'HRUUrQrYM9LfgDbWoMXS', model:'eleven_v3_conversational', constraints:{allowedProviders:{tts:['elevenlabs']}}}`. El resultado es enorme y se guarda en un archivo: decodifícalo con `python3 dec.py <archivo> P1` (crea `P1.raw` e imprime la URL firmada, válida 15 min). Sintetiza las 6 partes en paralelo.
