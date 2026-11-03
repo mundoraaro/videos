@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="emblem.js"></script>
+<style>*{margin:0;padding:0}body{width:1920px;height:1080px;overflow:hidden;background:#07090e;font-family:'Inter Display',sans-serif}
+#bg{position:absolute;inset:0}#em{position:absolute;width:420px;height:420px;top:330px}
+#wd{position:absolute;left:820px;top:430px;white-space:nowrap}
+.gold{color:#EDBB4F}.sil{background:linear-gradient(#fff,#8d99a6);-webkit-background-clip:text;color:transparent}
+#shine{position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none}
+#fade{position:absolute;inset:0;background:#000}</style></head><body>
+<div id="bg"></div><svg id="em" viewBox="0 0 200 200"></svg>
+<div id="wd"><div id="w1" style="font-size:150px;font-weight:900;letter-spacing:-2px;line-height:1"><span class="gold">ORO</span> <span style="font-weight:300;color:#7f8a9a">y</span> <span class="sil">SILICIO</span></div>
+<div id="w2" style="font-size:44px;color:#c9d1dc;margin-top:22px">Dinero · Tecnología · Inteligencia artificial</div></div>
+<div id="fade"></div>
+<script>
+const cl=(x,a,b)=>Math.max(0,Math.min(1,(x-a)/(b-a)));const eo=x=>1-Math.pow(1-x,3);const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+function render(t){
+ const a=eo(cl(t,0,.6));const p=cl(t,.55,1.35);const mv=eio(cl(t,1.0,1.6));const w=eo(cl(t,1.25,1.85));const w2=eo(cl(t,1.5,2.05));
+ const glow=cl(t,.5,.75)*(1-cl(t,.75,1.6));
+ document.getElementById('bg').style.background=`radial-gradient(ellipse 800px 600px at ${960-mv*520}px 540px, rgba(237,187,79,${.10+.25*glow}) 0%, transparent 70%), radial-gradient(ellipse 900px 600px at 1400px 540px, rgba(30,50,90,${.35*w}) 0%, transparent 70%), #07090e`;
+ document.getElementById('em').innerHTML=emblem('i',{cx:-120*(1-a),sx:120*(1-a),p});
+ const em=document.getElementById('em');em.style.left=(750-mv*520)+'px';em.style.opacity=a;
+ const s=1+0.06*glow;em.style.transform=`scale(${s})`;
+ const wd=document.getElementById('wd');wd.style.left=(800-mv*40)+'px';
+ const w1=document.getElementById('w1');w1.style.opacity=w;w1.style.transform=`translateY(${40*(1-w)}px)`;w1.style.clipPath=`inset(0 ${100-100*w}% 0 0)`;
+ const ww=document.getElementById('w2');ww.style.opacity=w2;ww.style.transform=`translateY(${24*(1-w2)}px)`;
+ document.getElementById('fade').style.opacity=(1-cl(t,0,.25))*0+cl(t,2.65,3.0);
+}
+render(0);
+</script></body></html>

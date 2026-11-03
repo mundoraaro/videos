@@ -228,7 +228,7 @@ const ESC={
     if(p.titulo) txt(p.titulo,W_/2,220,90,K.white,{k:pop(t,sc.start,0.4),w:900});
     D.forEach((d,i)=>{ const x=W_/2+(i-(n-1)/2)*(w+16), k=pop(t,sc.start+0.15+i*0.07,0.3); if(k<=0) return;
       card(x,560,w,w*1.25,k,{bg:K.card2}); sv(); at(x,560,k); ctx.fillStyle=K.red; rr(-w/2,-w*0.625,w,w*0.28,14); ctx.fill();
-      txt('NOV',0,-w*0.49,w*0.16,K.white,{w:800}); txt(d,0,w*0.12,w*0.42,K.white,{w:900}); rs();
+      txt(p.mes||'NOV',0,-w*0.49,w*0.16,K.white,{w:800}); txt(d,0,w*0.12,w*0.42,K.white,{w:900}); rs();
       const tx=sc.b!=null?sc.b+i*0.09:1e9; if(t>tx){ sv(); at(x,560); ctx.strokeStyle=K.red; ctx.lineWidth=12; ctx.lineCap='round'; const u=eo(prog(t,tx,0.15));
         ctx.beginPath(); ctx.moveTo(-w*0.4,-w*0.4); ctx.lineTo(lerp(-w*0.4,w*0.4,u),lerp(-w*0.4,w*0.45,u)); ctx.stroke(); rs(); } });
     if(p.sello&&sc.c!=null) sello(p.sello,W_/2,820,t,sc.c,K.red,80,-0.05);
@@ -262,7 +262,7 @@ const ESC={
       edificio(x,850,360,470,K[col]||col,lab,k,t); if(anio) chip(anio,x,920,pop(t,sc.start+0.4+i*0.3),K.gold,K.ink,38);
       if(p.trading&&i===0){ for(let j=0;j<5;j++){ const u=((t*0.8+j/5)%1); const up=j%2===0; txt(up?'▲':'▼',x-220+j*110,600-u*240,50,up?K.green:K.red,{w:900,k:k*(1-u)}); } } });
     if(p.banco&&sc.b!=null){ const kk=pop(t,sc.b,0.5); sv(); at(W_/2,370,kk); ctx.fillStyle=K.white; ctx.beginPath(); ctx.moveTo(-240,0); ctx.lineTo(0,-110); ctx.lineTo(240,0); ctx.closePath(); ctx.fill(); rs(); moneda(W_/2,330,60,'₿',K.gold,t,0); }
-    if(p.titulo) txt(p.titulo,W_/2,150,64,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
+    if(p.titulo) txt(p.titulo,W_/2,p.tituloY||200,64,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
   },
   // flujo entre dos empresas. p.flujo: 'entra'|'secreto'; beats: b = muro "independientes", c = muro con hueco
   dos(t,lt,sc,p){ const kA=pop(t,sc.start,0.45), kB=pop(t,sc.start+0.25,0.45);
@@ -280,7 +280,7 @@ const ESC={
     if(p.clientes){ for(let i=0;i<5;i++) persona(80+i*90,860,0.42,{t,k:pop(t,sc.start+0.4+i*0.08),color:[K.green,K.gold,K.cyan,K.orange,K.violet][i],seed:i}); }
   },
   // logos de inversionistas + monedas entrando. p.lista
-  inversion(t,lt,sc,p){ edificio(1450,880,360,460,K.cyan,'FTX',pop(t,sc.start,0.45),t);
+  inversion(t,lt,sc,p){ edificio(1450,880,360,460,p.edC?K[p.edC]:K.cyan,p.edif||'FTX',pop(t,sc.start,0.45),t); if(p.titulo) txt(p.titulo,W_/2,120,56,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
     (p.lista||[]).forEach((s,i)=>{ const kk=pop(t,sc.start+0.4+i*0.45,0.35); card(540,330+i*180,720,130,kk,{bg:K.card2,r:30}); txt(s,540,330+i*180,i===2?38:50,K.white,{k:kk,w:900});
       if(kk>0.9) for(let j=0;j<4;j++){ const u=((t*0.9+j/4+i*0.3)%1); moneda(lerp(920,1290,u),330+i*180+lerp(0,120-i*90,u)-Math.sin(u*Math.PI)*60,20,'$',K.gold); } });
   },
@@ -357,7 +357,7 @@ const ESC={
     if(sc.b!=null&&t>sc.b){ const u=eo(prog(t,sc.b,0.6)); sv(); ctx.fillStyle=rgba(K.bg0,0.85*u); rr(W_/2-600,260,1200*u,520,28); ctx.fill(); rs(); sello('BORRADO',W_/2,520,t,sc.b+0.4,K.red,100); } },
   // muchos teléfonos. p.n, p.banner, b: banner cambia/aparece, contador p.contador
   telefonos(t,lt,sc,p){ const n=p.n||8; for(let i=0;i<n;i++){ const col=i%4, row=Math.floor(i/4); const x=300+col*440, y=330+row*470; const kk=pop(t,sc.start+i*0.06,0.35);
-      const on=sc.b!=null&&t>sc.b+i*0.05; telefono(x,y,0.95,{k:kk,rot:(rand(i)-0.5)*0.12,saldo:on?(p.saldoB||'$ 0.00'):fmt(2000+rand(i)*20000).replace(/^/,'$ '),saldoC:on?K.red:K.white,banner:on?p.banner:null,boton:on?null:'Retirar',botonC:K.cyan}); }
+      const on=sc.b!=null&&t>sc.b+i*0.05; telefono(x,y,0.95,{k:kk,rot:(rand(i)-0.5)*0.12,saldo:on?(p.saldoB||'$ 0.00'):fmt(2000+rand(i)*20000).replace(/^/,'$ '),saldoC:on?(p.saldoC?K[p.saldoC]:K.red):K.white,banner:on?p.banner:null,boton:on?null:'Retirar',botonC:K.cyan}); }
     if(p.contador&&sc.c!=null) { card(W_/2,540,900,240,pop(t,sc.c,0.4),{bg:K.ink,border:K.red}); txt(p.contador,W_/2,540,90,K.red,{k:pop(t,sc.c,0.4),w:900,glowC:K.red}); } },
   // precio que se desploma. p.serie,p.ymax,p.etqs, p.titulo
   precio(t,lt,sc,p){ if(p.titulo) txt(p.titulo,W_/2,140,60,K.white,{k:pop(t,sc.start,0.4),w:900});
@@ -430,6 +430,76 @@ const ESC={
     txt(A[0],700,BY+45,36,K.muted,{w:800}); txt(A[1],700,BY-BH*A[2]*ua-50,60,K.gold,{k:ua,w:900});
     txt(Bv[0],1220,BY+45,36,K.muted,{k:pop(t,sc.b??1e9,0.3),w:800}); txt(Bv[1],1220,BY-BH*Bv[2]*ub-50,60,K.green,{k:ub,w:900});
     if(p.btc) moneda(320,520,110,'₿',K.gold,t,1.2); },
+  // ======== escenas añadidas para Bybit (reutilizables) ========
+  // pantalla de firma tipo billetera. p.dest, p.monto; b: firmado; c: se revela la orden real
+  firma(t,lt,sc,p){ const k=pop(t,sc.start,0.45); card(W_/2,470,1240,700,k,{bg:'#0E1530',border:'#2B3666'});
+    sv(); at(W_/2,470,k); ctx.fillStyle='#1B2448'; rr(-620,-350,1240,90,28); ctx.fill(); ctx.fillRect(-620,-290,1240,30);
+    ctx.fillStyle=K.green; circ(-570,-305,12); ctx.fill(); txt(p.url||'app.safe.global',-540,-305,32,K.muted,{w:700,align:'left'});
+    txt('Nueva transacción',-560,-200,46,K.white,{w:900,align:'left'});
+    txt('Enviar a',-560,-110,32,K.muted,{w:700,align:'left'}); rr(-560,-80,1120,90,20); ctx.fillStyle=K.card2; ctx.fill();
+    txt(p.dest||'Billetera de Bybit',-520,-35,42,K.white,{w:800,align:'left'}); txt('✓ verificada',470,-35,32,K.green,{w:800,align:'right'});
+    txt('Monto',-560,60,32,K.muted,{w:700,align:'left'}); txt(p.monto||'ETH · fondos propios',-560,110,44,K.white,{w:800,align:'left'}); rs();
+    const firmado=sc.b!=null&&t>sc.b; const bk=firmado?pop(t,sc.b,0.3):0;
+    sv(); at(W_/2+380,470+230,k); rr(-170,-45,340,90,45); ctx.fillStyle=firmado?K.green:K.cyan; ctx.fill(); txt(firmado?'✓ FIRMADO':'APROBAR',0,2,38,K.ink,{w:900}); rs();
+    for(let i=0;i<3;i++) persona(380+i*190,1000,0.55,{t,k:pop(t,sc.start+0.3+i*0.1),color:[K.cyan,K.green,K.violet][i],seed:20+i,expr:firmado?'feliz':'neutral'});
+    if(sc.c!=null&&t>sc.c){ const u=eo(prog(t,sc.c,0.6)); const g=t<sc.c+0.4?Math.sin(t*80)*14:0;
+      sv(); ctx.globalAlpha=u; at(W_/2+g,470); rr(-600,-250,1200*u,520,24); ctx.fillStyle='rgba(60,8,18,0.96)'; ctx.fill(); ctx.strokeStyle=K.red; ctx.lineWidth=6; ctx.stroke(); rs();
+      txt('LO QUE REALMENTE FIRMARON',W_/2,330,44,K.red,{k:pop(t,sc.c+0.3,0.3),w:900,track:3});
+      lineas(p.real||['Cambiar las reglas de la billetera','→ el control pasa al atacante'],W_/2,450,54,K.white,1.3,{k:pop(t,sc.c+0.6,0.4),w:900}); }
+  },
+  // caja fuerte de varias llaves (multifirma). b: llaves entran; c: se abre
+  multifirma(t,lt,sc,p){ const k=pop(t,sc.start,0.45); const ab=sc.c!=null?eo(prog(t,sc.c,0.7)):0;
+    sv(); at(W_/2,540,k); ctx.fillStyle='#2B3666'; rr(-380,-360,760,720,40); ctx.fill(); ctx.fillStyle='#8892B8'; rr(-340,-320,680,640,30); ctx.fill();
+    for(let i=0;i<3;i++){ const x=-200+i*200; ctx.fillStyle='#3B4470'; circ(x,0,56); ctx.fill(); ctx.fillStyle=K.ink; rr(x-10,-20,20,50,6); ctx.fill();
+      const t0=(sc.b??sc.start+0.8)+i*0.35; if(t>t0){ const u=eo(prog(t,t0,0.4)); sv(); at(x,lerp(-300,-10,u)); ctx.rotate(ab*Math.PI/2); ctx.fillStyle=[K.cyan,K.green,K.violet][i]; circ(0,-80,34); ctx.fill(); ctx.fillRect(-8,-60,16,70); rs(); } }
+    rs(); if(ab>0){ sv(); ctx.globalAlpha=ab*0.6; glow(K.gold,90); ctx.strokeStyle=K.gold; ctx.lineWidth=10; rr(W_/2-380,180,760,720,40); ctx.stroke(); rs(); }
+    txt(p.titulo||'Billetera fría',W_/2,110,64,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
+    chip(p.sub||'Desconectada de internet',300,540,pop(t,sc.start+0.6),K.card2,K.white,34); chip(p.sub2||'Varias firmas para abrir',1620,540,pop(t,(sc.b??sc.start+1)),K.gold,K.ink,34); },
+  // laptop: descarga de archivo; b: abre; c: aparece el intruso
+  laptop(t,lt,sc,p){ const k=pop(t,sc.start,0.45); sv(); at(W_/2,560,k); ctx.fillStyle='#C9CEE6'; ctx.beginPath(); ctx.moveTo(-560,300); ctx.lineTo(560,300); ctx.lineTo(620,350); ctx.lineTo(-620,350); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#262E52'; rr(-500,-340,1000,640,30); ctx.fill(); ctx.fillStyle='#0B1124'; rr(-470,-310,940,580,18); ctx.fill(); rs();
+    const intr=sc.c!=null&&t>sc.c; const ab=sc.b!=null&&t>sc.b;
+    if(!ab){ const u=eo(prog(t,sc.start+0.4,1.6)); card(W_/2,520,760,230,k,{bg:K.card2,r:20}); txt('⬇ '+(p.archivo||'simulador-de-inversiones.zip'),W_/2,470,34,K.white,{k,w:800});
+      sv(); rr(W_/2-320,540,640,26,13); ctx.fillStyle=K.ink; ctx.fill(); rr(W_/2-320,540,640*u,26,13); ctx.fillStyle=K.cyan; ctx.fill(); rs(); }
+    else { const kk=pop(t,sc.b,0.4); grafica(W_/2-380,700,760,330,[[0,0.3],[0.2,0.45],[0.4,0.38],[0.6,0.62],[0.8,0.55],[1,0.8]],eo(prog(t,sc.b,1)),{ymax:1,color:K.green,grosor:7}); txt(p.app||'Simulador de bolsa',W_/2,300,40,K.white,{k:kk,w:900}); }
+    if(intr){ const u=pop(t,sc.c,0.5); sv(); ctx.globalAlpha=0.35*u; ctx.fillStyle=K.red; rr(W_/2-470,250,940,580,18); ctx.fill(); rs(); persona(W_/2+300,800,0.9,{t,k:u,color:'#3A4470',ropa:'capucha',seed:9});
+      chip(p.alerta||'Los atacantes ya estaban adentro',W_/2,180,u,K.red,K.white,40); }
+    if(p.fecha) chip(p.fecha,W_/2-640,170,pop(t,sc.start+0.2),K.gold,K.ink,40); },
+  // dos horarios iguales (sigilo). p.filas
+  horario(t,lt,sc,p){ txt(p.titulo||'Mismo horario',W_/2,150,64,K.white,{k:pop(t,sc.start,0.4),w:900});
+    const F=p.filas||[['Programador',K.green],['Atacantes',K.red]]; F.forEach(([n,c],i)=>{ const y=420+i*260, kk=pop(t,sc.start+0.3+i*0.5,0.4); txt(n,330,y,44,K.white,{k:kk,w:900,align:'right'});
+      sv(); ctx.globalAlpha=kk; rr(400,y-40,1200,80,20); ctx.fillStyle=K.card2; ctx.fill(); const u=eo(prog(t,sc.start+0.5+i*0.5,0.8)); rr(400+1200*9/24,y-40,1200*9/24*u,80,20); ctx.fillStyle=c; ctx.fill(); rs();
+      ['0','6','12','18','24'].forEach((h,j)=>txt(h+'h',400+j*300,y+70,26,K.muted,{k:kk,w:700})); });
+    txt('☀',400+1200*13.5/24,250,70,K.gold,{k:pop(t,sc.start+1.2,0.4),w:900}); },
+  // filtro: muchos pasan, uno queda atrapado. b: atrapa
+  filtro(t,lt,sc,p){ txt(p.titulo||'El código esperaba a una sola empresa',W_/2,130,56,K.white,{k:pop(t,sc.start,0.4),w:900});
+    sv(); ctx.globalAlpha=pop(t,sc.start,0.4); ctx.fillStyle='#2B3666'; rr(900,260,120,600,30); ctx.fill(); rs(); txt('</>',960,560,60,K.cyan,{k:pop(t,sc.start,0.4),w:900});
+    const L=['Usuario','Empresa','Fondo','Usuario','Empresa']; for(let i=0;i<L.length;i++){ const u=((t-sc.start)*0.35+i/L.length)%1; const x=lerp(120,1820,u), y=330+i*110; chip(L[i],x,y,1,K.card2,K.white,30); if(x>1060) txt('✓',x+120,y,40,K.green,{w:900}); }
+    const tb=sc.b??sc.start+1.5; const u=eo(prog(t,sc.start+0.3,Math.max(0.5,tb-sc.start-0.3))); const x=lerp(200,820,u); const atrap=t>tb;
+    chip(p.blanco||'BYBIT',x,860,1,atrap?K.red:K.gold,K.ink,46); if(atrap){ sello(p.sello||'TRAMPA',W_/2,720,t,tb,K.red,80,-0.06); sv(); ctx.globalAlpha=0.2*(Math.sin(t*10)>0?1:0.3); ctx.fillStyle=K.red; ctx.fillRect(0,0,W_,H_); rs(); } },
+  // transmisión en vivo con frases. p.persona, p.frases [[texto,beat]]
+  directo(t,lt,sc,p){ const k=pop(t,sc.start,0.45); card(620,540,860,820,k,{bg:'#0B1124',border:'#2B3666'});
+    persona(620,860,1.2,{...(p.persona||{}),t,k}); sv(); at(300,190,k); rr(-90,-30,180,60,30); ctx.fillStyle=K.red; ctx.fill(); txt('● EN VIVO',0,2,28,K.white,{w:900}); rs();
+    (p.frases||[]).forEach(([s,bk],i)=>{ const t0=bk?(sc[bk]??sc.start+0.6+i*0.6):sc.start+0.6+i*0.6; const kk=pop(t,t0,0.35); card(1440,330+i*190,760,150,kk,{bg:K.card2,r:30}); txt(s,1440,330+i*190,44,K.white,{k:kk,w:900}); }); },
+  // ramificación: 1 → 42 → miles. b: explota
+  ramas(t,lt,sc,p){ const k=pop(t,sc.start,0.4); moneda(220,540,70*k||1,p.sim||'Ξ',K.violet,t,0);
+    const u=eo(prog(t,sc.start+0.4,1.2)); for(let i=0;i<42;i++){ const y=120+i*20; sv(); ctx.globalAlpha=0.5*u; ctx.strokeStyle=K.violet; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(290,540); ctx.lineTo(lerp(290,820,u),lerp(540,y,u)); ctx.stroke(); rs(); if(u>0.95){ ctx.fillStyle=K.violet; circ(820,y,7); ctx.fill(); } }
+    if(u>0.5) chip('42 billeteras',820,60,pop(t,sc.start+1,0.3),K.violet,K.white,36);
+    if(sc.b!=null&&t>sc.b){ const v=eo(prog(t,sc.b,1.4)); for(let i=0;i<600;i++){ const y0=120+(i%42)*20; const x=lerp(830,960+rand(i)*880,v), y=lerp(y0,60+rand(i+7)*900,v); ctx.fillStyle=rgba(K.gold,0.8); circ(x,y,4); ctx.fill(); }
+      chip('miles',1400,60,pop(t,sc.b+0.6,0.3),K.gold,K.ink,40); }
+    if(p.titulo) txt(p.titulo,W_/2,60,0.1,K.white,{k:0}); },
+  // máquina que convierte monedas. p.nombre, p.de, p.a
+  convertir(t,lt,sc,p){ const k=pop(t,sc.start,0.45); card(W_/2,520,460,460,k,{bg:K.card2,border:K.cyan,r:40}); txt(p.nombre||'THORChain',W_/2,520,56,K.cyan,{k,w:900});
+    for(let i=0;i<8;i++){ const u=((t-sc.start)*0.5+i/8)%1; if(u<0.45) moneda(lerp(120,700,u/0.45),520+Math.sin(i)*120,34,p.de||'Ξ',K.violet,t,0); else if(u>0.55) moneda(lerp(1220,1800,(u-0.55)/0.45),520+Math.cos(i)*120,34,p.a||'₿',K.gold,t,0); }
+    chip(p.sub||'No pide identificación',W_/2,870,pop(t,sc.start+0.6),K.gold,K.ink,40); if(p.titulo) txt(p.titulo,W_/2,140,60,K.white,{k:pop(t,sc.start+0.2,0.4),w:900}); },
+  // clic final: cursor sobre archivo. b: clic
+  clic(t,lt,sc,p){ const k=pop(t,sc.start,0.45); sv(); at(W_/2,520,k); ctx.fillStyle='#E9EBF5'; ctx.beginPath(); ctx.moveTo(-110,-150); ctx.lineTo(60,-150); ctx.lineTo(110,-100); ctx.lineTo(110,150); ctx.lineTo(-110,150); ctx.closePath(); ctx.fill(); ctx.fillStyle='#B8BEDA'; ctx.beginPath(); ctx.moveTo(60,-150); ctx.lineTo(60,-100); ctx.lineTo(110,-100); ctx.fill(); txt('.zip',0,40,56,K.ink,{w:900}); rs();
+    const tb=sc.b??sc.start+1; const u=eio(prog(t,sc.start+0.2,Math.max(0.3,tb-sc.start-0.2))); const x=lerp(1500,W_/2+40,u), y=lerp(900,560,u);
+    if(t>tb){ const r=eo(prog(t,tb,0.5)); sv(); ctx.globalAlpha=1-r; ctx.strokeStyle=K.gold; ctx.lineWidth=8; circ(W_/2+40,560,40+r*160); ctx.stroke(); rs(); }
+    sv(); at(x,y,t>tb&&t<tb+0.15?0.85:1); ctx.fillStyle=K.white; ctx.strokeStyle=K.ink; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,80); ctx.lineTo(20,62); ctx.lineTo(36,96); ctx.lineTo(50,90); ctx.lineTo(34,56); ctx.lineTo(60,56); ctx.closePath(); ctx.fill(); ctx.stroke(); rs();
+    if(p.arriba) txt(p.arriba,W_/2,150,80,K.gold,{k:pop(t,sc.start+0.2,0.4),w:900,glowC:K.gold});
+    if(p.abajo&&t>tb) txt(p.abajo,W_/2,880,90,K.white,{k:pop(t,tb+0.1,0.4),w:900}); },
+
   // final / suscripción
   final(t,lt,sc,p){ txt(p.l1||'',W_/2,420,80,K.white,{k:pop(t,sc.start,0.4),w:900}); txt(p.l2||'',W_/2,540,56,K.gold,{k:pop(t,sc.start+0.4,0.4),w:800});
     chip(p.cta||'SUSCRÍBETE',W_/2,720,pop(t,sc.start+0.8),K.red,K.white,48); },
