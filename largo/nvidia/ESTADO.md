@@ -1,3 +1,3 @@
 # Estado — Nvidia (video 3)
-Última etapa terminada: render + mezcla (nvidia.mp4). Guion, voz (voz_P*.mp3, w_P*.txt, words.json), storyboard + timeline + contact, miniatura y publicacion.txt en el repo.
-Falta: marca (intro tras el gancho en 58.6 s, pantalla final), revisión de 17 cuadros, 720p en largo/videos/, entrega.
+Terminado (3 nov 2026): render, mezcla, marca (intro tras el gancho en 58.6 s, pantalla final desde 6:43), revisión de 17 cuadros. Duración final 7:04.
+720p en `largo/videos/nvidia-001-oroysilicio_720.mp4`. El 1080p (134 MB) no va al repo; se entregó a Héctor directamente.
