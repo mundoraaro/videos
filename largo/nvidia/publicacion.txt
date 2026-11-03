@@ -1,0 +1,45 @@
+TÍTULO:
+Nvidia: estuvo a 30 días de quebrar… hoy vale casi $5 billones
+
+DESCRIPCIÓN:
+A mediados de los noventa, Nvidia se estaba quedando sin dinero: su primer chip fracasó y el proyecto con Sega se cayó. Jensen Huang viajó a Japón a pedirle a Sega que invirtiera de todos modos… y Sega puso 5 millones de dólares. Treinta años después, Nvidia fue la primera empresa de la historia en valer 5 billones de dólares (5 millones de millones). Esta es la historia de un niño que limpiaba baños en un internado de Kentucky, una mesa en un Denny's, un chip para videojuegos y la inteligencia artificial.
+
+⏱️ Capítulos
+0:00 Casi en quiebra
+1:02 El niño que limpiaba baños
+1:46 La mesa del restaurante
+2:09 El chip equivocado
+2:35 El dinero de Sega
+3:13 Treinta días
+4:01 La apuesta
+4:26 Dos tarjetas en un cuarto
+5:00 La fiebre de la IA
+5:45 La deuda con Sega
+
+📚 Fuentes
+- Wikipedia, "Nvidia": fundación (1993, Denny's, $40,000), NV1, inversión de Sega, despidos (de 100 a 40), RIVA 128 con dinero para un mes de sueldos, lema "a 30 días de quebrar", salida a bolsa (22 ene 1999), GeForce 256, CUDA, récords de valor y ventas por año fiscal
+- Wikipedia, "Jensen Huang": infancia, internado Oneida Baptist Institute (Kentucky), Denny's, estudios
+- NPR (2012), "Tech Pioneer Channels Hard Lessons Into Silicon Valley Success": el internado y la limpieza de baños
+- NBC (2023), Jensen Huang en el Denny's donde nació Nvidia: "ninguno sabía cómo hacerlo"
+- The Next Web (jul 2026): Huang agradece a Sega los $5 millones de 1995
+- Video Games Chronicle (jul 2026): reencuentro de Huang con Shoichiro Irimajiri en Tokio; valor actual estimado por Huang
+- Xataka Brasil (jul 2026): el pedido de Huang a Sega
+- Wikipedia, "AlexNet" y artículo NeurIPS 2012: dos GTX 580, en el cuarto de Krizhevsky; 15.3% contra 26.2% de error
+- BTW Media: historia de CUDA (2006) y datos del 10-K del año fiscal 2026
+- Entrepreneur (oct 2025): Nvidia, primera empresa en valer $5 billones
+- Forbes (13 may 2026): récord de $5.5 billones
+- Nvidia, informe del segundo trimestre del año fiscal 2027 (SEC, ago 2026)
+- Business Standard (31 oct 2026): Apple supera a Nvidia como la empresa más valiosa
+- CompaniesMarketCap: valor de mercado de Nvidia (nov 2026)
+
+La voz de este video se generó con inteligencia artificial. El guion, la investigación y la animación son originales de Oro y Silicio. Esto no es asesoría financiera.
+
+#OroYSilicio #Nvidia #InteligenciaArtificial
+
+ETIQUETAS:
+Nvidia, Jensen Huang, historia de Nvidia, Sega, GPU, CUDA, AlexNet, inteligencia artificial, ChatGPT, chips, empresa más valiosa del mundo, bolsa, documental, oro y silicio
+
+AJUSTES AL SUBIR:
+- Categoría: Educación · No es para niños · Contenido alterado o sintético: Sí · Promoción pagada: No
+- Pantalla final desde 6:43 (dura 20 s): video en el recuadro dorado, suscribir en el círculo. Pon como video el de Bybit (o FTX si Bybit aún no sale).
+- Publicar: martes 3 de noviembre, 6:00 p. m. (Ciudad de México). Si prefieres no publicar el día siguiente a FTX, el siguiente hueco libre es el martes 10 de noviembre, 6:00 p. m.

@@ -6,7 +6,7 @@ Estados: `pendiente` · `producida (fecha)` · `publicada (fecha)`. Toma la prim
 |---|------|------------------|------|--------|
 | 1 | FTX (nov 2022) | Cómo desaparecieron 32,000 millones en 9 días | Caída | publicada (lun 2 nov 18:00) |
 | 2 | Hackeo a Bybit (feb 2025) | Cómo robaron $1,400 millones con un clic | Hackeo | producida (2026-11-02) · publicar sáb 7 nov 12:00 |
-| 3 | Nvidia | De tarjetas para videojuegos a la empresa más valiosa del mundo | Éxito | pendiente |
+| 3 | Nvidia | Nvidia: estuvo a 30 días de quebrar… hoy vale casi $5 billones | Éxito | producida (2026-11-03) · publicar mar 3 nov 18:00 |
 | 4 | DeepSeek (ene 2025) | La IA china que borró casi $600,000 millones en un día | IA | pendiente |
 | 5 | Mt. Gox (2014) | Los 850,000 bitcoins que desaparecieron | Caída | pendiente |
 | 6 | Terra / Luna (may 2022) | La moneda "estable" que se desplomó en una semana | Caída | pendiente |

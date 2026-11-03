@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script src="../lib/doc.js"></script><script>
+async function mini(){ await document.fonts.load('900 96px Inter');
+  const t=1.3; fondo(t,K.gold,0);
+  // chip gigante a la derecha
+  sv(); at(1430,560,1.25,0.06); const col=K.green;
+  for(let s=0;s<4;s++){ sv(); ctx.rotate(s*Math.PI/2); for(let i=0;i<9;i++){ ctx.fillStyle=mix('#8892B8',col,0.5+0.4*Math.sin(i)); rr(-240+i*60-12,-330,24,70,6); ctx.fill(); } rs(); }
+  ctx.fillStyle='#1B2448'; rr(-270,-270,540,540,40); ctx.fill(); ctx.strokeStyle=col; ctx.lineWidth=10; glow(col,60); rr(-230,-230,460,460,26); ctx.stroke(); noGlow();
+  ctx.strokeStyle=rgba(col,0.3); ctx.lineWidth=3; for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(-200,i*55); ctx.lineTo(200,i*55); ctx.stroke(); ctx.beginPath(); ctx.moveTo(i*55,-200); ctx.lineTo(i*55,200); ctx.stroke(); }
+  const g=ctx.createRadialGradient(0,0,0,0,0,220); g.addColorStop(0,rgba(col,0.7)); g.addColorStop(1,rgba(col,0)); ctx.fillStyle=g; circ(0,0,220); ctx.fill();
+  txt('GPU',0,0,150,K.white,{w:900,glowC:col}); rs();
+  // corona
+  sv(); at(1430,150,1.3); ctx.fillStyle=K.gold; glow(K.gold,50); ctx.beginPath(); ctx.moveTo(-90,40); ctx.lineTo(-110,-40); ctx.lineTo(-50,0); ctx.lineTo(0,-60); ctx.lineTo(50,0); ctx.lineTo(110,-40); ctx.lineTo(90,40); ctx.closePath(); ctx.fill(); rs();
+  // texto
+  txt('$5',80,300,330,K.gold,{w:900,align:'left',glowC:K.gold});
+  txt('BILLONES',95,560,150,K.white,{w:900,align:'left'});
+  sv(); at(95,740,1,-0.03); ctx.font=F(900,84); const w=ctx.measureText('IBA A QUEBRAR').width+80; rr(0,-75,w,150,24); ctx.fillStyle=K.red; glow(K.red,40); ctx.fill(); noGlow(); txt('IBA A QUEBRAR',w/2,4,84,K.white,{w:900}); rs();
+  txt('NVIDIA',100,920,90,K.green,{w:900,align:'left',track:12,glowC:K.green});
+  vineta(); return C.toDataURL('image/jpeg',0.92); }
+</script></body></html>

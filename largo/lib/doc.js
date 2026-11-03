@@ -500,6 +500,86 @@ const ESC={
     if(p.arriba) txt(p.arriba,W_/2,150,80,K.gold,{k:pop(t,sc.start+0.2,0.4),w:900,glowC:K.gold});
     if(p.abajo&&t>tb) txt(p.abajo,W_/2,880,90,K.white,{k:pop(t,tb+0.1,0.4),w:900}); },
 
+  // ======== escenas añadidas para Nvidia (reutilizables) ========
+  // restaurante: mesa con personas y tazas. p.n (1-3), p.letrero, p.colores, p.platos (pila que crece), p.chips [[texto,beat]], p.monto (beat b)
+  restaurante(t,lt,sc,p){ const k=pop(t,sc.start,0.45); const n=p.n||3; const cols=p.colores||[K.cyan,K.green,K.violet];
+    // letrero de neón
+    if(p.letrero){ const on=0.75+0.25*(Math.sin(t*7)>-0.6?1:0); sv(); ctx.globalAlpha=k*on; rr(W_/2-330,150,660,110,24); ctx.strokeStyle=K.red; ctx.lineWidth=6; glow(K.red,30); ctx.stroke(); noGlow(); rs();
+      txt(p.letrero,W_/2,206,58,K.red,{k:k*on,w:900,glowC:K.red,track:6}); }
+    // ventana con noche
+    sv(); ctx.globalAlpha=k*0.8; ctx.fillStyle='#0B1430'; rr(260,300,1400,330,30); ctx.fill(); for(let i=0;i<30;i++){ ctx.fillStyle=rgba(K.white,0.3+0.3*Math.sin(t*2+i)); circ(300+rand(i)*1320,330+rand(i+5)*260,2+rand(i+2)*2); ctx.fill(); } rs();
+    // asientos y personas
+    sv(); ctx.globalAlpha=k; ctx.fillStyle='#8E2B3A'; rr(330,560,1260,140,40); ctx.fill(); rs();
+    for(let i=0;i<n;i++){ const x=n===1?W_/2:lerp(620,1300,i/(n-1)); persona(x,830,0.95,{t,k:pop(t,sc.start+0.2+i*0.15,0.4),color:cols[i%cols.length],seed:i+31,expr:p.expr||'neutral',pelo:i===0?'liso':(i===1?'rizos':null)}); }
+    // mesa
+    sv(); at(W_/2,0,k); ctx.fillStyle='#C9CEE6'; rr(-620,760,1240,46,18); ctx.fill(); ctx.fillStyle='#596288'; ctx.fillRect(-20,806,40,150); rs();
+    for(let i=0;i<n;i++){ const x=n===1?W_/2+200:lerp(620,1300,i/(n-1))+90; sv(); at(x,760,k); ctx.fillStyle=K.white; rr(-30,-60,60,60,10); ctx.fill(); ctx.strokeStyle=K.white; ctx.lineWidth=7; ctx.beginPath(); ctx.arc(32,-32,16,-Math.PI/2,Math.PI/2); ctx.stroke();
+      for(let j=0;j<2;j++){ const u=((t*0.6+j*0.5+i*0.3)%1); ctx.strokeStyle=rgba(K.white,0.5*(1-u)); ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-8+j*14,-70-u*60); ctx.quadraticCurveTo(6+j*14,-90-u*60,-8+j*14,-110-u*60); ctx.stroke(); } rs(); }
+    if(p.platos){ const m=Math.min(9,Math.floor(prog(t,sc.start+0.4,2.5)*9)+1); for(let j=0;j<m;j++){ sv(); at(W_/2-330,760-j*16,k); ctx.fillStyle=j%2?'#E9EBF5':'#D5DAF0'; ctx.beginPath(); ctx.ellipse(0,0,90,14,0,0,Math.PI*2); ctx.fill(); rs(); } }
+    (p.chips||[]).forEach(([s,bk],i)=>{ const t0=bk?(sc[bk]??sc.start+0.8+i*0.6):sc.start+0.8+i*0.6; chip(s,i%2?1500:420,330+Math.floor(i/2)*110,pop(t,t0,0.35),i%2?K.gold:K.card2,i%2?K.ink:K.white,40); });
+    if(p.monto&&sc.b!=null){ const kk=pop(t,sc.b,0.4); card(W_/2,440,640,150,kk,{bg:K.ink,border:K.gold}); txt(p.monto,W_/2,440,84,K.gold,{k:kk,w:900,glowC:K.gold}); } },
+  // viaje: avión de A a B con arco punteado. p.a, p.b2 (nombres), p.titulo, p.sub (beat b)
+  viaje(t,lt,sc,p){ const k=pop(t,sc.start,0.45); const A=[400,640], Bp=[1520,600]; const u=eio(prog(t,sc.start+0.4,p.dur||2.2));
+    for(const [x,y,lab,c] of [[A[0],A[1],p.a,K.cyan],[Bp[0],Bp[1],p.b2,K.gold]]){ sv(); at(x,y,k); circ(0,0,26); ctx.fillStyle=c; glow(c,30); ctx.fill(); noGlow(); ctx.strokeStyle=rgba(c,0.5); ctx.lineWidth=4; circ(0,0,26+((t*30)%40)); ctx.stroke(); rs(); txt(lab,x,y+90,60,K.white,{k,w:900}); }
+    const pt=v=>[lerp(A[0],Bp[0],v),lerp(A[1],Bp[1],v)-Math.sin(v*Math.PI)*300];
+    sv(); ctx.setLineDash([16,16]); ctx.strokeStyle=rgba(K.white,0.5); ctx.lineWidth=5; ctx.beginPath(); for(let i=0;i<=40;i++){ const q=pt(i/40*u); i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]); } ctx.stroke(); ctx.setLineDash([]); rs();
+    if(u>0.01){ const q=pt(u), q2=pt(Math.min(1,u+0.01)); sv(); at(q[0],q[1],1,Math.atan2(q2[1]-q[1],q2[0]-q[0])); ctx.fillStyle=K.white; ctx.beginPath(); ctx.moveTo(50,0); ctx.lineTo(-30,-14); ctx.lineTo(-40,0); ctx.lineTo(-30,14); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(-14,-46); ctx.lineTo(-24,-46); ctx.lineTo(-10,0); ctx.lineTo(-24,46); ctx.lineTo(-14,46); ctx.closePath(); ctx.fill(); rs(); }
+    if(p.titulo) txt(p.titulo,W_/2,170,66,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
+    if(p.sub){ const t0=sc.b??sc.start+1.4; chip(p.sub,W_/2,860,pop(t,t0,0.4),p.subC?K[p.subC]:K.gold,K.ink,42); } },
+  // formas: curvas contra triángulos. b: sello "ESTÁNDAR" en triángulos; c: tacha en curvas
+  formas(t,lt,sc,p){ const kA=pop(t,sc.start,0.45), kB=pop(t,sc.start+0.3,0.45);
+    card(560,540,640,560,kA,{bg:K.card}); card(1360,540,640,560,kB,{bg:K.card});
+    sv(); at(560,520,kA); ctx.strokeStyle=K.violet; ctx.lineWidth=8; glow(K.violet,20); for(let i=0;i<4;i++){ ctx.beginPath(); ctx.ellipse(0,0,200-i*40,130-i*26,Math.sin(t*0.6)*0.3,0,Math.PI*2); ctx.stroke(); } noGlow(); rs();
+    sv(); at(1360,520,kB); ctx.strokeStyle=K.cyan; ctx.lineWidth=5; glow(K.cyan,14); const R=200; for(let i=0;i<6;i++){ const a0=i/6*Math.PI*2+t*0.3, a1=(i+1)/6*Math.PI*2+t*0.3; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a0)*R,Math.sin(a0)*R*0.7); ctx.lineTo(Math.cos(a1)*R,Math.sin(a1)*R*0.7); ctx.closePath(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(Math.cos(a0)*R,Math.sin(a0)*R*0.7); ctx.lineTo(Math.cos(a0+0.5)*R*0.55,Math.sin(a0+0.5)*R*0.39); ctx.lineTo(Math.cos(a1)*R,Math.sin(a1)*R*0.7); ctx.stroke(); } noGlow(); rs();
+    txt(p.a||'CURVAS',560,740,52,K.violet,{k:kA,w:900,track:4}); txt(p.b2||'TRIÁNGULOS',1360,740,52,K.cyan,{k:kB,w:900,track:4});
+    if(p.etqA) chip(p.etqA,560,320,pop(t,sc.start+0.6),K.card2,K.white,34); if(p.etqB) chip(p.etqB,1360,320,pop(t,sc.start+0.8),K.card2,K.white,34);
+    if(sc.b!=null) sello(p.sello||'ESTÁNDAR',1360,520,t,sc.b,K.green,64,-0.08);
+    if(sc.c!=null&&t>sc.c){ const u=eo(prog(t,sc.c,0.3)); sv(); ctx.strokeStyle=K.red; ctx.lineWidth=22; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(360,340); ctx.lineTo(lerp(360,760,u),lerp(340,700,u)); ctx.stroke(); if(u>0.5){ const v=(u-0.5)*2; ctx.beginPath(); ctx.moveTo(760,340); ctx.lineTo(lerp(760,360,v),lerp(340,700,v)); ctx.stroke(); } rs(); }
+    if(p.titulo) txt(p.titulo,W_/2,150,60,K.white,{k:pop(t,sc.start+0.2,0.4),w:900}); },
+  // procesador: chip grande con patas que brillan. p.nombre, p.sub, p.color; b: p.chip2 (etiqueta) ; c: p.chip3
+  procesador(t,lt,sc,p){ const k=pop(t,sc.start,0.5); const col=p.color?K[p.color]:K.green; const S=p.s||1;
+    sv(); at(W_/2,500,k*S); for(let s=0;s<4;s++){ sv(); ctx.rotate(s*Math.PI/2); for(let i=0;i<9;i++){ const x=-240+i*60; const on=0.5+0.5*Math.sin(t*5-i*0.7+s); ctx.fillStyle=mix('#8892B8',col,on*0.8); rr(x-12,-330,24,70,6); ctx.fill(); } rs(); }
+    ctx.fillStyle='#1B2448'; rr(-270,-270,540,540,40); ctx.fill(); ctx.strokeStyle=col; ctx.lineWidth=6; glow(col,30); rr(-230,-230,460,460,26); ctx.stroke(); noGlow();
+    ctx.strokeStyle=rgba(col,0.25); ctx.lineWidth=3; for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(-200,i*55); ctx.lineTo(200,i*55); ctx.stroke(); ctx.beginPath(); ctx.moveTo(i*55,-200); ctx.lineTo(i*55,200); ctx.stroke(); }
+    const pul=((t*0.9)%1); ctx.fillStyle=rgba(col,0.6*(1-pul)); circ(0,0,40+pul*180); ctx.fill(); rs();
+    txt(p.nombre||'',W_/2,500,(p.nombre||'').length>8?70:96,K.white,{k,w:900,glowC:col});
+    if(p.sub) txt(p.sub,W_/2,890,46,K.muted,{k:pop(t,sc.start+0.4,0.4),w:800,track:4});
+    if(p.chip2&&sc.b!=null) chip(p.chip2,W_/2-560,300,pop(t,sc.b,0.4),K.gold,K.ink,42);
+    if(p.chip3&&sc.c!=null) chip(p.chip3,W_/2+560,300,pop(t,sc.c,0.4),p.chip3C?K[p.chip3C]:K.cyan,K.ink,42); },
+  // núcleos: CPU (pocos, grandes) contra GPU (muchos, pequeños). b: aparece la GPU; c: la GPU se enciende en ola
+  nucleos(t,lt,sc,p){ const kA=pop(t,sc.start,0.45); const tb=sc.b??sc.start+1.2; const kB=pop(t,tb,0.45);
+    card(500,520,620,620,kA,{bg:K.card}); sv(); at(500,520,kA); for(let i=0;i<4;i++){ const x=-130+(i%2)*260, y=-130+Math.floor(i/2)*260; const on=0.5+0.5*Math.sin(t*2+i); ctx.fillStyle=mix(K.card2,K.cyan,0.4+on*0.5); rr(x-110,y-110,220,220,24); ctx.fill(); } rs();
+    txt(p.a||'CPU',500,880,50,K.cyan,{k:kA,w:900,track:4}); if(p.subA) txt(p.subA,500,160,40,K.white,{k:kA,w:800});
+    card(1420,520,620,620,kB,{bg:K.card}); const tc=sc.c??tb+0.8;
+    sv(); at(1420,520,kB); for(let r=0;r<20;r++) for(let c=0;c<20;c++){ const x=-270+c*28.4, y=-270+r*28.4; const d=Math.hypot(c-9.5,r-9.5); const on=t>tc?clamp((t-tc)*12-d*0.9):0; const fl=0.6+0.4*Math.sin(t*9+r*1.3+c*0.7);
+      ctx.fillStyle=on>0?mix(K.card2,K.green,on*fl):K.card2; rr(x,y,22,22,5); ctx.fill(); } rs();
+    txt(p.b2||'GPU',1420,880,50,K.green,{k:kB,w:900,track:4}); if(p.subB) txt(p.subB,1420,160,40,K.white,{k:kB,w:800}); },
+  // tarjetas de video: p.n tarjetas con ventiladores; p.titulo, p.etq (chip abajo), b: brillo
+  tarjeta(t,lt,sc,p){ const n=p.n||2; const on=sc.b!=null&&t>sc.b?eo(prog(t,sc.b,0.6)):0;
+    for(let i=0;i<n;i++){ const y=n===1?520:400+i*260; const k=pop(t,sc.start+i*0.25,0.45); sv(); at(W_/2,y,k);
+      ctx.fillStyle='#262E52'; rr(-520,-110,1040,220,26); ctx.fill(); ctx.fillStyle=K.gold; for(let j=0;j<16;j++) ctx.fillRect(-440+j*40,110,24,26);
+      for(const fx of [-250,90]){ ctx.fillStyle='#0B1124'; circ(fx,0,88); ctx.fill(); sv(); at(fx,0,1,t*(6+on*14)); ctx.fillStyle='#596288'; for(let b=0;b<7;b++){ ctx.rotate(Math.PI*2/7); ctx.beginPath(); ctx.ellipse(40,0,42,14,0.4,0,Math.PI*2); ctx.fill(); } rs(); }
+      ctx.fillStyle=mix('#1B2448',K.green,on*0.6); rr(250,-70,220,140,16); ctx.fill(); if(on>0){ glow(K.green,40*on); ctx.strokeStyle=K.green; ctx.lineWidth=5; rr(-520,-110,1040,220,26); ctx.stroke(); noGlow(); }
+      rs(); }
+    if(p.titulo) txt(p.titulo,W_/2,150,62,K.white,{k:pop(t,sc.start+0.2,0.4),w:900});
+    if(p.etq) chip(p.etq,W_/2,n===1?820:900,pop(t,(sc.c??sc.start+0.9),0.4),K.gold,K.ink,40); },
+  // escalera: escalones que suben con valor y fecha. p.items:[[valor,fecha,beat]], p.titulo, p.color
+  escalera(t,lt,sc,p){ const I=p.items||[]; const n=I.length; const w=Math.min(380,1560/n); const col=p.color?K[p.color]:K.gold;
+    if(p.titulo) txt(p.titulo,W_/2,150,60,K.white,{k:pop(t,sc.start,0.4),w:900});
+    let last=-1; I.forEach(([v,f,bk],i)=>{ const t0=bk?(sc[bk]??sc.start+0.4+i*0.5):sc.start+0.4+i*0.5; if(t<t0) return; last=i; const u=eo(prog(t,t0,0.5));
+      const x=W_/2-(n*w)/2+i*w, h=100+i*(440/Math.max(1,n-1)); sv(); rr(x+8,880-h*u,w-16,h*u,18); ctx.fillStyle=i===n-1?col:mix(K.card2,col,0.25+0.5*i/n); if(i===n-1) glow(col,30); ctx.fill(); noGlow(); rs();
+      txt(v,x+w/2,880-h*u-50,w>300?58:46,i===n-1?col:K.white,{k:pop(t,t0+0.2,0.3),w:900}); txt(f,x+w/2,920,30,K.muted,{k:pop(t,t0+0.2,0.3),w:800}); });
+    if(last>=0&&p.bandera){ const x=W_/2-(n*w)/2+last*w+w/2, h=100+last*(440/Math.max(1,n-1)); sv(); at(x,880-h-130); ctx.fillStyle=K.white; ctx.fillRect(-3,-20,6,80); ctx.fillStyle=K.red; ctx.beginPath(); ctx.moveTo(3,-20); ctx.lineTo(60,0); ctx.lineTo(3,20); ctx.fill(); rs(); } },
+  // ranking: barras horizontales que se reordenan en beat b. p.items:[[nombre,valor,color]], p.items2 (nuevos valores en b), p.titulo, p.fmt (sufijo)
+  ranking(t,lt,sc,p){ if(p.titulo) txt(p.titulo,W_/2,150,60,K.white,{k:pop(t,sc.start,0.4),w:900});
+    const A=p.items||[], B2=p.items2||A; const u=sc.b!=null?eo(prog(t,sc.b,0.9)):0; const max=p.max||Math.max(...A.map(a=>a[1]),...B2.map(a=>a[1]));
+    const val=i=>lerp(A[i][1],B2[i][1],u); const ordA=[...A.keys()].sort((a,b)=>A[b][1]-A[a][1]), ordB=[...A.keys()].sort((a,b)=>B2[b][1]-B2[a][1]);
+    A.forEach(([nom,_,c],i)=>{ const ra=ordA.indexOf(i), rb=ordB.indexOf(i); const r=lerp(ra,rb,u); const y=330+r*170; const k=pop(t,sc.start+0.3+ra*0.15,0.4); const g=eo(prog(t,sc.start+0.3+ra*0.15,0.8));
+      txt(nom,420,y,44,K.white,{k,w:900,align:'right'}); sv(); ctx.globalAlpha=k; rr(460,y-45,1100*val(i)/max*g,90,24); ctx.fillStyle=K[c]||c; ctx.fill(); rs();
+      txt((p.pre||'$')+val(i).toFixed(p.dec??2)+(p.suf||' B'),470+1100*val(i)/max*g+20,y,42,K.white,{k,w:900,align:'left'});
+      const top=(u<0.5?ra:rb)===0; if(top&&k>0.5){ sv(); at(470+1100*val(i)/max*g+(p.coronaDx||290),y-10,0.55); ctx.fillStyle=K.gold; glow(K.gold,30); ctx.beginPath(); ctx.moveTo(-90,40); ctx.lineTo(-110,-40); ctx.lineTo(-50,0); ctx.lineTo(0,-60); ctx.lineTo(50,0); ctx.lineTo(110,-40); ctx.lineTo(90,40); ctx.closePath(); ctx.fill(); rs(); } });
+    if(p.nota&&sc.b!=null) chip(p.nota,W_/2,880,pop(t,sc.b+0.5,0.4),K.card2,K.white,36); },
+
   // final / suscripción
   final(t,lt,sc,p){ txt(p.l1||'',W_/2,420,80,K.white,{k:pop(t,sc.start,0.4),w:900}); txt(p.l2||'',W_/2,540,56,K.gold,{k:pop(t,sc.start+0.4,0.4),w:800});
     chip(p.cta||'SUSCRÍBETE',W_/2,720,pop(t,sc.start+0.8),K.red,K.white,48); },
