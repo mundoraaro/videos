@@ -1,2 +1,9 @@
 trabajo/
 __pycache__/
+# Intermedios de render (nunca al repo)
+largo/*/_*
+largo/*/*.raw
+largo/*/voz.wav
+largo/*/video_mudo.mp4
+largo/*/render.log
+taller/**/_seg_*
