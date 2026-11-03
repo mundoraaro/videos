@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script src="../lib/doc.js"></script><script>
+async function mini(){ await document.fonts.load('900 96px Inter');
+  const t=1.3; fondo(t,K.red,1);
+  // intruso encapuchado detrás del archivo
+  persona(1740,980,2.1,{t:2,k:1,color:'#3A4470',ropa:'capucha',seed:9});
+  // archivo grande
+  sv(); at(1380,560,1,-0.08); ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=60; ctx.fillStyle='#F2F4FB'; ctx.beginPath(); ctx.moveTo(-200,-270); ctx.lineTo(110,-270); ctx.lineTo(200,-180); ctx.lineTo(200,270); ctx.lineTo(-200,270); ctx.closePath(); ctx.fill(); noGlow();
+  ctx.fillStyle='#B8BEDA'; ctx.beginPath(); ctx.moveTo(110,-270); ctx.lineTo(110,-180); ctx.lineTo(200,-180); ctx.fill(); txt('.zip',0,40,110,K.ink,{w:900}); rs();
+  // onda de clic + cursor
+  sv(); ctx.strokeStyle=K.gold; ctx.lineWidth=12; glow(K.gold,40); circ(1470,690,120); ctx.stroke(); ctx.globalAlpha=0.5; circ(1470,690,190); ctx.stroke(); rs();
+  sv(); at(1450,670,2.4); ctx.fillStyle=K.white; ctx.strokeStyle=K.ink; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,80); ctx.lineTo(20,62); ctx.lineTo(36,96); ctx.lineTo(50,90); ctx.lineTo(34,56); ctx.lineTo(60,56); ctx.closePath(); ctx.fill(); ctx.stroke(); rs();
+  // texto
+  txt('$1,400',90,300,250,K.gold,{w:900,align:'left',glowC:K.gold});
+  txt('MILLONES',100,500,120,K.white,{w:900,align:'left'});
+  txt('ROBADOS',100,630,120,K.red,{w:900,align:'left',glowC:K.red});
+  chip('CON 1 CLIC',330,850,1,K.white,K.ink,90);
+  vineta(); return C.toDataURL('image/jpeg',0.92); }
+</script></body></html>

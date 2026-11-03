@@ -1,0 +1,39 @@
+TÍTULO:
+Cómo robaron $1,400 millones con un clic: el hackeo a Bybit
+
+DESCRIPCIÓN:
+El 21 de febrero de 2025, Bybit, una de las casas de cambio de cripto más grandes del mundo, perdió unos 1,400 millones de dólares en una sola operación: el robo más grande en la historia de las criptomonedas. Nadie rompió una bóveda ni adivinó una contraseña. Todo empezó con un archivo que un programador descargó en su computadora.
+
+⏱️ Capítulos
+0:00 El robo
+0:39 La caja fuerte
+1:06 El archivo
+1:42 La trampa
+2:05 La firma
+2:55 El contraataque
+3:43 Los ladrones
+4:07 El lavado
+4:32 El giro
+
+📚 Fuentes
+- FBI, anuncio público del 26 de febrero de 2025 (vía TechTarget): atribución a Corea del Norte (TraderTraitor/Lazarus)
+- The Hacker News: Safe{Wallet} confirma cómo comprometieron la computadora de un desarrollador (marzo de 2025)
+- Nansen Research: qué pasó y a dónde fueron los fondos
+- The Block: préstamo puente de Bybit y estado de los fondos (77% rastreable, 20% invisible, 3% congelado)
+- Benzinga: recompensa de hasta $140 millones
+- Cointelegraph: volumen y comisiones de THORChain tras el hackeo
+- Cryptopolitan: lavado completo en 10 días
+- FBI vía TechCrunch: Lazarus y el robo de ~$620 millones a Axie Infinity (2022)
+- Reuters vía ForkLog: informe de la ONU sobre robos de cripto de Corea del Norte
+
+La voz de este video se generó con inteligencia artificial. El guion, la investigación y la animación son originales de Oro y Silicio. Esto no es asesoría financiera.
+
+#OroYSilicio #Bybit #Cripto
+
+ETIQUETAS:
+Bybit, hackeo Bybit, Lazarus, Corea del Norte, robo cripto, ethereum, THORChain, Safe wallet, ciberseguridad, hackers, cripto, documental, oro y silicio
+
+AJUSTES AL SUBIR:
+- Categoría: Educación · No es para niños · Contenido alterado o sintético: Sí · Promoción pagada: No
+- Pantalla final desde 5:34 (dura 20 s): video en el recuadro dorado, suscribir en el círculo. Pon como video el de FTX.
+- Publicar: sábado 7 de noviembre, 12:00 p. m. (Ciudad de México)
