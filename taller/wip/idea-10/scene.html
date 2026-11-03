@@ -1,0 +1,316 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// luna-001 — ¿Qué pasaría si la Luna desapareciera? Raro lobo → pirata → buzo → piyama → astronauta → abrigo/playero → ingeniero → lobo (loop).
+
+// ---------- objetos del mundo ----------
+function luna(x,y,r,t,k=1,cara=false){
+  if(k<=0.001) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k);
+  const g=ctx.createRadialGradient(0,0,r*0.6,0,0,r*2.1); g.addColorStop(0,'rgba(255,248,210,0.55)'); g.addColorStop(1,'rgba(255,248,210,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,r*2.1,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#E9DC9A'; ctx.beginPath(); ctx.arc(6,6,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFF4C2'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#EADB92'; for(const [cx,cy,cr] of [[-0.35,-0.25,0.2],[0.3,0.2,0.26],[-0.15,0.45,0.13],[0.42,-0.4,0.11]]){ ctx.beginPath(); ctx.arc(cx*r,cy*r,cr*r,0,Math.PI*2); ctx.fill(); }
+  if(cara){ ctx.fillStyle=RARO.tinta; const bl=parpadeo(t,7); for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*r*0.28,-r*0.08,r*0.08,r*0.12*bl,0,0,Math.PI*2); ctx.fill(); }
+    ctx.strokeStyle=RARO.tinta; ctx.lineWidth=r*0.06; ctx.lineCap='round'; ctx.beginPath(); ctx.arc(0,r*0.12,r*0.16,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); }
+  ctx.restore(); if(typeof ocupa==='function') ocupa(x-r*k,y-r*k,x+r*k,y+r*k,1.5);
+}
+function lunaFantasma(x,y,r,k){ if(k<=0) return; ctx.save(); ctx.globalAlpha=0.7*k; ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=8; ctx.setLineDash([22,18]); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+function interroga(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y+Math.sin(t*5)*8); ctx.scale(k,k); ctx.font=fuente(120); ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.lineWidth=18; ctx.strokeStyle=RARO.tinta; ctx.strokeText('?',0,0); ctx.fillStyle=RARO.lima; ctx.fillText('?',0,0); ctx.restore(); }
+function aullido(t,x,y,ang=-1.2,on=1){ if(on<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.lineCap='round';
+  for(let i=0;i<3;i++){ const ph=((t*1.8+i/3)%1); ctx.globalAlpha=(1-ph)*on; ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=12;
+    ctx.beginPath(); ctx.arc(0,0,40+ph*200,-0.5,0.5); ctx.stroke(); } ctx.restore(); }
+function tierra(x,y,r,t,tilt=0,eje=true){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(tilt);
+  if(eje){ ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-r-90); ctx.lineTo(0,r+90); ctx.stroke(); }
+  ctx.fillStyle='#1C79D2'; ctx.beginPath(); ctx.arc(8,8,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#3AB6FF'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip();
+  ctx.fillStyle='#6CD66C'; for(let i=0;i<5;i++){ const xx=((rand(i)*2.6*r + t*60)%(2.6*r))-1.3*r, yy=(rand(i+3)-0.5)*1.3*r; blob(xx,yy,r*(0.18+rand(i+6)*0.16)); blob(xx+r*0.14,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.ellipse(0,-r*0.93,r*0.5,r*0.14,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(0,r*0.95,r*0.45,r*0.12,0,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-r*0.4,-r*0.45,r*0.22,r*0.1,-0.6,0,Math.PI*2); ctx.fill();
+  ctx.restore(); if(typeof ocupa==='function') ocupa(x-r,y-r,x+r,y+r,1.5);
+}
+function barco(x,y,t){ ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*2.2)*0.06);
+  ctx.fillStyle='#8B4A22'; ctx.beginPath(); ctx.moveTo(-280,-40); ctx.lineTo(280,-40); ctx.quadraticCurveTo(240,90,0,100); ctx.quadraticCurveTo(-240,90,-280,-40); ctx.fill();
+  ctx.fillStyle='#B9692F'; ctx.fillRect(-280,-52,560,26); ctx.fillStyle='#FFD23F'; for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.arc(i*95,20,12,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); }
+function sol(x,y,r,t,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(t*0.6);
+  ctx.fillStyle='#FFE36E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i/12*Math.PI*2); ctx.beginPath(); ctx.moveTo(-22,-r-6); ctx.lineTo(0,-r-60); ctx.lineTo(22,-r-6); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#FFC93C'; blob(0,0,r); ctx.fillStyle='#FFE36E'; blob(-r*0.15,-r*0.15,r*0.8); ctx.restore(); if(typeof ocupa==='function') ocupa(x-r,y-r,x+r,y+r,1); }
+function coral(x,y,s,c,t,seed=0){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.strokeStyle=c; ctx.lineCap='round';
+  const rama=(x0,y0,a,l,w,d)=>{ if(d>3) return; const sw=Math.sin(t*1.5+seed+d)*0.08; const x1=x0+Math.cos(a+sw)*l, y1=y0+Math.sin(a+sw)*l;
+    ctx.lineWidth=w; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.fillStyle=c; blob(x1,y1,w*0.7);
+    rama(x1,y1,a-0.5,l*0.72,w*0.78,d+1); rama(x1,y1,a+0.45,l*0.7,w*0.78,d+1); };
+  rama(0,0,-Math.PI/2,120,42,0); ctx.restore(); }
+function huevos(t,t0,x,y,n,dens=1){ if(t<t0) return; const u=t-t0; ctx.save();
+  for(let i=0;i<n;i++){ const st=rand(i+x)*0.6/dens; if(u<st) continue; const v=u-st; const yy=y-v*(160+rand(i)*160), xx=x+(rand(i+2)-0.5)*220+Math.sin(v*3+i)*30;
+    if(yy<200) continue; ctx.fillStyle=i%3?'#FF9EBB':'#FFC27A'; ctx.globalAlpha=0.95; blob(xx,yy,9+rand(i+4)*9); } ctx.restore(); }
+function reloj(x,y,k,t,rapido=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(Math.sin(t*9)*0.04);
+  ctx.fillStyle='#FF5FA2'; for(const s of [-1,1]){ blob(s*80,-120,40); } ctx.fillStyle='#FFFFFF'; blob(0,0,130); ctx.fillStyle='#FFE9F3'; blob(0,0,110);
+  ctx.fillStyle=RARO.tinta; for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; blob(Math.cos(a)*90,Math.sin(a)*90,7); }
+  ctx.strokeStyle=RARO.tinta; ctx.lineCap='round'; const a1=t*(0.6+rapido*14), a2=t*(0.05+rapido*1.2);
+  ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a1)*80,Math.sin(a1)*80); ctx.stroke();
+  ctx.lineWidth=14; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a2)*55,Math.sin(a2)*55); ctx.stroke(); ctx.restore(); if(typeof ocupa==='function') ocupa(x-140*k,y-160*k,x+140*k,y+140*k,1.5); }
+function chancla(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(-0.2);
+  ctx.fillStyle='#FF4D8D'; rr(-120,-45,240,90,45); ctx.fill(); ctx.fillStyle='#FF9EBB'; rr(-110,-38,220,60,30); ctx.fill();
+  ctx.strokeStyle='#4CC9F0'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-20,-30); ctx.quadraticCurveTo(30,-90,60,-30); ctx.stroke(); ctx.restore(); }
+function papelPicado(t,y){ const C=['#FF5FA2','#FFD23F','#4CC9F0','#D7FF3D','#B388FF','#FF8A3D'];
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-200,y); ctx.quadraticCurveTo(540,y+60,1280,y); ctx.stroke();
+  for(let i=0;i<12;i++){ const x=-120+i*120, yy=y+Math.sin((x+200)/1480*Math.PI)*45; ctx.save(); ctx.translate(x,yy); ctx.rotate(Math.sin(t*2+i)*0.08);
+    ctx.fillStyle=C[i%6]; ctx.beginPath(); ctx.moveTo(-50,0); ctx.lineTo(50,0); ctx.lineTo(50,110); for(let k=0;k<=5;k++) ctx.lineTo(50-k*20,110+(k%2?-14:0)); ctx.lineTo(-50,0); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.55)'; blob(0,45,14); rr(-30,70,16,16,4); ctx.fill(); rr(14,70,16,16,4); ctx.fill(); ctx.restore(); } }
+const LUNITA={ cuerpo(o){ ctx.fillStyle='#EADB92'; for(const [x,y,r] of [[-70,-160,30],[60,-110,40],[-20,-80,22],[90,-190,18]]){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); } },
+  frente(o,B){ const h=B[1].h; ctx.save(); ctx.translate(h[0]+20,h[1]+10); ctx.fillStyle='#8B4A22'; rr(-60,0,120,90,16); ctx.fill(); ctx.fillStyle='#B9692F'; rr(-60,0,120,26,10); ctx.fill();
+    ctx.strokeStyle='#5E3716'; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(0,0,22,Math.PI,0); ctx.stroke(); ctx.restore(); } };
+
+// ---------- escenas ----------
+// S1 storyboard: noche violeta en el cerro. Raro LOBO aúlla a una luna enorme (cuadro 0). En "desapareciera" la luna hace puf; Raro brinca del susto. Toma push.
+function S1(t,sc){
+  const k = t<at(3)?1:Math.max(0,1-easeIn(prog(t,at(3),0.18)));
+  luna(760,560,170,t,k); lunaFantasma(760,560,170,prog(t,at(3)+0.2,0.3)); nubePuf(t,at(3),760,730,0.9);
+  interroga(760,560,popIn(t,at(6)),t);
+  const s=susto(t,at(4));
+  const howl=t<at(3);
+  raro({x:400,y:SUELO,s:1.35,t,expr:howl?'asombro':(t<at(6)?'terror':'asombro'),ojos:howl?0.6:undefined,mira:{x:0.8,y:-1},tilt:howl?-0.18:0,brazos:howl?'idle':'cara',disfraz:'lobo',sq:s.sq,alto:s.alto,wob:s.wob});
+  aullido(t,470,SUELO-330*1.35,-0.9,howl?1:0);
+  chispas(t,at(3),760,560,1.6,'#FFF4C2');
+}
+// S2: selva magenta. Dos lobos gomita jugando cartas, ni voltean; Raro señala el cielo vacío, desesperado.
+function S2(t,sc){
+  const b=brinco(t,at(7),0.4,150);
+  for(const [x,c,sd] of [[200,'#D9C2FF',1],[880,'#B8E6FF',2]]){
+    gomita({x,y:SUELO,s:0.95,t,expr:t>at(10)?'risa':'feliz',disfraz:'lobo',color:c,seed:sd,brazos:t>at(10)?'saluda':'frente',espejo:x>540});
+  }
+  ctx.fillStyle='#FFFFFF'; for(let i=0;i<3;i++){ const k=popIn(t,sc.start+0.1+i*0.12); if(k<=0) continue; ctx.save(); ctx.translate(470+i*70,SUELO-60); ctx.rotate(-0.3+i*0.3); ctx.scale(k,k); rr(-30,-45,60,90,10); ctx.fill(); ctx.fillStyle='#FF4D6D'; blob(0,0,12); ctx.fillStyle='#FFFFFF'; ctx.restore(); }
+  raro({x:540,y:SUELO-120,s:1.15,t,expr:'terror',brazos:'senala',disfraz:'lobo',sq:b.sq,alto:b.alto,wob:b.wob,mira:{x:1,y:-1}});
+  lunaFantasma(860,420,110,1);
+}
+// S3: nieve azul cielo. La manada aúlla entre sí (burbujas de aullido); en "Luna" la luna aparece y se tacha. Bufanda de entrada.
+function S3(t,sc){
+  const kL=popIn(t,at(17)); luna(820,420,95,t,kL);
+  if(t>at(18)){ const u=easeOut(prog(t,at(18),0.25)); ctx.save(); ctx.strokeStyle='#FF4D6D'; ctx.lineWidth=26; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(720,320); ctx.lineTo(720+200*u,320+200*u); ctx.stroke(); if(u>0.5){ const v=(u-0.5)*2; ctx.beginPath(); ctx.moveTo(920,320); ctx.lineTo(920-200*v,320+200*v); ctx.stroke(); } ctx.restore(); }
+  const habla=t>at(19);
+  gomita({x:170,y:SUELO,s:0.85,t,expr:habla?'asombro':'feliz',ojos:habla?0.7:undefined,disfraz:'lobo',color:'#FFC9A8',seed:4,tilt:habla?0.12:0,brazos:'idle'});
+  gomita({x:910,y:SUELO,s:0.85,t,expr:habla?'asombro':'feliz',ojos:habla?0.7:undefined,disfraz:'lobo',color:'#C9F2B8',seed:5,tilt:habla?-0.12:0,espejo:true});
+  aullido(t,250,SUELO-300,-0.4,habla?1:0); aullido(t,830,SUELO-300,-2.7,habla?1:0);
+  const s=gelatina(t,sc.start+0.22);
+  raro({x:540,y:SUELO-30,s:1.2,t,expr:t<at(13)?'asombro':(habla?'feliz':'sospecha'),disfraz:'lobo',sq:s,brazos:habla?'jarras':'idle',mira:habla?{x:-1,y:0}:{x:1,y:-1}});
+  letrero('AUUU',540,640,popIn(t,at(21)),'panel',{tam:64,t,t0:at(21)});
+}
+// S4: limón, plano cerrado: Raro lobo mira a cámara con sospecha. En "mito" cae un sello de piedra MITO. Pattern interrupt.
+function S4(t,sc){
+  raro({x:540,y:SUELO,s:1.4,t,expr:t<at(30)?'sospecha':'orgullo',mira:{x:0,y:0},brazos:t<at(30)?'jarras':'senala',disfraz:'lobo',wob:wobble(t,at(31),0.8)});
+  const k=t<at(31)-0.1?0:1, dy=t<at(31)?-600:lerp(-600,0,easeIn(prog(t,at(31)-0.1,0.1)));
+  if(k) letrero('¡MITO!',540,760+Math.min(0,dy),1,'piedra',{tam:110,t,t0:at(31)});
+  ondaChoque(t,at(31),540,800,'#FFFFFF');
+  chispas(t,at(31),330,760,1.4); chispas(t,at(31)+0.05,750,740,1.4);
+}
+// S5: mar azul cielo. Raro lobo en un barquito busca quién extraña la luna; en "mar" puf → pirata y salpica una ola.
+function S5(t,sc){
+  barco(540,SUELO+10,t);
+  const p=pufCambio(t,at(38));
+  raro({x:540,y:SUELO-40,s:1.2,t,expr:t<at(36)?'sospecha':(p.despues?'feliz':'asombro'),mira:t<at(36)?{x:-1,y:-0.5}:{x:1,y:-0.5},disfraz:p.despues?'pirata':'lobo',spin:p.spin,brazos:p.despues?'saluda':'cara',sq:gelatina(t,at(38)+0.34),tilt:Math.sin(t*2.2)*0.06});
+  nubePuf(t,at(38)+0.06,540,SUELO-200,1.3);
+  interroga(860,520,popIn(t,at(33))*(t<at(38)?1:0),t);
+  if(t>at(37)){ const u=prog(t,at(37),0.7); ctx.save(); ctx.fillStyle='rgba(255,255,255,0.9)'; for(let i=0;i<12;i++){ const a=-Math.PI*(0.15+i/11*0.7); const d=u*420; blob(540+Math.cos(a)*d,SUELO+20+Math.sin(a)*d+u*u*300,22*(1-u)+4); } ctx.restore(); }
+}
+// S6: espacio turquesa. La Tierra con su capa de agua; la Luna la jala y el agua se estira (marea). Raro pirata chiquito surfea encima y sale brincando.
+function S6(t,sc){
+  const kj=easeOut(prog(t,at(41),0.6));
+  luna(900,360,90,t,1);
+  // haz de jalón
+  if(kj>0){ ctx.save(); ctx.globalAlpha=0.5; ctx.strokeStyle='#FFF4C2'; ctx.lineWidth=10; ctx.setLineDash([30,24]); ctx.lineDashOffset=-t*120; ctx.beginPath(); ctx.moveTo(840,430); ctx.lineTo(560,820); ctx.stroke(); ctx.restore(); }
+  ctx.save(); ctx.translate(430,1000); ctx.rotate(-0.86); ctx.fillStyle='rgba(120,220,255,0.75)'; ctx.beginPath(); ctx.ellipse(0,0,285+110*kj,285,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  tierra(430,1000,260,t,0,false);
+  const sal=saleArriba(t,sc.end);
+  const ang=-0.86, px=430+Math.cos(ang)*(300+110*kj), py=1000+Math.sin(ang)*(300+110*kj);
+  raro({x:px,y:py+10,s:0.55,t,expr:kj>0.5?'risa':'asombro',disfraz:'pirata',brazos:'arriba',tilt:0.7,sq:sal.sq,alto:sal.alto});
+  letrero('MAREA',300,520,popIn(t,at(48)),'madera',{tam:76,t,t0:at(48)});
+  chispas(t,at(41),560,820,1.2,'#FFF4C2');
+}
+// S7: olas mandarina. Raro pirata cae al barco; la luna hace puf, sale el Sol; la regla de marea baja de 3 bloques a 1.
+function S7(t,sc){
+  const c=caida(t,sc.start);
+  luna(240,430,85,t,t<at(49)?1:Math.max(0,1-easeIn(prog(t,at(49),0.18)))); nubePuf(t,at(49),240,600,0.7);
+  sol(820,420,95,t,popIn(t,at(56)));
+  // regla de marea
+  ctx.fillStyle='#B97A3E'; rr(140,SUELO-760,60,820,20); ctx.fill(); ctx.fillStyle='#FFF4DC'; for(let i=0;i<8;i++) ctx.fillRect(140,SUELO-720+i*90,36,10);
+  ocupa(110,SUELO-780,330,SUELO,2);
+  for(let i=0;i<3;i++){ const k=popIn(t,at(58)+i*0.12); if(k<=0) continue; const cae=i>0&&t>at(63)? easeIn(prog(t,at(63)+(2-i)*0.08,0.3)) : 0;
+    ctx.save(); ctx.translate(270,SUELO-120-i*150+cae*900); ctx.scale(k,k); ctx.globalAlpha=1-cae*0.6; ctx.fillStyle='#3AB6FF'; rr(-60,-60,120,120,30); ctx.fill(); ctx.fillStyle='#AEE6FF'; rr(-46,-48,60,26,13); ctx.fill(); ctx.restore(); }
+  letrero('1/3',800,640,popIn(t,at(63)+0.15),'panel',{tam:96,t,t0:at(63)+0.15});
+  barco(620,SUELO+10,t);
+  raro({x:620,y:SUELO-40,s:1.1,t,expr:t<at(56)?'asombro':(t<at(63)?'sospecha':'yavalio'),mira:t<at(56)?{x:-1,y:-1}:(t<at(63)?{x:1,y:-1}:{x:-1,y:0.3}),disfraz:'pirata',brazos:t<at(63)?'idle':'cara',sq:c.sq,alto:c.alto,wob:c.wob,tilt:Math.sin(t*2.2)*0.06});
+  chispas(t,at(63),270,SUELO-300,1.3);
+}
+// S8: bajo el mar turquesa. Puf → buzo. Peces gomita en cascada, reloj con lunas, letrero GRAN BARRERA DE CORAL.
+function S8(t,sc){
+  for(const [x,s,c,sd] of [[110,1.1,'#FF8A3D',1],[330,0.8,'#FF5FA2',2],[760,1.0,'#B388FF',3],[980,0.9,'#FFD23F',4]]) coral(x,SUELO+40,s,c,t,sd);
+  cascada(t,at(71),5,(x,y,k,i)=>{ ctx.save(); ctx.translate(x+Math.sin(t*2+i)*30,y); ctx.scale(k*0.8,k*0.8); ctx.fillStyle=PASTELES[i%6]; ctx.beginPath(); ctx.ellipse(0,0,60,38,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(50,0); ctx.lineTo(95,-30); ctx.lineTo(95,30); ctx.fill(); ctx.fillStyle=RARO.tinta; blob(-28,-8,8); ctx.restore(); },{x0:150,y0:1180,cols:5,dx:190,dy:0,cada:0.08});
+  const p=pufCambio(t,sc.start+0.05);
+  raro({x:540,y:SUELO-170+Math.sin(t*2)*20,s:1.05,t,expr:t<at(76)?'feliz':'asombro',disfraz:p.despues?'buzo':'pirata',spin:p.spin,piernas:'flota',brazos:t<at(79)?'idle':'senala',tilt:Math.sin(t*1.3)*0.08});
+  nubePuf(t,sc.start+0.1,540,SUELO-330,1.2);
+  reloj(830,560,popIn(t,at(76))*0.75,t);
+  letrero('GRAN BARRERA DE CORAL',540,400,popIn(t,at(79)),'pergamino',{tam:54,t,t0:at(79)});
+}
+// S9: noche bajo el agua (violeta, escenario propio de 3 capas). Los corales sueltan huevos todos juntos; lunitas cuentan noches; luna llena arriba.
+function S9(t,sc){
+  ctx.fillStyle='rgba(255,255,255,0.08)'; for(let i=0;i<5;i++){ ctx.save(); ctx.translate(540,-200); ctx.rotate(-0.3+i*0.15+Math.sin(t*0.4+i)*0.04); ctx.fillRect(-40,0,80,2600); ctx.restore(); }
+  luna(540,300,90,t,0.6+0.4*popIn(t,at(95)));
+  ctx.fillStyle=mix(PAL_ACTUAL.claro,PAL_ACTUAL.medio,0.4); blob(150,SUELO+120,420); blob(900,SUELO+160,460);
+  for(const [x,s,c,sd] of [[200,0.9,'#FF9EBB',1],[520,1.1,'#FFC27A',2],[860,0.95,'#FF8A3D',3]]) coral(x,SUELO-40,s,c,t,sd);
+  const d=t<at(88)?1:3;
+  for(const x of [200,520,860]) huevos(t,at(85),x,SUELO-260,d>1?40:10,d);
+  for(let i=0;i<3;i++){ const k=popIn(t,at(91)+i*0.12); if(k>0) luna(780+i*95,560,34,t,k); }
+  raro({x:330,y:SUELO-380+Math.sin(t*2)*16,s:0.85,t,expr:t<at(88)?'asombro':'feliz',ojos:t>at(88)?1.9:undefined,disfraz:'buzo',piernas:'flota',brazos:t<at(88)?'idle':'arriba',tilt:Math.sin(t*1.2)*0.1});
+  ctx.fillStyle=PAL_ACTUAL.oscuro; blob(1000,SUELO+300,330); blob(60,SUELO+340,300);
+  chispas(t,at(88),520,1000,1.5,'#FF9EBB');
+}
+// S10: mar magenta. Puf de luna arriba; los corales gomita se miran confundidos con signos de pregunta; uno suelta huevos solo.
+function S10(t,sc){
+  luna(540,300,80,t,t<at(98)?1:Math.max(0,1-easeIn(prog(t,at(98),0.18)))); nubePuf(t,at(98),540,470,0.6);
+  const C=[[170,'#FF9EBB',1],[430,'#FFC27A',2],[690,'#B8E6FF',3],[930,'#C9F2B8',4]];
+  for(const [x,c,sd] of C){ const conf=t>at(99);
+    gomita({x,y:SUELO,s:0.62,t,color:c,seed:sd,expr:conf?'sospecha':'feliz',mira:{x:sd%2?1:-1,y:0},tilt:conf?Math.sin(t*3+sd)*0.1:0,brazos:conf?'arriba':'idle'});
+    interroga(x,SUELO-320,popIn(t,at(99)+sd*0.08)*0.7,t+sd); }
+  huevos(t,at(103),690,SUELO-160,10,1);
+  raro({x:540,y:SUELO-560+Math.sin(t*2)*16,s:0.75,t,expr:t<at(103)?'asombro':'yavalio',disfraz:'buzo',piernas:'flota',brazos:'cara'});
+}
+// S11: ciudad violeta de noche. Puf → piyama. Luna fantasma; Venus es un puntito que titila con su letrero.
+function S11(t,sc){
+  const p=pufCambio(t,at(104));
+  lunaFantasma(300,420,100,prog(t,at(106),0.3));
+  const kv=popIn(t,at(109)); if(kv>0){ ctx.save(); ctx.translate(820,430); ctx.scale(kv,kv); ctx.fillStyle='rgba(255,255,255,0.35)'; blob(0,0,40+Math.sin(t*9)*6); estrella4(0,0,30,'#FFFFFF'); ctx.restore(); }
+  letrero('VENUS',820,580,popIn(t,at(114)),'panel',{tam:60,t,t0:at(114)});
+  raro({x:420,y:SUELO,s:1.3,t,expr:t<at(109)?'asombro':(t<at(114)?'sospecha':'yavalio'),mira:{x:1,y:-1},disfraz:p.despues?'piyama':'buzo',spin:p.spin,brazos:t>at(109)?'senala':'idle',sq:gelatina(t,at(104)+0.34)});
+  nubePuf(t,at(104)+0.06,420,SUELO-200,1.3);
+}
+// S12: cuarto mandarina. En "oscuridad" se apaga todo (click) y solo queda el cono de la lámpara del celular que busca hasta encontrar la chancla.
+function S12(t,sc){
+  chancla(830,SUELO+40,popIn(t,sc.start),t);
+  const off=t>=at(117);
+  const busca=off? (t<at(122)? Math.sin((t-at(117))*3.2)*0.6 : lerp(Math.sin((at(122)-at(117))*3.2)*0.6,0.62,easeOut(prog(t,at(122),0.35)))) : 0;
+  const rx=360, hx=rx+150*1.2, hy=SUELO-210*1.2;
+  raro({x:rx,y:SUELO,s:1.2,t,expr:!off?'feliz':(t<at(127)?'terror':'risa'),disfraz:'piyama',manos:{d:[150,-210]},brazos:'idle',sq:gelatina(t,at(127)),wob:wobble(t,at(127))});
+  ctx.save(); ctx.translate(hx,hy); ctx.rotate(busca); ctx.fillStyle='#22223B'; rr(-20,-36,40,72,10); ctx.fill(); ctx.fillStyle='#4CC9F0'; rr(-14,-28,28,48,6); ctx.fill(); ctx.restore();
+  if(off){ const L=1400, a=busca+0.05, w=0.28; ctx.save(); ctx.globalAlpha=0.74; ctx.fillStyle='#120A22'; ctx.beginPath(); ctx.rect(-600,-600,2400,3200);
+    ctx.moveTo(hx,hy); ctx.lineTo(hx+Math.cos(a-w)*L,hy+Math.sin(a-w)*L); ctx.lineTo(hx+Math.cos(a+w)*L,hy+Math.sin(a+w)*L); ctx.closePath(); ctx.fill('evenodd');
+    ctx.globalAlpha=0.18; ctx.fillStyle='#FFF4C2'; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx+Math.cos(a-w)*L,hy+Math.sin(a-w)*L); ctx.lineTo(hx+Math.cos(a+w)*L,hy+Math.sin(a+w)*L); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#FFFFFF'; for(const s of [-1,1]) blob(rx+s*60,SUELO-290*1.2,6+3*Math.sin(t*8)); }
+  chispas(t,at(127),830,SUELO,1.5);
+}
+// S13: espacio cielo. Puf → astronauta; reloj de arena; la Luna se vuelve ancla con cadena a la Tierra.
+function S13(t,sc){
+  const p=pufCambio(t,sc.start+0.03);
+  tierra(700,1000,230,t,0.41);
+  luna(330,470,95,t,1+0.15*popIn(t,at(137))-0.15*(t>at(137)?1:0));
+  const ka=popIn(t,at(141)); if(ka>0){ ctx.save(); ctx.strokeStyle='#C9CFDA'; ctx.lineWidth=10; ctx.setLineDash([26,14]); ctx.beginPath(); ctx.moveTo(380,550); ctx.lineTo(560,820); ctx.stroke(); ctx.setLineDash([]);
+    ctx.translate(330,470+120*ka); ctx.scale(ka,ka); ctx.strokeStyle='#5C6E90'; ctx.lineWidth=22; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,150); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,90,90,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-50,30); ctx.lineTo(50,30); ctx.stroke(); ctx.beginPath(); ctx.arc(0,-14,18,0,Math.PI*2); ctx.stroke(); ctx.restore(); }
+  const kr=popIn(t,at(132)); if(kr>0){ ctx.save(); ctx.translate(850,520); ctx.scale(kr*0.9,kr*0.9); ctx.rotate(t>at(132)+0.3?Math.min(Math.PI,(t-at(132)-0.3)*4):0);
+    ctx.fillStyle='#B97A3E'; rr(-80,-110,160,22,10); ctx.fill(); rr(-80,88,160,22,10); ctx.fill(); ctx.fillStyle='rgba(200,240,255,0.7)'; ctx.beginPath(); ctx.moveTo(-60,-90); ctx.lineTo(60,-90); ctx.lineTo(6,0); ctx.lineTo(60,90); ctx.lineTo(-60,90); ctx.lineTo(-6,0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.moveTo(-40,90); ctx.lineTo(40,90); ctx.lineTo(0,50); ctx.fill(); ctx.restore(); ocupa(760,400,940,640,1.5); }
+  raro({x:250,y:SUELO-60+Math.sin(t*1.6)*20,s:0.9,t,expr:t<at(131)?'asombro':(t<at(141)?'terror':'asombro'),disfraz:p.despues?'astronauta':'piyama',spin:p.spin,piernas:'flota',brazos:t<at(131)?'idle':'arriba',tilt:Math.sin(t*1.1)*0.12});
+  nubePuf(t,sc.start+0.08,250,SUELO-230,1.0);
+  chispas(t,at(141),330,640,1.3);
+}
+// S14: cielo turquesa. La Tierra gigante se inclina 23.5°, arco del ángulo y letrero. Raro astronauta señala desde la derecha y sale brincando.
+function S14(t,sc){
+  const tilt=0.41*easeOut(prog(t,at(146),0.5));
+  tierra(470,960,300,t,tilt);
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=6; ctx.setLineDash([16,14]); ctx.beginPath(); ctx.moveTo(470,560); ctx.lineTo(470,1360); ctx.stroke(); ctx.setLineDash([]);
+  const ka=prog(t,at(148)-0.2,0.4); if(ka>0){ ctx.strokeStyle=RARO.lima; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(470,960,360,-Math.PI/2,-Math.PI/2+tilt*ka); ctx.stroke(); } ctx.restore();
+  letrero('23.5°',800,470,popIn(t,at(148)),'panel',{tam:92,t,t0:at(148)});
+  const sal=saleArriba(t,sc.end);
+  raro({x:860,y:SUELO+40+Math.sin(t*1.6)*14,s:0.8,t,expr:t<at(148)?'asombro':'orgullo',disfraz:'astronauta',piernas:'flota',brazos:'senala',espejo:true,sq:sal.sq,alto:sal.alto});
+  chispas(t,at(148),800,470,1.4);
+}
+// S15: espacio magenta. Puf de luna; la Tierra se bambolea cada vez más y le sale punta de trompo; Raro astronauta cae y se marea.
+function S15(t,sc){
+  luna(220,420,80,t,t<at(152)?1:Math.max(0,1-easeIn(prog(t,at(152),0.18)))); nubePuf(t,at(152),220,590,0.6);
+  const amp=0.15+0.5*easeOut(prog(t,at(157),1.2)), tilt=0.41+Math.sin(t*7)*amp;
+  const kt=popIn(t,at(159));
+  if(kt>0){ ctx.save(); ctx.translate(600,860); ctx.rotate(tilt*0.6); ctx.scale(kt,kt); ctx.fillStyle='#FF8A3D'; ctx.beginPath(); ctx.moveTo(-120,200); ctx.lineTo(120,200); ctx.lineTo(0,420); ctx.closePath(); ctx.fill(); ctx.fillStyle='#FFD23F'; ctx.fillRect(-120,230,240,20); ctx.restore(); }
+  tierra(600,860,250,t,tilt);
+  const c=caida(t,sc.start);
+  raro({x:300,y:SUELO,s:1.0,t,expr:t<at(157)?'asombro':'yavalio',disfraz:'astronauta',sq:c.sq,alto:c.alto,wob:c.wob+(t>at(157)?Math.sin(t*6)*0.5:0),tilt:t>at(157)?Math.sin(t*5)*0.15:0});
+  estrellitas(t,at(157),300,SUELO-420);
+  lineasVelocidad(t,at(159),600,860,'#FFFFFF');
+}
+// S16: nieve cielo, plano medio-cerrado. Puf → abrigo, tiembla; en "locas" puf → playero con sol encima (en plena nieve).
+function S16(t,sc){
+  const p1=pufCambio(t,at(161)), p2=pufCambio(t,at(166));
+  const ks=popIn(t,at(166)+0.1); sol(780,520,80,t,ks);
+  raro({x:540,y:SUELO,s:1.35,t,expr:t<at(166)?'terror':'risa',disfraz:p2.despues?'playero':(p1.despues?'abrigo':'piyama'),spin:p1.spin||p2.spin,brazos:t<at(166)?'cara':'arriba',sq:gelatina(t,at(166)+0.34),tilt:t<at(166)?Math.sin(t*40)*0.02:0});
+  nubePuf(t,at(161)+0.06,540,SUELO-200,1.3); nubePuf(t,at(166)+0.06,540,SUELO-200,1.3);
+}
+// S17: cerros mandarina al atardecer. Puf → ingeniero; la Luna (con carita) se aleja poquito; cinta métrica de Raro a la Luna; letrero 3.8 CM AL AÑO.
+function S17(t,sc){
+  const p=pufCambio(t,at(167)+0.02);
+  const dx=easeInOut(prog(t,at(180),1.0))*70;
+  const lx=780+dx, ly=520-dx*0.6;
+  luna(lx,ly,110,t,1+0.1*Math.sin(t*3)*0,t>at(170));
+  const kc=prog(t,at(173),0.6);
+  const hx=380+130*1.15, hy=SUELO-260*1.15;
+  if(kc>0){ ctx.save(); ctx.strokeStyle='#FFD23F'; ctx.lineWidth=26; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(lerp(hx,lx-60,kc),lerp(hy,ly+80,kc)); ctx.stroke();
+    ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=4; const L=Math.hypot(lx-60-hx,ly+80-hy)*kc, an=Math.atan2(ly+80-hy,lx-60-hx); for(let d=20;d<L;d+=40){ const x=hx+Math.cos(an)*d, y=hy+Math.sin(an)*d; ctx.beginPath(); ctx.moveTo(x-Math.sin(an)*10,y+Math.cos(an)*10); ctx.lineTo(x+Math.sin(an)*10,y-Math.cos(an)*10); ctx.stroke(); } ctx.restore(); }
+  raro({x:380,y:SUELO,s:1.15,t,expr:t<at(178)?'asombro':'feliz',disfraz:p.despues?'ingeniero':'playero',spin:p.spin,manos:{d:[130,-260]},brazos:'idle',sq:gelatina(t,at(178)),wob:wobble(t,at(178)),mira:{x:1,y:-1}});
+  ctx.fillStyle='#FFD23F'; rr(hx-36,hy-30,72,60,16); ctx.fill();
+  nubePuf(t,at(167)+0.08,380,SUELO-200,1.2);
+  letrero('3.8 CM AL AÑO',400,600,popIn(t,at(182)),'madera',{tam:68,t,t0:at(182)});
+  chispas(t,at(182),400,600,1.3);
+}
+// S18: cielo limón, plano cerrado. Un dedo gigante con regla: la uña crece; Raro ingeniero lo mide con cara de asco.
+function S18(t,sc){
+  const g=easeOut(prog(t,at(192),0.9));
+  ctx.save(); ctx.translate(760,1100); ctx.rotate(-0.12);
+  ctx.fillStyle='#FFC9A8'; rr(-120,-420,240,900,120); ctx.fill(); ctx.fillStyle='#F2A98A'; rr(-90,-60,180,10,5); ctx.fill(); rr(-90,40,180,10,5); ctx.fill();
+  ctx.fillStyle='#FFE3EC'; rr(-80,-400,160,190,60); ctx.fill();
+  ctx.fillStyle='#FFFFFF'; rr(-80,-400-110*g,160,60+110*g,40); ctx.fill();
+  ctx.restore(); ocupa(620,560,900,1700,2);
+  ctx.save(); ctx.translate(540,1000); ctx.fillStyle='#FFD23F'; rr(-30,-380,60,600,10); ctx.fill(); ctx.fillStyle=RARO.tinta; for(let i=0;i<14;i++) ctx.fillRect(-30,-370+i*42,i%2?16:28,5); ctx.restore();
+  raro({x:280,y:SUELO,s:1.05,t,expr:t<at(192)?'sospecha':'asco',disfraz:'ingeniero',brazos:'senala',mira:{x:1,y:-0.6}});
+  letrero('= TUS UÑAS',300,420,popIn(t,at(193)),'pergamino',{tam:64,t,t0:at(193)});
+}
+// S19: fiesta turquesa con papel picado. Puf → lobo. La Luna con maleta se despide despacito hacia la puerta; reloj de pared gira rápido; Raro mira a cámara en "mexicana".
+function S19(t,sc){
+  papelPicado(t,330);
+  ctx.fillStyle='#8B4A22'; rr(860,SUELO-560,200,560,30); ctx.fill(); ctx.fillStyle='#FFD23F'; blob(890,SUELO-280,12);
+  reloj(170,640,0.6,t,t>at(204)?1:0);
+  const mx=lerp(560,740,easeInOut(prog(t,sc.start,sc.end-sc.start)));
+  gomita({x:mx,y:SUELO,s:0.95,t,color:'#FFF1B0',seed:9,expr:'feliz',brazos:'saluda',disfraz:LUNITA});
+  letrero('YA ME VOY…',mx,560,popIn(t,at(200)),'pergamino',{tam:56,t,t0:at(200)});
+  const p=pufCambio(t,at(195));
+  raro({x:260,y:SUELO,s:1.1,t,expr:t<at(207)?'feliz':'sospecha',mira:t<at(207)?{x:1,y:0}:{x:0,y:0},disfraz:p.despues?'lobo':'ingeniero',spin:p.spin,brazos:t<at(207)?'saluda':'jarras',sq:gelatina(t,at(195)+0.34)});
+  nubePuf(t,at(195)+0.06,260,SUELO-180,1.1);
+}
+// S20: igual que S1 (loop). Raro lobo y la luna enorme; mira a cámara en "¿Tú la extrañarías?" y vuelve a aullar.
+function S20(t,sc){
+  luna(760,560,170,t,1);
+  const howl=t>at(211);
+  raro({x:400,y:SUELO,s:1.35,t,expr:howl?'asombro':'sospecha',ojos:howl?0.6:undefined,mira:howl?{x:0.8,y:-1}:{x:0,y:0},tilt:howl?-0.18*easeOut(prog(t,at(211),0.3)):0,brazos:howl?'idle':'jarras',disfraz:'lobo',sq:gelatina(t,sc.start+0.25)});
+  aullido(t,470,SUELO-330*1.35,-0.9,howl?1:0);
+}
+
+const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20];
+const CHIPS={};
+window.FONDOS={1:{pal:'violeta',tipo:'cerros'},2:{pal:'magenta',tipo:'selva'},3:{pal:'cielo',tipo:'nieve'},4:{pal:'limon',tipo:'cerros'},5:{pal:'cielo',tipo:'olas'},
+  6:{pal:'turquesa',tipo:'espacio'},7:{pal:'mandarina',tipo:'olas'},8:{pal:'turquesa',tipo:'mar'},9:{pal:'violeta',tipo:'liso'},10:{pal:'magenta',tipo:'mar'},
+  11:{pal:'violeta',tipo:'ciudad'},12:{pal:'mandarina',tipo:'interior'},13:{pal:'cielo',tipo:'espacio'},14:{pal:'turquesa',tipo:'cielo'},15:{pal:'magenta',tipo:'espacio'},
+  16:{pal:'cielo',tipo:'nieve'},17:{pal:'mandarina',tipo:'cerros'},18:{pal:'limon',tipo:'cielo'},19:{pal:'turquesa',tipo:'interior'},20:{pal:'violeta',tipo:'cerros'}};
+window.TOMAS={1:{mov:'push',z:1.0},2:{mov:'paneo-der'},3:{mov:'pull'},4:{mov:'fija',z:1.55,foco:[540,1050]},5:{mov:'paneo-izq'},6:{mov:'orbita'},7:{mov:'push'},
+  8:{mov:'sube'},9:{mov:'baja',z:1.05},10:{mov:'push',z:1.15,foco:[540,1100]},11:{mov:'paneo-der'},12:{mov:'fija',z:1.08},13:{mov:'orbita'},14:{mov:'pull'},
+  15:{mov:'push'},16:{mov:'fija',z:1.3,foco:[540,1050]},17:{mov:'sube'},18:{mov:'push',z:1.1},19:{mov:'paneo-izq'},20:{mov:'push',z:1.0}};
+window.TRANS={3:'bufanda',5:'latigazo',8:'zoom',11:'bufanda',13:'zoom',16:'latigazo',17:'bufanda',19:'latigazo',20:'zoom'};
+window.KEYWORDS=[3,10,13,24,31,38,48,63,76,87,96,103,114,118,122,141,148,159,166,178,182,194,202,207,210];
+window.SHAKES=[3,31,63,117,141,166];
+window.FLASHES=[[3,'#FFFFFF'],[31,'#FFD23F'],[141,'#FFFFFF'],[166,'#FFF4C2']];
+</script></body></html>

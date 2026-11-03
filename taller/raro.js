@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -420,6 +420,41 @@ const DISFRACES = {
       ctx.fillStyle='rgba(60,200,120,0.65)'; ctx.beginPath(); ctx.moveTo(-138,-6); ctx.lineTo(138,-6); ctx.lineTo(110,46); ctx.quadraticCurveTo(0,64,-110,46); ctx.closePath(); ctx.fill();
       ctx.save(); ctx.translate(128,-40); ctx.rotate(0.9); ctx.fillStyle='#FFD23F'; ctx.fillRect(-8,-50,16,90); ctx.fillStyle='#FF9EBB'; ctx.fillRect(-8,-62,16,14); ctx.fillStyle='#3A2A1A'; ctx.beginPath(); ctx.moveTo(-8,40); ctx.lineTo(8,40); ctx.lineTo(0,58); ctx.fill(); ctx.restore();
       ctx.restore(); }
+  },
+  lobo: { // disfraz de lobo: capucha gris con orejas, panza clara, cola esponjada que se menea
+    atras(o){ const w=o.wob||0; ctx.save(); ctx.translate(120,-90); ctx.rotate(0.5+Math.sin(o.t*7)*0.25+w*0.4);
+      ctx.fillStyle='#7E82A3'; ctx.beginPath(); ctx.ellipse(70,0,95,42,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#E4E2EE'; ctx.beginPath(); ctx.ellipse(140,0,34,26,0,0,Math.PI*2); ctx.fill(); ctx.restore(); },
+    cuerpo(o){ ctx.fillStyle='#9A9DB8'; ctx.fillRect(-200,-210,400,190);
+      ctx.fillStyle='#E4E2EE'; ctx.beginPath(); ctx.ellipse(0,-90,92,96,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#7E82A3'; for(let x=-190;x<200;x+=38){ ctx.beginPath(); ctx.moveTo(x,-40); ctx.lineTo(x+19,-14); ctx.lineTo(x+38,-40); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0;
+      ctx.fillStyle='#9A9DB8'; ctx.beginPath(); ctx.moveTo(-158,-210); ctx.bezierCurveTo(-190,-470,190,-470,158,-210); ctx.lineTo(126,-222); ctx.bezierCurveTo(140,-392,-140,-392,-126,-222); ctx.closePath(); ctx.fill();
+      for(const s of [-1,1]){ ctx.save(); ctx.translate(s*92,-392); ctx.rotate(s*(0.28+Math.sin(o.t*5+s)*0.06)+w*0.3*s);
+        ctx.fillStyle='#9A9DB8'; ctx.beginPath(); ctx.moveTo(-46,22); ctx.quadraticCurveTo(-10,-110,6,-118); ctx.quadraticCurveTo(30,-60,46,22); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#FFB8D2'; ctx.beginPath(); ctx.moveTo(-24,14); ctx.quadraticCurveTo(-4,-70,6,-78); ctx.quadraticCurveTo(20,-40,26,14); ctx.closePath(); ctx.fill(); ctx.restore(); }
+      ctx.fillStyle='#E4E2EE'; for(let i=0;i<9;i++){ const a=Math.PI*(1.08+i/8*0.84); ctx.beginPath(); ctx.arc(Math.cos(a)*150,-300+Math.sin(a)*108,13,0,Math.PI*2); ctx.fill(); } }
+  },
+  buzo: { // buzo de snorkel: traje de neopreno, visor y snorkel
+    cuerpo(o){ ctx.fillStyle='#2B4C9B'; ctx.fillRect(-200,-210,400,190); ctx.fillStyle='#FF8A3D'; ctx.fillRect(-200,-130,400,18); ctx.fillRect(-200,-90,400,10);
+      ctx.fillStyle='#1B336E'; ctx.beginPath(); ctx.moveTo(-10,-205); ctx.lineTo(10,-205); ctx.lineTo(10,-30); ctx.lineTo(-10,-30); ctx.fill(); },
+    frente(o){ ctx.save(); ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=12; ctx.beginPath(); ctx.moveTo(-150,-300); ctx.lineTo(150,-300); ctx.stroke();
+      ctx.fillStyle='#FF6B35'; rr(-118,-345,236,104,44); ctx.fill(); ctx.fillStyle='rgba(170,240,255,0.45)'; rr(-100,-332,200,78,34); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.ellipse(-62,-318,26,9,-0.4,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#FFD23F'; ctx.lineWidth=18; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(40,-226); ctx.quadraticCurveTo(140,-226,150,-300); ctx.lineTo(160,-470); ctx.stroke();
+      ctx.fillStyle='#FF6B35'; rr(144,-500,34,40,10); ctx.fill(); ctx.restore(); }
+  },
+  playero: { // turista de playa: camisa de flores, sombrero de sol, lentes oscuros y flotador
+    cuerpo(o){ ctx.fillStyle='#FF5FA2'; ctx.fillRect(-200,-210,400,190);
+      for(let i=0;i<9;i++){ const x=-160+rand(i)*320, y=-190+rand(i+5)*150; ctx.fillStyle=i%2?'#FFE36E':'#FFFFFF'; for(let k=0;k<5;k++){ const a=k/5*Math.PI*2; ctx.beginPath(); ctx.arc(x+Math.cos(a)*12,y+Math.sin(a)*12,9,0,Math.PI*2); ctx.fill(); } ctx.fillStyle='#FF8A3D'; ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-366); ctx.rotate(0.1+w*0.08);
+      ctx.fillStyle='#F2C65A'; ctx.beginPath(); ctx.ellipse(0,0,190,36,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFE08A'; ctx.beginPath(); ctx.moveTo(-80,-4); ctx.quadraticCurveTo(-70,-92,0,-94); ctx.quadraticCurveTo(70,-92,80,-4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#4CC9F0'; ctx.fillRect(-80,-26,160,20); ctx.restore(); },
+    frente(o){ ctx.fillStyle='#1E1A2E'; for(const s of [-1,1]){ rr(s*52-44,-318,88,58,22); ctx.fill(); } ctx.fillRect(-12,-300,24,8);
+      ctx.fillStyle='rgba(255,255,255,0.5)'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*52-16,-302,14,6,-0.4,0,Math.PI*2); ctx.fill(); }
+      ctx.save(); ctx.translate(0,-70+Math.sin(o.t*3)*4); ctx.lineWidth=50; for(let i=0;i<12;i++){ ctx.strokeStyle=i%2?'#FFFFFF':'#FF4D5E'; ctx.beginPath(); ctx.ellipse(0,0,178,44,0,i/12*Math.PI*2,(i+1)/12*Math.PI*2+0.02); ctx.stroke(); }
+      ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=8; ctx.beginPath(); ctx.ellipse(0,-14,170,34,0,Math.PI*1.1,Math.PI*1.5); ctx.stroke(); ctx.restore(); }
   },
   cavernicola: {
     cuerpo(o){ // piel de leopardo de un solo hombro
