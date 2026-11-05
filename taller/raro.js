@@ -856,3 +856,30 @@ if(typeof bolsaOro==='undefined'){ window.bolsaOro=function(x,y,k,t){ if(k<=0) r
   ctx.fillStyle='#C98A2B'; blob(0,0,60); ctx.beginPath(); ctx.moveTo(-30,-48); ctx.lineTo(30,-48); ctx.lineTo(18,-80); ctx.lineTo(-18,-80); ctx.fill();
   ctx.fillStyle='#E9B04A'; blob(-16,-12,30); ctx.fillStyle='#FFD23F'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('$',0,8); ctx.restore(); }
 }
+
+// ---------- disfraz agregado con hongo-001 (nov 2026): hormiga carpintera (o.red = red del hongo, o.tallo = tallo en la cabeza) ----------
+DISFRACES.hormiga = { // mameluco de hormiga carpintera: cuerpo café oscuro segmentado, antenas que rebotan, patitas extra y mandíbulas;
+                      // o.tallo (0..1) hace crecer el tallo del hongo desde la cabeza; o.red (0..1) dibuja la red del hongo por dentro
+  cuerpo(o){ ctx.fillStyle='#5A3A2E'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#4A2E24'; for(const y of [-150,-95]) { ctx.beginPath(); ctx.ellipse(0,y,210,10,0,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle='#7A5242'; ctx.beginPath(); ctx.ellipse(-60,-170,40,14,-0.3,0,Math.PI*2); ctx.fill();
+    if(o.red>0) redHongo(o.red,o.t,-200,-30); },
+  cabeza(o){ const w=o.wob||0, t=o.t||0;
+    for(const s of [-1,1]){ const a=s*0.35+Math.sin(t*6+s)*0.08+w*0.3*s; ctx.save(); ctx.translate(s*48,-364); ctx.rotate(a);
+      ctx.strokeStyle='#4A2E24'; ctx.lineWidth=12; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*10,-70,s*50,-110); ctx.stroke();
+      ctx.fillStyle='#5A3A2E'; ctx.beginPath(); ctx.arc(s*52,-114,18,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    if(o.tallo>0) tallo(o.tallo,t); },
+  frente(o,B){ const t=o.t||0; ctx.fillStyle='#4A2E24';
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*70,-214); ctx.rotate(s*(0.25+Math.sin(t*10)*0.05)); ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*30,10,s*14,34); ctx.quadraticCurveTo(s*6,14,0,0); ctx.fill(); ctx.restore();
+      ctx.strokeStyle='#5A3A2E'; ctx.lineWidth=14; ctx.lineCap='round'; const ph=Math.sin(t*14+s)*12; ctx.beginPath(); ctx.moveTo(s*150,-110); ctx.quadraticCurveTo(s*215,-120+ph,s*230,-40+ph); ctx.stroke(); } }
+};
+function redHongo(k,t,y0,y1){ // hilos claros del hongo que se ramifican
+  ctx.save(); ctx.strokeStyle='#FFF1B8'; ctx.shadowColor='#FFE36A'; ctx.shadowBlur=12; ctx.lineCap='round';
+  for(let i=0;i<14;i++){ const u=clamp(k*1.4-i*0.05); if(u<=0) continue; const x0=-150+rand(i)*300, ya=y0+rand(i+3)*(y1-y0);
+    ctx.lineWidth=4+rand(i+5)*4; ctx.beginPath(); ctx.moveTo(x0,ya); const n=6;
+    for(let j=1;j<=n*u;j++){ ctx.lineTo(x0+Math.sin(i*3+j*1.7)*40*j/2, ya+Math.cos(i+j*2.1)*30*j/2); } ctx.stroke(); }
+  ctx.restore(); }
+function tallo(k,t){ const h=360*easeOut(k); ctx.save(); ctx.translate(-10,-370); ctx.rotate(Math.sin(t*2)*0.05);
+  ctx.strokeStyle='#E9C46A'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(40,-h*0.5,10,-h); ctx.stroke();
+  ctx.strokeStyle='#F6DE9A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(-4,-10); ctx.quadraticCurveTo(34,-h*0.5,6,-h); ctx.stroke();
+  if(k>0.7){ const b=popIn(t,0,1)*easeOut((k-0.7)/0.3); ctx.fillStyle='#D98E3A'; ctx.beginPath(); ctx.ellipse(10,-h,34*b,46*b,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#F2B867'; blob(0,-h-12,12*b); }
+  ctx.restore(); }
