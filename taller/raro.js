@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante / escolar (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -905,4 +905,13 @@ DISFRACES.rana = { // mameluco de rana de bosque: café claro con manchas, panza
     ctx.restore(); },
   frente(o,B){ if(o.galan){ const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.strokeStyle='#3E9B57'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(10,-90); ctx.stroke();
       ctx.fillStyle='#FF5FA2'; for(let i=0;i<5;i++){ const a=i/5*Math.PI*2+(o.t||0); blob(10+Math.cos(a)*22,-100+Math.sin(a)*22,16); } ctx.fillStyle='#FFD23F'; blob(10,-100,13); ctx.restore(); } }
+};
+
+// Disfraz agregado por microondas-001 (nov 2026): niño de primaria con mochila.
+DISFRACES.escolar = { // uniforme escolar: camisa blanca con suéter azul marino, corbatín rojo y mochila roja con tirantes
+  atras(o){ const w=o.wob||0; ctx.save(); ctx.rotate(w*0.04); ctx.fillStyle='#E23D5B'; rr(-150,-330,300,280,60); ctx.fill(); ctx.fillStyle='#C42A48'; rr(-110,-150,220,90,30); ctx.fill(); ctx.restore(); },
+  cuerpo(o){ ctx.fillStyle='#2E3F7A'; ctx.fillRect(-200,-205,400,210); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-60,-208); ctx.lineTo(0,-130); ctx.lineTo(60,-208); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(-30,-196); ctx.lineTo(0,-180); ctx.lineTo(30,-196); ctx.lineTo(30,-164); ctx.lineTo(0,-180); ctx.lineTo(-30,-164); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(-70,-120,16,0,Math.PI*2); ctx.fill(); },
+  frente(o){ ctx.strokeStyle='#C42A48'; ctx.lineWidth=18; ctx.lineCap='round'; for(const s of [-1,1]){ ctx.beginPath(); ctx.moveTo(s*120,-215); ctx.quadraticCurveTo(s*135,-150,s*125,-80); ctx.stroke(); } }
 };
