@@ -818,3 +818,41 @@ function ondaChoque(t,t0,x,y,color='#FFFFFF',d=0.45){
 function cascada(t,t0,n,fn,{x0=140,y0=360,cols=6,dx=160,dy=170,cada=0.05}={}){
   for(let i=0;i<n;i++){ const k=popIn(t,t0+i*cada,0.25); if(k<=0) continue; fn(x0+(i%cols)*dx, y0+Math.floor(i/cols)*dy, k, i); }
 }
+
+// ---------- disfraces agregados con emperador-001 (nov 2026) ----------
+// emperador: uniforme azul de gala, charreteras doradas, sombrero alto con pluma. rico: levita, copa y monóculo (o.bolsa, o.chafa).
+DISFRACES.emperador = { // uniforme azul de gala con charreteras doradas, banda roja y sombrero alto con pluma
+  cuerpo(o){ ctx.fillStyle='#2B3A8C'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#22307A'; ctx.fillRect(-4,-205,8,175);
+    ctx.fillStyle='#E23D5B'; ctx.save(); ctx.translate(0,-120); ctx.rotate(-0.55); ctx.fillRect(-260,-18,520,36); ctx.restore();
+    ctx.fillStyle='#FFD23F'; for(const y of [-180,-140,-100,-62]) for(const x of [-34,34]){ ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.fill(); } },
+  cabeza(o){ const w=o.wob||0, t=o.t||0; ctx.save(); ctx.translate(0,-362); ctx.rotate(-0.06+w*0.07);
+    ctx.fillStyle='#1B2257'; ctx.beginPath(); ctx.ellipse(0,0,132,24,0,0,Math.PI*2); ctx.fill();
+    rr(-84,-190,168,190,18); ctx.fill(); ctx.fillStyle='#2A3478'; rr(-70,-182,40,170,14); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.fillRect(-84,-46,168,24);
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(-50,-34,22,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(-50,-34,9,0,Math.PI*2); ctx.fill();
+    // pluma de pavorreal que se mece
+    ctx.save(); ctx.translate(-50,-40); ctx.rotate(-0.35+Math.sin(t*4)*0.08+w*0.35);
+    ctx.fillStyle='#17C6B4'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-70,-120,-20,-250); ctx.quadraticCurveTo(40,-120,0,0); ctx.fill();
+    ctx.fillStyle='#4CC9F0'; ctx.beginPath(); ctx.ellipse(-18,-215,22,30,0.2,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#2B3A8C'; ctx.beginPath(); ctx.arc(-17,-212,11,0,Math.PI*2); ctx.fill();
+    ctx.restore(); ctx.restore(); },
+  frente(o,B){ const w=o.wob||0, t=o.t||0; // charreteras con flecos que rebotan + sable
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*128,-190); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(0,0,52,22,s*0.25,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#F2B807'; ctx.lineWidth=7; ctx.lineCap='round'; for(let i=-3;i<=3;i++){ const sw=Math.sin(t*7+i)*4+w*14; ctx.beginPath(); ctx.moveTo(i*13,12); ctx.lineTo(i*13+sw,44); ctx.stroke(); } ctx.restore(); }
+    ctx.save(); ctx.translate(-120,-70); ctx.rotate(0.5); ctx.fillStyle='#C9CFDA'; rr(-6,0,12,170,6); ctx.fill(); ctx.fillStyle='#FFD23F'; rr(-22,-14,44,16,8); ctx.fill(); ctx.restore(); }
+};
+DISFRACES.rico = { // comerciante rico de 1850: levita negra, moño rojo, sombrero de copa y monóculo; o.bolsa=true lleva bolsa de oro
+  cuerpo(o){ ctx.fillStyle='#2A2438'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-56,-205); ctx.lineTo(0,-90); ctx.lineTo(56,-205); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(0,-186); ctx.lineTo(-30,-200); ctx.lineTo(-30,-172); ctx.closePath(); ctx.moveTo(0,-186); ctx.lineTo(30,-200); ctx.lineTo(30,-172); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.fillRect(40,-120,60,6); },
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-360); ctx.rotate(0.08+w*0.08); if(o.chafa){ ctx.rotate(-0.3); }
+    ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(0,0,120,22,0,0,Math.PI*2); ctx.fill(); rr(-74,o.chafa?-110:-170,148,o.chafa?110:170,12); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.fillRect(-74,-36,148,20); ctx.restore(); },
+  frente(o,B){ ctx.strokeStyle='#FFD23F'; ctx.lineWidth=6; ctx.beginPath(); ctx.arc(52,-288,40,0,Math.PI*2); ctx.stroke();
+    ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(88,-270); ctx.quadraticCurveTo(110,-200,80,-150); ctx.stroke();
+    if(o.bolsa){ const h=B[1].h; bolsaOro(h[0]+20,h[1]+40,1,o.t); } }
+};
+
+if(typeof bolsaOro==='undefined'){ window.bolsaOro=function(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(Math.sin((t||0)*3)*0.06);
+  ctx.fillStyle='#C98A2B'; blob(0,0,60); ctx.beginPath(); ctx.moveTo(-30,-48); ctx.lineTo(30,-48); ctx.lineTo(18,-80); ctx.lineTo(-18,-80); ctx.fill();
+  ctx.fillStyle='#E9B04A'; blob(-16,-12,30); ctx.fillStyle='#FFD23F'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('$',0,8); ctx.restore(); }
+}
