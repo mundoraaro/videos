@@ -106,7 +106,7 @@ Cada video se hace como si fuera a ser el más visto de la cuenta. Antes de rend
   - **Mizael** (principal; datos y "qué pasaría si"): voice `HRUUrQrYM9LfgDbWoMXS`.
   - **Carito** (historias y series con otro tono): voice `NNuHMQa2acKEytgZ6uvw`.
 - Etiquetas de emoción dentro del texto, al menos una cada dos frases: `[excited]`, `[curious]`, `[surprised]`, `[whispers]`, `[laughs softly]`. Usa "¡...!" y "¿...?" para dar energía. Escribe el cierre como "Esto es Mundo Raaaro."
-- Genera **2 tomas** y quédate con la que dure menos (suele ser la más enérgica), siempre que la transcripción confirme que no leyó las etiquetas.
+- Genera **1 sola toma** (decisión de Héctor, 5 nov 2026: ahorro de saldo de Speko, ~$0.14 por Reel). Solo genera una segunda si la transcripción muestra que leyó las etiquetas, se trabó o pronunció mal un dato. Nunca más de 2 por video.
 - El resultado es grande y se guarda en un archivo JSON: decodifica `audio_base64` con Python a `voz.wav`. Su `url` firmada dura 15 minutos.
 - `audio_transcribe` con esa url, `language: "es-MX"`, `word_timestamps: true` → guarda `words_raw.json` como `[[texto, inicio_ms, fin_ms], ...]`. Corrige la ortografía con tu guion (acentos, "Sí,"), y la última palabra como "Raaaro".
 
