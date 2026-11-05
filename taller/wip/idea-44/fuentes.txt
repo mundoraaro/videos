@@ -1,0 +1,7 @@
+Fuentes verificadas (5 nov 2026):
+- Larson et al. 2014, Journal of Experimental Biology 217:2193, "Wood frog adaptations to overwintering in Alaska: new limits to freezing tolerance": sensores de temperatura en el escondite de cada rana (cada 5 min); congeladas 193 ± 11 días seguidos en promedio; mínimas de -8.9 a -18.1 °C; las 18 ranas silvestres sobrevivieron; glucosa 13 veces mayor en músculo y 10 en corazón que las congeladas en laboratorio; los ciclos de congelar y descongelar en otoño la acumularían.
+- University of Alaska Fairbanks / EurekAlert, "Alaska frogs stock up on glucose to survive extreme cold": 100 % de supervivencia a -18 °C; ranas del este de EE. UU. y Canadá solo aguantan unas semanas y no menos de -7.2 °C; congelamientos repetidos en otoño las hacen liberar cada vez más glucosa.
+- Discover Magazine, "Frogs Survive Subzero Temperatures by Living as Ice Cubes": promedio de 193 días congeladas, sensores en sus escondites, hasta -18.1 °C.
+- Vermont Center for Ecostudies, "Back from the nearly dead": hasta 65 % del agua total del cuerpo hecha hielo; respiración, latido y movimiento se detienen.
+- Snopes, "Frogsicles": dos tercios del agua del cuerpo congelada; el corazón deja de latir.
+- Northern Woodlands, "Frogs withstand winter by freezing": se entierran en la hojarasca; el glucógeno del hígado se vuelve glucosa que funciona como anticongelante y evita que se congele el agua dentro de las células.
