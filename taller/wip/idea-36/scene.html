@@ -1,0 +1,263 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// hongo-001 — "El hongo que convierte hormigas en zombis" (Ophiocordyceps). Raro = hormiga carpintera.
+// ---------------- disfraz nuevo (también se agrega a raro.js) ----------------
+DISFRACES.hormiga = { // mameluco de hormiga carpintera: cuerpo café oscuro segmentado, antenas que rebotan, patitas extra y mandíbulas;
+                      // o.tallo (0..1) hace crecer el tallo del hongo desde la cabeza; o.red (0..1) dibuja la red del hongo por dentro
+  cuerpo(o){ ctx.fillStyle='#5A3A2E'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#4A2E24'; for(const y of [-150,-95]) { ctx.beginPath(); ctx.ellipse(0,y,210,10,0,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle='#7A5242'; ctx.beginPath(); ctx.ellipse(-60,-170,40,14,-0.3,0,Math.PI*2); ctx.fill();
+    if(o.red>0) redHongo(o.red,o.t,-200,-30); },
+  cabeza(o){ const w=o.wob||0, t=o.t||0;
+    for(const s of [-1,1]){ const a=s*0.35+Math.sin(t*6+s)*0.08+w*0.3*s; ctx.save(); ctx.translate(s*48,-364); ctx.rotate(a);
+      ctx.strokeStyle='#4A2E24'; ctx.lineWidth=12; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*10,-70,s*50,-110); ctx.stroke();
+      ctx.fillStyle='#5A3A2E'; ctx.beginPath(); ctx.arc(s*52,-114,18,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    if(o.tallo>0) tallo(o.tallo,t); },
+  frente(o,B){ const t=o.t||0; ctx.fillStyle='#4A2E24';
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*70,-214); ctx.rotate(s*(0.25+Math.sin(t*10)*0.05)); ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*30,10,s*14,34); ctx.quadraticCurveTo(s*6,14,0,0); ctx.fill(); ctx.restore();
+      ctx.strokeStyle='#5A3A2E'; ctx.lineWidth=14; ctx.lineCap='round'; const ph=Math.sin(t*14+s)*12; ctx.beginPath(); ctx.moveTo(s*150,-110); ctx.quadraticCurveTo(s*215,-120+ph,s*230,-40+ph); ctx.stroke(); } }
+};
+function redHongo(k,t,y0,y1){ // hilos claros del hongo que se ramifican
+  ctx.save(); ctx.strokeStyle='#FFF1B8'; ctx.shadowColor='#FFE36A'; ctx.shadowBlur=12; ctx.lineCap='round';
+  for(let i=0;i<14;i++){ const u=clamp(k*1.4-i*0.05); if(u<=0) continue; const x0=-150+rand(i)*300, ya=y0+rand(i+3)*(y1-y0);
+    ctx.lineWidth=4+rand(i+5)*4; ctx.beginPath(); ctx.moveTo(x0,ya); const n=6;
+    for(let j=1;j<=n*u;j++){ ctx.lineTo(x0+Math.sin(i*3+j*1.7)*40*j/2, ya+Math.cos(i+j*2.1)*30*j/2); } ctx.stroke(); }
+  ctx.restore(); }
+function tallo(k,t){ const h=360*easeOut(k); ctx.save(); ctx.translate(-10,-370); ctx.rotate(Math.sin(t*2)*0.05);
+  ctx.strokeStyle='#E9C46A'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(40,-h*0.5,10,-h); ctx.stroke();
+  ctx.strokeStyle='#F6DE9A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(-4,-10); ctx.quadraticCurveTo(34,-h*0.5,6,-h); ctx.stroke();
+  if(k>0.7){ const b=popIn(t,0,1)*easeOut((k-0.7)/0.3); ctx.fillStyle='#D98E3A'; ctx.beginPath(); ctx.ellipse(10,-h,34*b,46*b,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#F2B867'; blob(0,-h-12,12*b); }
+  ctx.restore(); }
+const HONGO = { // sombrero de hongo para gomitas: el "Señor Hongo"
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-350); ctx.rotate(w*0.1);
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.ellipse(0,0,230,150,0,Math.PI,0); ctx.fill(); ctx.fillStyle='#C42A48'; ctx.fillRect(-230,-6,460,24);
+    ctx.fillStyle='#FFF4E6'; for(const [x,y,r] of [[-120,-60,30],[10,-110,36],[130,-50,26],[-40,-30,18],[70,-75,16]]) blob(x,y,r); ctx.restore(); }
+};
+const TIA = { // rebozo para la tía
+  cuerpo(o){ ctx.fillStyle='#B388FF'; ctx.fillRect(-200,-205,400,175); ctx.strokeStyle='#8D5BE0'; ctx.lineWidth=6; for(let x=-180;x<200;x+=40){ctx.beginPath();ctx.moveTo(x,-205);ctx.lineTo(x+20,-30);ctx.stroke();} },
+  cabeza(o){ ctx.fillStyle='#8D5BE0'; ctx.save(); ctx.beginPath(); ctx.ellipse(0,-330,170,90,0,Math.PI,0); ctx.fill(); ctx.restore(); }
+};
+// ---------------- objetos ----------------
+function hojaG(x,y,s,rot,t,mordida){ ctx.save(); ctx.translate(x,y); ctx.rotate(rot+Math.sin(t*1.5)*0.03); ctx.scale(s,s);
+  ctx.fillStyle='#5BB86B'; ctx.beginPath(); ctx.moveTo(-300,0); ctx.quadraticCurveTo(0,-200,300,0); ctx.quadraticCurveTo(0,200,-300,0); ctx.fill();
+  ctx.fillStyle='#7BD389'; ctx.beginPath(); ctx.moveTo(-300,0); ctx.quadraticCurveTo(0,-200,300,0); ctx.quadraticCurveTo(0,-40,-300,0); ctx.fill();
+  ctx.strokeStyle='#3E9B57'; ctx.lineWidth=12; ctx.beginPath(); ctx.moveTo(-320,0); ctx.lineTo(290,0); ctx.stroke(); ctx.lineWidth=6;
+  for(let i=-3;i<=3;i++){ if(!i) continue; ctx.beginPath(); ctx.moveTo(i*70,0); ctx.lineTo(i*70+60,-70); ctx.moveTo(i*70,0); ctx.lineTo(i*70+60,70); ctx.stroke(); }
+  if(mordida){ ctx.fillStyle='#2E7D46'; for(const mx of mordida){ blob(mx-14,0,13); blob(mx+14,0,13); ctx.fillRect(mx-14,-5,28,10); } }
+  ctx.restore(); }
+function espora(x,y,r,t,i){ ctx.save(); ctx.globalAlpha=0.9; ctx.fillStyle='#FFE9A8'; ctx.shadowColor='#FFF4C2'; ctx.shadowBlur=18; blob(x,y,r); ctx.fillStyle='#FFFFFF'; blob(x-r*0.3,y-r*0.3,r*0.3); ctx.restore(); }
+function lluviaEsporas(t,t0,x,y,w,h,n=18){ if(t<t0) return; for(let i=0;i<n;i++){ const u=((t-t0)*0.7+rand(i))%1; espora(x+(rand(i+7)-0.5)*w*(0.3+u), y+u*h, 8+rand(i)*8, t, i); } }
+function hilos(t,pts,barY=200){ ctx.save(); ctx.fillStyle='#7A4A22'; rr(200,barY-20,680,36,18); ctx.fill(); ctx.fillRect(520,barY-60,40,60);
+  ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=4; for(const [x,y] of pts){ ctx.beginPath(); ctx.moveTo(lerp(240,840,(x-200)/680),barY); ctx.lineTo(x,y); ctx.stroke(); } ctx.restore(); }
+function interrogacion(x,y,k,t,i){ if(k<=0) return; ctx.save(); ctx.translate(x,y+Math.sin(t*5+i)*8); ctx.scale(k,k); ctx.fillStyle='#FFFFFF'; blob(0,0,40); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?',0,4); ctx.restore(); }
+function hormiguitas(t,y,n,dir=1,seed=0,opts={}){ for(let i=0;i<n;i++){ const x=((t*120*dir+i*260+seed*50)%1500+1500)%1500-200; gomita({x,y:y+(i%2)*14,s:0.38,t,seed:i+seed,expr:opts.expr||'feliz',piernas:'corre',disfraz:'hormiga',color:'#FFC9A8',alto:Math.abs(Math.sin(t*12+i))*8,espejo:dir<0,npc_peso:0.3}); } }
+function rama(y,t){ ctx.fillStyle='#7A4A22'; ctx.save(); ctx.translate(0,y); ctx.rotate(-0.06); rr(-100,-30,900,60,30); ctx.fill(); ctx.fillStyle='#5E3716'; rr(-100,10,900,20,10); ctx.fill(); ctx.restore(); hojaG(860,y-60,0.5,-0.6,t); }
+function gotas(t,n=10){ for(let i=0;i<n;i++){ const u=((t*0.5+rand(i))%1); ctx.fillStyle='rgba(191,244,255,0.85)'; const x=100+rand(i+2)*880, y=300+u*1100; ctx.beginPath(); ctx.moveTo(x,y-26); ctx.quadraticCurveTo(x+16,y,x,y+10); ctx.quadraticCurveTo(x-16,y,x,y-26); ctx.fill(); } }
+function sol(x,y,r,t){ ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.4); ctx.fillStyle='#FFE36A'; for(let i=0;i<12;i++){ ctx.rotate(Math.PI/6); rr(r+10,-12,60,24,12); ctx.fill(); } ctx.restore(); ctx.fillStyle='#FFD23F'; blob(x,y,r); ctx.fillStyle='#FFF1A8'; blob(x-r*0.3,y-r*0.3,r*0.35); }
+function tamal(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(Math.sin(t*3)*0.05); ctx.fillStyle='#C9D97A'; ctx.beginPath(); ctx.moveTo(-90,-40); ctx.quadraticCurveTo(0,-90,90,-40); ctx.lineTo(70,50); ctx.quadraticCurveTo(0,80,-70,50); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FFE3A3'; rr(-60,-40,120,70,30); ctx.fill(); ctx.strokeStyle='#9DB04A'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(-80,-30); ctx.lineTo(-60,45); ctx.moveTo(80,-30); ctx.lineTo(60,45); ctx.stroke(); ctx.restore(); }
+function fosil(x,y,k,t,marcas){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(-0.05);
+  ctx.fillStyle='#8E8AA3'; rr(-330,-220,660,440,60); ctx.fill(); ctx.fillStyle='#A9A5BE'; rr(-310,-200,620,180,50); ctx.fill();
+  ctx.strokeStyle='#6E6A85'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(-250,20); ctx.quadraticCurveTo(0,-140,250,20); ctx.quadraticCurveTo(0,180,-250,20); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-260,20); ctx.lineTo(240,20); ctx.stroke();
+  if(marcas>0){ ctx.fillStyle='#FFD23F'; ctx.shadowColor='#FFD23F'; ctx.shadowBlur=20*marcas; for(const mx of [-80,40]){ ctx.globalAlpha=marcas; blob(mx-14,20,13); blob(mx+14,20,13); ctx.fillRect(mx-14,15,28,10);} ctx.globalAlpha=1; }
+  ctx.restore(); if(typeof ocupa==='function') ocupa(x-330*k,y-220*k,x+330*k,y+220*k,2); }
+function regla(x,y0,y1,k){ if(k<=0) return; ctx.save(); ctx.globalAlpha=k; ctx.fillStyle='#FFD23F'; rr(x-30,y1,60,y0-y1,10); ctx.fill(); ctx.fillStyle='#1E1A2E'; for(let y=y1+20;y<y0;y+=30){ ctx.fillRect(x-30,y,(Math.round((y-y1)/30)%5)?20:36,5); } ctx.restore(); }
+function senorHongo(x,y,s,t,o={}){ gomita({x,y,s,t,color:'#FFE3A3',disfraz:HONGO,expr:o.expr||'orgullo',brazos:o.brazos||'jarras',seed:9,sq:o.sq,wob:o.wob,espejo:o.espejo,alto:o.alto}); }
+
+// ---------------- escenas ----------------
+function S1(t,sc){ // HOOK: Raro hormiga colgado de hilos de marioneta; el Señor Hongo maneja la cruceta
+  const sw=Math.sin(t*5)*40, jk=Math.sin(t*9);
+  senorHongo(890,690,0.45,t,{expr:'orgullo',brazos:'frente'});
+  const x=540+sw*0.6, y=SUELO-40-Math.abs(jk)*40;
+  hilos(t,[[x-180,y-300+jk*30],[x+180,y-300-jk*30],[x,y-560],[x-60,y],[x+60,y]],700);
+  raro({x,y,s:1.3,t,expr:'terror',brazos:'arriba',piernas:'corre',disfraz:'hormiga',tilt:Math.sin(t*4)*0.12,wob:jk*0.4});
+  letrero('¡MARIONETA!',470,400,1,'madera',{tam:70,t,t0:0});
+}
+function S2(t,sc){ // ¿cómo? una espora cae
+  const ey=lerp(250,SUELO-480,easeIn(prog(t,at(9),0.9)));
+  hormiguitas(t,SUELO+90,3,1,2);
+  const pegó=t>at(9)+0.9;
+  raro({x:540,y:SUELO,s:1.25,t,expr:pegó?'asombro':'neutral',brazos:'idle',piernas:pegó?'quieto':'camina',disfraz:'hormiga',mira:{x:0,y:-14},sq:pegó?gelatina(t,at(9)+0.9):0});
+  if(!pegó) espora(540,ey,26,t,0); else espora(540,SUELO-470,22,t,0);
+  interrogacion(800,700,popIn(t,sc.start+0.05),t,0);
+}
+function S3(t,sc){ // hormiga carpintera en plena selva
+  hormiguitas(t,SUELO+70,4,1,5);
+  raro({x:500,y:SUELO,s:1.25,t,expr:'feliz',brazos:'carga',piernas:'camina',disfraz:'hormiga',alto:Math.abs(Math.sin(t*9))*10});
+  hojaG(500,SUELO-650,0.55,0.1,t);
+  espora(520,SUELO-480,18,t,0);
+  letrero('HORMIGA CARPINTERA',540,400,popIn(t,at(16)),'madera',{tam:58,t,t0:at(16)});
+}
+function S4(t,sc){ // se mete en su cuerpo y crece adentro (vista de rayos X)
+  const k=prog(t,at(26),1.2);
+  raro({x:540,y:SUELO,s:1.4,t,expr:t>at(29)?'asco':'sospecha',brazos:'idle',disfraz:'hormiga',red:k*0.6,mira:{x:0,y:10}});
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=10; ctx.globalAlpha=0.7; ctx.beginPath(); ctx.arc(780,700,140,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.save(); ctx.beginPath(); ctx.arc(780,700,130,0,Math.PI*2); ctx.clip(); ctx.fillStyle='#4A2E24'; ctx.fillRect(640,560,280,280); ctx.translate(780,760); ctx.scale(1.3,1.3); redHongo(clamp(k*1.3),t,-120,40); ctx.restore();
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=18; ctx.beginPath(); ctx.moveTo(880,800); ctx.lineTo(960,880); ctx.stroke(); ocupa(640,560,960,880,2);
+}
+function S5(t,sc){ // "y aquí viene lo feo": mira a cámara, freeze-zoom
+  const z=1+0.6*easeOut(prog(t,sc.start,0.2));
+  ctx.save(); ctx.translate(540,SUELO-300); ctx.scale(z,z); ctx.translate(-540,-(SUELO-300));
+  raro({x:540,y:SUELO,s:1.3,t,expr:'terror',brazos:'cara',disfraz:'hormiga',mira:{x:0,y:0},red:0.6,sq:gelatina(t,sc.start)});
+  ctx.restore();
+}
+function S6(t,sc){ // el hongo no toca su cerebro
+  raro({x:330,y:SUELO,s:1.2,t,expr:'sospecha',brazos:'senala',disfraz:'hormiga',red:0.6});
+  const k=popIn(t,at(39));
+  if(k>0){ ctx.save(); ctx.translate(760,820); ctx.scale(k,k); ctx.fillStyle='#FF9EBB'; blob(-40,0,70); blob(40,0,70); blob(0,-40,70); blob(0,30,60);
+    ctx.strokeStyle='#E06B92'; ctx.lineWidth=8; for(const [a,b] of [[-60,-20],[20,-40],[40,20]]){ ctx.beginPath(); ctx.arc(a,b,30,0.3,2.6); ctx.stroke(); } ctx.restore(); ocupa(640,700,880,940,2); }
+  letrero('CEREBRO: SIN HONGO',540,400,popIn(t,at(41)),'panel',{tam:56,t,t0:at(41)});
+}
+function S7(t,sc){ // se mete en los músculos y arma una red por todo el cuerpo
+  const k=easeOut(prog(t,at(46),1.6));
+  raro({x:540,y:SUELO,s:1.45,t,expr:t>at(50)?'terror':'asombro',brazos:'arriba',disfraz:'hormiga',red:0.3+k*0.7,tilt:Math.sin(t*20)*0.02*k});
+  if(t>at(50)) chispas(t,at(50),540,900,1.4,'#FFF1B8');
+  letrero('RED DE HONGO',540,400,popIn(t,at(50)),'madera',{tam:66,t,t0:at(50)});
+}
+function S8(t,sc){ // patas, cabeza, mandíbulas
+  raro({x:540,y:SUELO,s:1.4,t,expr:'yavalio',brazos:'idle',piernas:t>at(55)&&t<at(56)?'corre':'quieto',disfraz:'hormiga',red:1,wob:t>at(56)?wobble(t,at(56)):0});
+  const parts=[[55,540,SUELO-30,'PATAS'],[56,540,SUELO-560,'CABEZA'],[57,540,SUELO-330,'MANDÍBULAS']];
+  for(const [i,x,y,txt] of parts){ if(t<at(i)) continue; const u=prog(t,at(i),0.4); ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=10; ctx.globalAlpha=1-u*0.6; ctx.beginPath(); ctx.arc(x,y,90+u*60,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; }
+  const cur=t>=at(57)?'MANDÍBULAS':t>=at(56)?'CABEZA':t>=at(55)?'PATAS':'';
+  if(cur) letrero(cur,540,400,popIn(t,at(cur==='PATAS'?55:cur==='CABEZA'?56:57),0.2),'panel',{tam:72,t});
+}
+function S9(t,sc){ // la hormiga sigue ahí... pero ya no maneja ella (el Señor Hongo al volante)
+  const sw=Math.sin(t*2.2)*0.5;
+  raro({x:540,y:SUELO,s:1.35,t,expr:t>at(65)?'llanto':'asombro',brazos:'idle',piernas:'camina',disfraz:'hormiga',red:1,tilt:sw*0.15,mira:{x:0,y:-20}});
+  ctx.save(); ctx.translate(540+sw*20,SUELO-610); senorHongo(0,0,0.55,t,{expr:'feliz',brazos:'frente'});
+  ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(0,-40,42,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-42,-40); ctx.lineTo(42,-40); ctx.stroke(); ctx.restore();
+  letrero('AL VOLANTE: EL HONGO',540,380,popIn(t,at(67)),'madera',{tam:52,t,t0:at(67)});
+}
+function S10(t,sc){ // empieza a caminar raro (zigzag)
+  const x=540+Math.sin(t*3.2)*240;
+  raro({x,y:SUELO,s:1.2,t,expr:'yavalio',brazos:'arriba',piernas:'camina',disfraz:'hormiga',red:1,tilt:Math.sin(t*6)*0.25,wob:Math.sin(t*7)*0.5});
+  ctx.setLineDash([20,20]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=8; ctx.beginPath(); for(let i=0;i<30;i++){ const tt=t-i*0.05; ctx.lineTo(540+Math.sin(tt*3.2)*240,SUELO+40+i*12); } ctx.stroke(); ctx.setLineDash([]);
+}
+function S11(t,sc){ // se sale del camino, tiembla, se cae del árbol
+  rama(SUELO-520,t);
+  hormiguitas(t,SUELO-560,3,1,1);
+  const cae=t>at(80);
+  const dy=cae? 1600*Math.pow(prog(t,at(80),0.5),2) : 0;
+  raro({x:300,y:SUELO-555+dy,s:1.0,t,expr:t>at(78)?'terror':'yavalio',brazos:t>at(78)?'arriba':'idle',disfraz:'hormiga',red:1,tilt:t>at(78)?Math.sin(t*50)*0.08:0,piernas:cae?'flota':'quieto',sinSombra:true});
+  letrero('FUERA DEL CAMINO',540,400,popIn(t,at(77)),'madera',{tam:58,t,t0:at(77)});
+}
+function S12(t,sc){ // busca un lugar muy específico
+  const c=caida(t,sc.start);
+  raro({x:540,y:SUELO,s:1.25,t,expr:'sospecha',brazos:'frente',disfraz:'hormiga',red:1,sq:c.sq,alto:c.alto,wob:c.wob,mira:{x:Math.sin(t*3)*20,y:0},tilt:Math.sin(t*3)*0.08});
+  estrellitas(t,sc.start+0.34,540,SUELO-560);
+  ctx.save(); ctx.translate(720,SUELO-420); ctx.rotate(-0.3); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(0,0,70,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=20; ctx.beginPath(); ctx.moveTo(50,50); ctx.lineTo(120,120); ctx.stroke(); ctx.restore();
+}
+function S13(t,sc){ // una hoja a unos 25 cm del suelo
+  hojaG(560,SUELO-330,1.0,-0.08,t);
+  regla(150,SUELO+40,SUELO-330,popIn(t,at(93)));
+  const b=brinco(t,at(90),0.45,200);
+  raro({x:620,y:SUELO-360,s:0.85,t,expr:'feliz',brazos:'arriba',disfraz:'hormiga',red:1,sq:b.sq,alto:b.alto,wob:b.wob});
+  letrero('25 CM',540,400,popIn(t,at(93)),'madera',{tam:96,t,t0:at(93)});
+}
+function S14(t,sc){ // fresco y húmedo, como le gusta al hongo
+  gotas(t,14);
+  senorHongo(760,SUELO,0.9,t,{expr:t>at(103)?'risa':'feliz',brazos:t>at(103)?'arriba':'jarras',sq:gelatina(t,at(103)),wob:wobble(t,at(103))});
+  raro({x:300,y:SUELO,s:1.0,t,expr:'yavalio',brazos:'idle',disfraz:'hormiga',red:1});
+  letrero('FRESCO Y HÚMEDO',540,400,popIn(t,at(97)),'pergamino',{tam:62,t,t0:at(97)});
+  chispas(t,at(103),760,900,1.3);
+}
+function S15(t,sc){ // al mediodía, cuando el Sol está más alto
+  const sy=lerp(1100,330,easeOut(prog(t,at(108),1.4)));
+  sol(540,sy,110,t);
+  hojaG(540,SUELO-200,0.9,0,t);
+  raro({x:620,y:SUELO-230,s:0.85,t,expr:'yavalio',brazos:'idle',disfraz:'hormiga',red:1,mira:{x:0,y:-20}});
+  letrero('12:00',220,560,popIn(t,at(108)),'panel',{tam:80,t,t0:at(108)});
+}
+function S16(t,sc){ // muerde la vena de la hoja (golpe)
+  const k=easeOut(prog(t,at(115),0.15));
+  hojaG(540,SUELO-480,1.4,0,t,t>at(117)?[60]:null);
+  raro({x:600,y:SUELO-480+lerp(80,330,k),s:1.1,t,expr:t>at(115)?'terror':'yavalio',brazos:'frente',disfraz:'hormiga',red:1,sinSombra:true,sq:gelatina(t,at(115)+0.15)});
+  lineasVelocidad(t,at(115),600,SUELO-500);
+}
+function S17(t,sc){ // y ya no la suelta. Nunca.
+  hojaG(540,880,1.2,0,t,[60]);
+  raro({x:600,y:880+330,s:1.0,t,expr:t>at(126)?'llanto':'yavalio',brazos:'frente',disfraz:'hormiga',red:1,sinSombra:true,wob:Math.sin(t*14)*0.15});
+  letrero('NUNCA',540,400,popIn(t,at(126)),'piedra',{tam:96,t,t0:at(126)});
+}
+function S18(t,sc){ // como tu tía con el último tamal
+  const k=popIn(t,at(129));
+  gomita({x:620,y:SUELO,s:1.15,t,expr:'orgullo',brazos:'frente',disfraz:TIA,color:'#FFB8D2',seed:4,sq:gelatina(t,at(133)),wob:wobble(t,at(133))});
+  tamal(620,SUELO-250,1.8*k,t);
+  gomita({x:240,y:SUELO+40,s:0.7,t,expr:'llanto',brazos:'frente',seed:1,color:'#B8E6FF'});
+  letrero('EL ÚLTIMO TAMAL',540,400,popIn(t,at(132)),'madera',{tam:60,t,t0:at(132)});
+}
+function S19(t,sc){ // ¿y para qué tanto teatro?
+  raro({x:540,y:SUELO,s:1.3,t,expr:'sospecha',brazos:'jarras',disfraz:'hormiga',red:1,mira:{x:0,y:0},sq:gelatina(t,sc.start+0.05)});
+  interrogacion(250,800,popIn(t,at(136)),t,0); interrogacion(830,760,popIn(t,at(138)),t,1);
+}
+function S20(t,sc){ // unos días después le sale un tallo de la cabeza
+  const k=prog(t,at(145)-0.2,1.0);
+  raro({x:540,y:SUELO,s:1.25,t,expr:t>at(147)?'terror':'yavalio',brazos:t>at(147)?'cara':'idle',disfraz:'hormiga',red:1,tallo:k});
+  letrero('DÍAS DESPUÉS',540,400,popIn(t,sc.start+0.05),'pergamino',{tam:62,t,t0:sc.start+0.05});
+}
+function S21(t,sc){ // ¡de la cabeza! (zoom de golpe)
+  raro({x:540,y:SUELO+40,s:1.4,t,expr:'terror',brazos:'arriba',disfraz:'hormiga',red:1,tallo:1,mira:{x:0,y:-30},sq:gelatina(t,sc.start)});
+  lineasVelocidad(t,sc.start,540,800);
+}
+function S22(t,sc){ // llueven esporas sobre las hormigas que pasan
+  hojaG(540,700,1.0,0,t,[60]);
+  raro({x:600,y:700+300,s:0.75,t,expr:'yavalio',brazos:'frente',disfraz:'hormiga',red:1,tallo:1,sinSombra:true});
+  lluviaEsporas(t,at(155)-0.2,600,520,520,1000,22);
+  hormiguitas(t,SUELO+40,4,-1,3,{expr:t>at(159)?'asombro':'feliz'});
+}
+function S23(t,sc){ // y todo vuelve a empezar (flechas en círculo)
+  ctx.save(); ctx.translate(540,900); ctx.rotate(t*2.5); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=22; ctx.lineCap='round';
+  for(let i=0;i<2;i++){ ctx.rotate(Math.PI); ctx.beginPath(); ctx.arc(0,0,260,0.2,2.6); ctx.stroke(); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(260*Math.cos(2.6)-30,260*Math.sin(2.6)-10); ctx.lineTo(260*Math.cos(2.6)+30,260*Math.sin(2.6)-10); ctx.lineTo(260*Math.cos(2.6),260*Math.sin(2.6)+40); ctx.fill(); }
+  ctx.restore(); ocupa(260,620,820,1180,1);
+  gomita({x:540,y:1150,s:0.7,t,expr:t>at(164)?'asombro':'feliz',brazos:'idle',disfraz:'hormiga',color:'#FFC9A8',seed:4,sinSombra:true});
+  espora(540,lerp(300,870,easeIn(prog(t,sc.start,0.8))),20,t,0);
+  letrero('OTRA VEZ',540,400,popIn(t,at(166)),'madera',{tam:76,t,t0:at(166)});
+}
+function S24(t,sc){ // no es nuevo: en Alemania, hoja fósil (puf a científico)
+  const p=pufCambio(t,sc.start+0.05);
+  raro({x:330,y:SUELO,s:1.15,t,expr:'asombro',brazos:'senala',disfraz:p.despues?'cientifico':'hormiga',red:p.despues?0:1,spin:p.spin,sq:gelatina(t,sc.start+0.4),wob:wobble(t,sc.start+0.4)});
+  nubePuf(t,sc.start+0.12,330,SUELO-170,1.4);
+  fosil(740,SUELO-180,popIn(t,at(175))*0.6,t,0);
+  letrero('ALEMANIA',540,400,popIn(t,at(172)),'madera',{tam:76,t,t0:at(172)});
+}
+function S25(t,sc){ // 48 millones de años, las mismas mordidas
+  fosil(540,900,1.15,t,easeOut(prog(t,at(184),0.4)));
+  raro({x:860,y:SUELO+40,s:0.8,t,expr:t>at(185)?'asombro':'sospecha',brazos:'senala',espejo:true,disfraz:'cientifico'});
+  letrero('48 MILLONES DE AÑOS',540,400,popIn(t,at(178)),'piedra',{tam:60,t,t0:at(178)});
+  chispas(t,at(185),540,920,1.6,'#FFD23F');
+}
+function S26(t,sc){ // lleva en el negocio más que nosotros: Señor Hongo de veterano
+  senorHongo(680,SUELO,1.05,t,{expr:'orgullo',brazos:'jarras',sq:gelatina(t,at(191)),wob:wobble(t,at(191))});
+  raro({x:280,y:SUELO+40,s:0.95,t,expr:t>at(195)?'yavalio':'asombro',brazos:'idle',disfraz:'cientifico'});
+  letrero('DESDE HACE 48 M. DE AÑOS',540,400,popIn(t,at(191)),'pergamino',{tam:50,t,t0:at(191)});
+}
+function S27(t,sc){ // ¿tú qué harías si fueras hormiga? (puf de vuelta a hormiga, mira a cámara)
+  const p=pufCambio(t,sc.start+0.05);
+  raro({x:540,y:SUELO,s:1.35,t,expr:t>at(200)?'apenado':'sospecha',brazos:'jarras',disfraz:p.despues?'hormiga':'cientifico',spin:p.spin,mira:{x:0,y:0},sq:gelatina(t,sc.start+0.4),wob:wobble(t,sc.start+0.4)});
+  nubePuf(t,sc.start+0.12,540,SUELO-180,1.5);
+}
+function S28(t,sc){ // loop: igual al cuadro 0
+  S1(t,sc);
+}
+const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25,S26,S27,S28];
+const CHIPS={};
+window.FONDOS={1:{pal:'magenta',tipo:'selva'},2:{pal:'limon',tipo:'cerros'},3:{pal:'turquesa',tipo:'selva'},4:{pal:'violeta',tipo:'liso',pp:false},5:{pal:'mandarina',tipo:'cerros'},
+  6:{pal:'cielo',tipo:'liso',pp:false},7:{pal:'magenta',tipo:'interior'},8:{pal:'limon',tipo:'liso',pp:false},9:{pal:'turquesa',tipo:'cerros'},10:{pal:'violeta',tipo:'selva'},
+  11:{pal:'mandarina',tipo:'cielo'},12:{pal:'cielo',tipo:'cerros'},13:{pal:'limon',tipo:'selva'},14:{pal:'turquesa',tipo:'liso',pp:false},15:{pal:'mandarina',tipo:'cielo'},
+  16:{pal:'violeta',tipo:'selva'},17:{pal:'cielo',tipo:'liso',pp:false},18:{pal:'limon',tipo:'interior'},19:{pal:'mandarina',tipo:'cerros'},20:{pal:'magenta',tipo:'selva'},
+  21:{pal:'turquesa',tipo:'liso',pp:false},22:{pal:'violeta',tipo:'selva'},23:{pal:'cielo',tipo:'liso',pp:false},24:{pal:'mandarina',tipo:'desierto'},25:{pal:'limon',tipo:'liso',pp:false},
+  26:{pal:'magenta',tipo:'interior'},27:{pal:'turquesa',tipo:'cerros'},28:{pal:'magenta',tipo:'selva'}};
+window.TOMAS={1:{mov:'push',z:1.04,foco:[540,960]},2:{mov:'sube'},3:{mov:'paneo-der'},4:{mov:'push',z:1.1,foco:[600,900]},5:{mov:'fija'},6:{mov:'paneo-izq'},7:{mov:'pull',z:1.12,foco:[540,1000]},
+  8:{mov:'fija'},9:{mov:'push',z:1.1,foco:[540,1000]},10:{mov:'paneo-der'},11:{mov:'baja'},12:{mov:'push',z:1.1,foco:[540,1000]},13:{mov:'pull',z:1.1,foco:[540,1000]},14:{mov:'paneo-izq'},
+  15:{mov:'sube'},16:{mov:'push',z:1.15,foco:[580,1000]},17:{mov:'fija'},18:{mov:'paneo-der'},19:{mov:'push',z:1.1,foco:[540,1000]},20:{mov:'pull',z:1.08,foco:[540,1000]},21:{mov:'fija'},
+  22:{mov:'baja'},23:{mov:'orbita'},24:{mov:'paneo-der'},25:{mov:'push',z:1.08,foco:[540,900]},26:{mov:'paneo-izq'},27:{mov:'push',z:1.1,foco:[540,1000]},28:{mov:'push',z:1.04,foco:[540,960]}};
+window.TRANS={2:'latigazo',3:'bufanda',4:'zoom',6:'bufanda',7:'latigazo',8:'zoom',9:'bufanda',10:'latigazo',13:'bufanda',14:'latigazo',15:'bufanda',16:'zoom',17:'latigazo',18:'bufanda',
+  19:'latigazo',20:'bufanda',21:'zoom',22:'latigazo',23:'bufanda',25:'zoom',26:'latigazo',28:'bufanda'};
+// 12 entra con salto de escena (Raro cae del árbol en S11 y aterriza en S12); 24 y 27 con puf de disfraz
+window.KEYWORDS=[7,10,17,29,35,41,46,50,57,67,73,82,93,99,108,115,126,133,138,145,151,156,166,172,178,185,195,201];
+window.SHAKES=[80,115,149];
+window.FLASHES=[[115,'#FFFFFF'],[149,'#FFF1B8']];
+</script></body></html>
