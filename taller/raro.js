@@ -883,3 +883,26 @@ function tallo(k,t){ const h=360*easeOut(k); ctx.save(); ctx.translate(-10,-370)
   ctx.strokeStyle='#F6DE9A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(-4,-10); ctx.quadraticCurveTo(34,-h*0.5,6,-h); ctx.stroke();
   if(k>0.7){ const b=popIn(t,0,1)*easeOut((k-0.7)/0.3); ctx.fillStyle='#D98E3A'; ctx.beginPath(); ctx.ellipse(10,-h,34*b,46*b,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#F2B867'; blob(0,-h-12,12*b); }
   ctx.restore(); }
+
+// ---------- disfraz agregado con rana-001 (nov 2026) ----------
+DISFRACES.rana = { // mameluco de rana de bosque: café claro con manchas, panza crema, capucha con antifaz oscuro y ojos saltones arriba;
+  // o.gorro=true gorro de dormir; o.banda=true banda de sudor (gym); o.galan=true moño rojo y flor en la mano derecha
+  cuerpo(o){ ctx.fillStyle='#C98A52'; ctx.fillRect(-200,-205,400,210);
+    ctx.fillStyle='#F5E6C4'; ctx.beginPath(); ctx.ellipse(0,-100,96,84,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#8A5230'; for(const [x,y,r] of [[-150,-170,16],[-120,-80,12],[140,-150,14],[118,-60,18],[-60,-190,9],[70,-190,10]]) blob(x,y,r);
+    if(o.galan){ ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(0,-176); ctx.lineTo(-40,-196); ctx.lineTo(-40,-156); ctx.closePath(); ctx.moveTo(0,-176); ctx.lineTo(40,-196); ctx.lineTo(40,-156); ctx.closePath(); ctx.fill(); blob(0,-176,11); } },
+  cabeza(o){ const w=o.wob||0, t=o.t||0;
+    ctx.save(); ctx.rotate(w*0.03);
+    ctx.fillStyle='#C98A52'; ctx.beginPath(); ctx.moveTo(-162,-196); ctx.bezierCurveTo(-196,-478,196,-478,162,-196); ctx.lineTo(128,-206); ctx.bezierCurveTo(144,-398,-144,-398,-128,-206); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#6B3E22'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*146,-290,20,58,s*0.12,0,Math.PI*2); ctx.fill(); } // antifaz de rana de bosque
+    for(const s of [-1,1]){ const b=Math.sin(t*5+s)*4+w*10; ctx.save(); ctx.translate(s*78,-420-b);
+      ctx.fillStyle='#C98A52'; blob(0,0,46); ctx.fillStyle='#FFFFFF'; blob(0,-4,30); ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(s*3,-2,15,11,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFFFFF'; blob(s*3-5,-7,4); ctx.restore(); }
+    if(o.gorro){ ctx.save(); ctx.translate(0,-440); const tx=150+Math.sin(t*3)*16+w*50, ty=-30+Math.cos(t*2.6)*12;
+      ctx.fillStyle='#9FD8FF'; ctx.beginPath(); ctx.moveTo(-60,10); ctx.quadraticCurveTo(10,-140,tx,ty); ctx.quadraticCurveTo(40,-40,70,10); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FFFFFF'; blob(tx,ty,22); rr(-74,0,148,26,13); ctx.fill(); ctx.restore(); }
+    if(o.banda){ ctx.fillStyle='#FF5FA2'; rr(-150,-372,300,40,20); ctx.fill(); ctx.fillStyle='#FFFFFF'; ctx.fillRect(-150,-358,300,10); }
+    ctx.restore(); },
+  frente(o,B){ if(o.galan){ const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.strokeStyle='#3E9B57'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(10,-90); ctx.stroke();
+      ctx.fillStyle='#FF5FA2'; for(let i=0;i<5;i++){ const a=i/5*Math.PI*2+(o.t||0); blob(10+Math.cos(a)*22,-100+Math.sin(a)*22,16); } ctx.fillStyle='#FFD23F'; blob(10,-100,13); ctx.restore(); } }
+};

@@ -1,1 +1,0 @@
-Voz (5 nov 2026, Mizael, 1 toma): voz.mp3 completa (90.6 s). Se recortaron en words_raw.json 'Y aquí viene lo bueno.' y '¿La diferencia?' para quedar en 72.1 s con tempo 1.2. id: rana-001.
