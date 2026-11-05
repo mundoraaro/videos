@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / estudiante (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -543,6 +543,34 @@ const DISFRACES = {
     frente(o,B){ if(!o.diploma) return; const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(-0.6+Math.sin(o.t*3)*0.06+(o.wob||0)*0.3);
       ctx.fillStyle='#FFF4DC'; rr(-22,-90,44,170,20); ctx.fill(); ctx.fillStyle='#E9D9B0'; ctx.beginPath(); ctx.ellipse(0,-90,22,10,0,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#FF4D6D'; ctx.fillRect(-24,-6,48,16); ctx.restore(); }
+  },
+  mantis: { // camarón mantis boxeador: caparazón de bandas verde/naranja/azul con motas, ojos en tallos que bailan, antenas con paletas azules y guantes de box rojos (o.guantes=false los quita; o.cinturon=true pone cinturón de campeón)
+    cuerpo(o){ const bands=['#2FD47A','#FF8A1F','#2FD47A','#3AB6FF','#FF4D6D'];
+      for(let i=0;i<5;i++){ const y=-212+i*40; ctx.fillStyle=bands[i]; ctx.fillRect(-200,y,400,42);
+        ctx.fillStyle='rgba(255,255,255,0.28)'; ctx.fillRect(-200,y,400,7); }
+      ctx.fillStyle='rgba(30,26,46,0.22)'; for(let i=0;i<14;i++){ ctx.beginPath(); ctx.arc(-150+rand(i)*300,-196+rand(i+7)*170,5+rand(i+3)*5,0,Math.PI*2); ctx.fill(); }
+      if(o.cinturon){ ctx.fillStyle='#1E1A2E'; ctx.fillRect(-200,-104,400,38); ctx.fillStyle='#FFD23F'; rr(-62,-118,124,66,18); ctx.fill();
+        ctx.fillStyle='#FFF1A8'; rr(-44,-104,88,38,12); ctx.fill(); ctx.fillStyle='#FF4D6D'; ctx.beginPath(); ctx.arc(0,-85,11,0,Math.PI*2); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0, t=o.t;
+      for(const s of [-1,1]){ // antenas
+        ctx.save(); ctx.translate(s*40,-360); ctx.rotate(s*(0.35+Math.sin(t*4+s)*0.12)+w*0.4);
+        ctx.strokeStyle='#FF8A1F'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*30,-90,s*10,-190); ctx.stroke();
+        ctx.fillStyle='#3AB6FF'; ctx.beginPath(); ctx.ellipse(s*34,-70,16,40,s*0.5,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+      for(const s of [-1,1]){ // ojos en tallos
+        const sw=Math.sin(t*3.2+s*1.7)*0.22+w*0.5; ctx.save(); ctx.translate(s*62,-356); ctx.rotate(s*0.22+sw);
+        ctx.strokeStyle='#2FD47A'; ctx.lineWidth=20; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-70); ctx.stroke();
+        ctx.save(); ctx.translate(0,-96); ctx.rotate(Math.sin(t*2+s)*0.3);
+        ctx.fillStyle='#FF5FA2'; ctx.beginPath(); ctx.ellipse(0,0,30,38,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#3DDC84'; ctx.beginPath(); ctx.ellipse(0,-14,26,14,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1E1A2E'; ctx.fillRect(-30,-4,60,9);
+        ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.ellipse(-10,-22,8,5,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.restore(); ctx.restore(); } },
+    frente(o,B){ if(o.guantes===false) return;
+      for(const k of [-1,1]){ const h=B[k].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(k*0.3+(o.wob||0)*0.3);
+        ctx.fillStyle='#FFFFFF'; rr(-30,22,60,30,10); ctx.fill();
+        ctx.fillStyle='#E5333F'; ctx.beginPath(); ctx.ellipse(0,0,44,40,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#FF6B6B'; ctx.beginPath(); ctx.ellipse(-k*22,-8,20,24,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.beginPath(); ctx.ellipse(-12,-20,13,7,-0.5,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
   },
 };
 
