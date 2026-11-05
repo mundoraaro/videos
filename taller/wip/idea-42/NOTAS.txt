@@ -1,0 +1,5 @@
+Voz (5 nov 2026, Carito, 1 toma, ElevenLabs v3): voz.mp3 = toma completa (100 s).
+Recortes para quedar en ~71 s: se quitó "regalo de unos oficiales del ejército" (33.55–36.05 s) y
+"Comía gratis, y viajaba gratis en el ferri" (59.95–63.75 s). Rehacer voz.wav:
+ffmpeg -i voz.mp3 -af "aselect='not(between(t,33.55,36.05)+between(t,59.95,63.75))',asetpts=N/SR/TB" voz.wav
+words_full.json = toma completa; words_raw.json = ya recortado. escenas.json listo. id: emperador-001.
