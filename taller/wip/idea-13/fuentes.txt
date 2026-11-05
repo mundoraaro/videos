@@ -1,6 +1,0 @@
-Fuentes verificadas (5 nov 2026):
-- Randall Munroe, xkcd What If? #8 "Everybody Jump" (what-if.xkcd.com/8): la Tierra pesa más de diez billones de veces lo que la humanidad; al saltar la empujamos menos que el ancho de un átomo; el aterrizaje produce un rugido de muchos segundos; todos caben apretados en un área del tamaño de Rhode Island.
-- Gizmodo, "What would happen if everyone on Earth jumped at exactly the same time": hombro con hombro, la humanidad (7 mil millones en 2012) cabe en ~500 millas² (~1,300 km²); con 8 mil millones ≈ 1,500-1,600 km² ≈ cuadro de ~40 km por lado ≈ área de la CDMX (1,485 km²) y tantito más.
-- Wikipedia, "Beast Quake": 8 de enero de 2011, Qwest Field (Seattle); la afición provocó una señal de magnitud 2.0 en una estación de la Pacific Northwest Seismic Network.
-- El CEO, "AICM pierde pasajeros en junio...": el AICM cerró 2025 con poco más de 44.6 millones de pasajeros → 8,000 millones / 44.6 millones ≈ 179 años (≈ año 2200).
-Ajustes al guion por la verificación: 45 km → 40 km por lado; 175 → 180 años.
