@@ -1,0 +1,2 @@
+Voz: 1 toma Mizael (5 nov 2026). Se recortó del audio la frase "Además, estamos repartidos... Se cancela." (23.25 s a 31.75 s del original) para quedar en ~71 s.
+voz.mp3 ya está recortada; words_raw.json corresponde a voz.mp3 (ms). escenas.json tempo 1.22 pausa 0.1.
