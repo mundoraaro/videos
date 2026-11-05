@@ -1,0 +1,1 @@
+Voz (5 nov 2026, Mizael, 1 toma): voz.mp3 completa sin recortes (75.4 s -> 66.4 s con tempo 1.15). words_raw.json y escenas.json listos. id: hongo-001.
