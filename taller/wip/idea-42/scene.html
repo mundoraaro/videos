@@ -1,0 +1,345 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// emperador-001 — "El hombre que se nombró emperador de Estados Unidos" (Norton I). Raro = Norton.
+// ---------------- disfraces nuevos (también se agregan a raro.js) ----------------
+DISFRACES.emperador = { // uniforme azul de gala con charreteras doradas, banda roja y sombrero alto con pluma
+  cuerpo(o){ ctx.fillStyle='#2B3A8C'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#22307A'; ctx.fillRect(-4,-205,8,175);
+    ctx.fillStyle='#E23D5B'; ctx.save(); ctx.translate(0,-120); ctx.rotate(-0.55); ctx.fillRect(-260,-18,520,36); ctx.restore();
+    ctx.fillStyle='#FFD23F'; for(const y of [-180,-140,-100,-62]) for(const x of [-34,34]){ ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.fill(); } },
+  cabeza(o){ const w=o.wob||0, t=o.t||0; ctx.save(); ctx.translate(0,-362); ctx.rotate(-0.06+w*0.07);
+    ctx.fillStyle='#1B2257'; ctx.beginPath(); ctx.ellipse(0,0,132,24,0,0,Math.PI*2); ctx.fill();
+    rr(-84,-190,168,190,18); ctx.fill(); ctx.fillStyle='#2A3478'; rr(-70,-182,40,170,14); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.fillRect(-84,-46,168,24);
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(-50,-34,22,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(-50,-34,9,0,Math.PI*2); ctx.fill();
+    // pluma de pavorreal que se mece
+    ctx.save(); ctx.translate(-50,-40); ctx.rotate(-0.35+Math.sin(t*4)*0.08+w*0.35);
+    ctx.fillStyle='#17C6B4'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-70,-120,-20,-250); ctx.quadraticCurveTo(40,-120,0,0); ctx.fill();
+    ctx.fillStyle='#4CC9F0'; ctx.beginPath(); ctx.ellipse(-18,-215,22,30,0.2,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#2B3A8C'; ctx.beginPath(); ctx.arc(-17,-212,11,0,Math.PI*2); ctx.fill();
+    ctx.restore(); ctx.restore(); },
+  frente(o,B){ const w=o.wob||0, t=o.t||0; // charreteras con flecos que rebotan + sable
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*128,-190); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(0,0,52,22,s*0.25,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#F2B807'; ctx.lineWidth=7; ctx.lineCap='round'; for(let i=-3;i<=3;i++){ const sw=Math.sin(t*7+i)*4+w*14; ctx.beginPath(); ctx.moveTo(i*13,12); ctx.lineTo(i*13+sw,44); ctx.stroke(); } ctx.restore(); }
+    ctx.save(); ctx.translate(-120,-70); ctx.rotate(0.5); ctx.fillStyle='#C9CFDA'; rr(-6,0,12,170,6); ctx.fill(); ctx.fillStyle='#FFD23F'; rr(-22,-14,44,16,8); ctx.fill(); ctx.restore(); }
+};
+DISFRACES.rico = { // comerciante rico de 1850: levita negra, moño rojo, sombrero de copa y monóculo; o.bolsa=true lleva bolsa de oro
+  cuerpo(o){ ctx.fillStyle='#2A2438'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-56,-205); ctx.lineTo(0,-90); ctx.lineTo(56,-205); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(0,-186); ctx.lineTo(-30,-200); ctx.lineTo(-30,-172); ctx.closePath(); ctx.moveTo(0,-186); ctx.lineTo(30,-200); ctx.lineTo(30,-172); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.fillRect(40,-120,60,6); },
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-360); ctx.rotate(0.08+w*0.08); if(o.chafa){ ctx.rotate(-0.3); }
+    ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(0,0,120,22,0,0,Math.PI*2); ctx.fill(); rr(-74,o.chafa?-110:-170,148,o.chafa?110:170,12); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.fillRect(-74,-36,148,20); ctx.restore(); },
+  frente(o,B){ ctx.strokeStyle='#FFD23F'; ctx.lineWidth=6; ctx.beginPath(); ctx.arc(52,-288,40,0,Math.PI*2); ctx.stroke();
+    ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(88,-270); ctx.quadraticCurveTo(110,-200,80,-150); ctx.stroke();
+    if(o.bolsa){ const h=B[1].h; bolsaOro(h[0]+20,h[1]+40,1,o.t); } }
+};
+const POLI = { // gorra y uniforme de policía de 1860 para gomita
+  cuerpo(o){ ctx.fillStyle='#34407A'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#FFD23F'; estrella4(-60,-150,26,'#FFD23F'); },
+  cabeza(o){ ctx.save(); ctx.translate(0,-350); ctx.fillStyle='#1F2756'; rr(-100,-90,200,90,30); ctx.fill(); ctx.fillStyle='#141A40'; ctx.beginPath(); ctx.ellipse(10,0,140,22,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(0,-50,14,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+};
+const MESERO = { cuerpo(o){ ctx.fillStyle='#FFFFFF'; ctx.fillRect(-200,-205,400,175); ctx.fillStyle='#1E1A2E'; ctx.fillRect(-200,-90,400,60);
+  ctx.beginPath(); ctx.moveTo(0,-190); ctx.lineTo(-26,-204); ctx.lineTo(-26,-176); ctx.closePath(); ctx.moveTo(0,-190); ctx.lineTo(26,-204); ctx.lineTo(26,-176); ctx.closePath(); ctx.fill(); } };
+
+// ---------------- objetos del mundo ----------------
+function bolsaOro(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(Math.sin((t||0)*3)*0.06);
+  ctx.fillStyle='#C98A2B'; blob(0,0,60); ctx.beginPath(); ctx.moveTo(-30,-48); ctx.lineTo(30,-48); ctx.lineTo(18,-80); ctx.lineTo(-18,-80); ctx.fill();
+  ctx.fillStyle='#E9B04A'; blob(-16,-12,30); ctx.fillStyle='#FFD23F'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('$',0,8); ctx.restore(); }
+function moneda(x,y,r,a){ ctx.save(); ctx.translate(x,y); ctx.scale(Math.abs(Math.cos(a))+0.15,1); ctx.fillStyle='#F2B807'; blob(0,0,r); ctx.fillStyle='#FFD23F'; blob(0,0,r*0.75); ctx.restore(); }
+function lluviaMonedas(t,t0,n=14){ if(t<t0) return; for(let i=0;i<n;i++){ const u=((t-t0)*0.9+rand(i))%1; moneda(80+rand(i+5)*920, -60+u*1500, 26+rand(i+2)*14, t*8+i); } }
+function caja(x,y,s=1){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#9C6230'; rr(-170,-120,340,120,14); ctx.fill(); ctx.fillStyle='#B97A3E'; rr(-160,-112,320,50,10); ctx.fill();
+  ctx.strokeStyle='#7A4A22'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(-150,-10); ctx.lineTo(150,-110); ctx.stroke(); ctx.restore(); if(typeof ocupa==='function') ocupa(x-170*s,y-120*s,x+170*s,y,0.6); }
+function barco(x,y,s,t,txt){ ctx.save(); ctx.translate(x,y+Math.sin(t*2+x)*10); ctx.rotate(Math.sin(t*1.6+x)*0.04); ctx.scale(s,s);
+  ctx.fillStyle='#7A4A22'; ctx.beginPath(); ctx.moveTo(-220,-40); ctx.lineTo(220,-40); ctx.lineTo(170,60); ctx.lineTo(-170,60); ctx.fill(); ctx.fillStyle='#9C6230'; ctx.fillRect(-210,-40,420,22);
+  ctx.fillStyle='#5E3716'; ctx.fillRect(-8,-360,16,320); ctx.fillStyle='#FFF4DC'; ctx.beginPath(); ctx.moveTo(14,-340); ctx.quadraticCurveTo(170,-210,14,-70); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-14,-320); ctx.quadraticCurveTo(-140,-210,-14,-90); ctx.fill();
+  if(txt){ ctx.fillStyle='#A9196F'; ctx.font=fuente(40); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,70,-200); }
+  ctx.fillStyle='#F3DDAA'; for(const [sx,sy] of [[-140,-62],[-80,-62],[100,-62],[150,-62],[-110,-100],[125,-100]]){ rr(sx-26,sy-30,52,60,16); ctx.fill(); }
+  ctx.restore(); }
+function billete(x,y,k,a,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(a+Math.sin((t||0)*4+x)*0.08); ctx.scale(k,k);
+  ctx.fillStyle='#7BD389'; rr(-110,-55,220,110,12); ctx.fill(); ctx.strokeStyle='#3E9B57'; ctx.lineWidth=6; rr(-96,-42,192,84,10); ctx.stroke();
+  ctx.fillStyle='#2E7D46'; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#D7FFE0'; ctx.font=fuente(40); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('N',0,2);
+  ctx.fillStyle='#2E7D46'; ctx.font=fuente(26); ctx.fillText('50¢',-64,-20); ctx.fillText('50¢',64,22); ctx.restore(); }
+function edificio(x,y,s,t,P){ // capitolio con cúpula
+  ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle=P.claro; ctx.beginPath(); ctx.ellipse(0,-520,170,170,0,Math.PI,0); ctx.fill();
+  ctx.fillRect(-14,-760,28,90); ctx.beginPath(); ctx.arc(0,-770,22,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.5); rr(-200,-540,400,40,12); ctx.fill(); rr(-380,-380,760,380,20); ctx.fill();
+  ctx.fillStyle=mix(P.claro,P.medio,0.4); ctx.beginPath(); ctx.moveTo(-400,-380); ctx.lineTo(0,-500); ctx.lineTo(400,-380); ctx.fill();
+  ctx.fillStyle=mix(P.medio,'#FFFFFF',0.15); for(let i=-3;i<=3;i++){ rr(i*104-22,-350,44,330,18); ctx.fill(); }
+  ctx.restore(); if(typeof ocupa==='function') ocupa(x-380*s,y-780*s,x+380*s,y,0.8); }
+function ventanita(x,y,t,i,P){ ctx.fillStyle=P.oscuro; rr(x-46,y-46,92,92,20); ctx.fill(); gomita({x,y:y+40,s:0.22,t,expr:'neutral',seed:i,brazos:i%2?'frente':'idle',sinSombra:true,mira:{x:Math.sin(t+i)*6,y:0}}); }
+function rejas(x,y,k){ if(k<=0.001) return; ctx.save(); ctx.translate(x,y); ctx.fillStyle='#5B5470'; ctx.globalAlpha=1; rr(-300,-640*k,600,24,10); ctx.fill();
+  for(let i=-3;i<=3;i++){ rr(i*90-12,-640*k,24,640*k,12); ctx.fill(); } ctx.fillStyle='#8E8AA3'; for(let i=-3;i<=3;i++){ rr(i*90-6,-630*k,8,620*k,4); ctx.fill(); } ctx.restore(); }
+function pergaminoAbierto(x,y,k,t,lineas,w=520){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*2)*0.02); const h=lineas.length*80+90; ctx.scale(1,k);
+  ctx.fillStyle='#F3DDAA'; rr(-w/2,-h/2,w,h,10); ctx.fill(); ctx.fillStyle='#D9BB7A'; rr(-w/2-20,-h/2-22,w+40,40,20); ctx.fill(); rr(-w/2-20,h/2-18,w+40,40,20); ctx.fill();
+  ctx.fillStyle='#5A3A12'; ctx.textAlign='center'; ctx.textBaseline='middle'; lineas.forEach((l,i)=>{ ctx.font=fuente(i?50:64); ctx.fillText(l,0,-h/2+70+i*80); });
+  ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(w/2-60,h/2-60,30,0,Math.PI*2); ctx.fill(); ctx.restore(); if(typeof ocupa==='function') ocupa(x-w/2,y-h/2,x+w/2,y+h/2,2.5); }
+function interrogacion(x,y,k,t,i){ if(k<=0) return; ctx.save(); ctx.translate(x,y+Math.sin(t*5+i)*8); ctx.scale(k,k); ctx.fillStyle='#FFFFFF'; blob(0,0,40); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?',0,4); ctx.restore(); }
+function agua(t,P,y0){ for(const [y,c,a,d] of [[y0,P.claro,20,0.5],[y0+60,P.medio,26,0.8],[y0+150,P.oscuro,30,1]]){ ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(-200,2200); for(let x=-200;x<=1280;x+=20) ctx.lineTo(x,y+Math.sin(x*0.013+t*1.8*d+d*3)*a); ctx.lineTo(1280,2200); ctx.fill(); } }
+function multitud(t,xs,y,s,opt={}){ xs.forEach((x,i)=>gomita({x,y:y+(i%2)*30,s,t,seed:i+(opt.seed||0),expr:typeof opt.expr==='function'?opt.expr(i):(opt.expr||'feliz'),brazos:typeof opt.brazos==='function'?opt.brazos(i):(opt.brazos||'idle'),alto:opt.salta?Math.abs(Math.sin(t*7+i*1.3))*opt.salta:0,tilt:opt.tilt?opt.tilt(i):0,disfraz:opt.disfraz,npc_peso:0.6})); }
+function flor(x,y,c,t,i){ ctx.strokeStyle='#3E9B57'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-70); ctx.stroke(); ctx.fillStyle=c; for(let k=0;k<5;k++){ const a=k/5*Math.PI*2+t*0.5+i; blob(x+Math.cos(a)*18,y-80+Math.sin(a)*18,14);} ctx.fillStyle='#FFD23F'; blob(x,y-80,10); }
+function sombreroEmp(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); DISFRACES.emperador.cabeza({t,wob:0}); ctx.restore(); }
+
+// ---------------- escenas ----------------
+function S1(t,sc){ // HOOK: Raro emperador sobre su caja en la calle; letrero desde el cuadro 0
+  const b=brinco(t,at(4)-0.05,0.42,120);
+  caja(560,SUELO+60,1.15);
+  multitud(t,[130,950],SUELO+40,0.62,{expr:i=>t>at(4)?'asombro':'sospecha',brazos:'idle',seed:3});
+  raro({x:560,y:SUELO-78,s:1.1,t,expr:t<at(4)?'orgullo':'feliz',brazos:t<at(4)?'jarras':'arriba',disfraz:'emperador',sq:b.sq,alto:b.alto,wob:b.wob});
+  letrero('EMPERADOR DE EE. UU.',540,400,1,'madera',{tam:66,t,t0:at(4)});
+  chispas(t,at(4)+0.3,560,700,1.4,'#FFD23F');
+}
+function S2(t,sc){ // la ciudad le sigue el juego: todos hacen reverencia
+  const k=easeOut(prog(t,at(12),0.3));
+  multitud(t,[160,380,700,920],SUELO+10,0.75,{expr:'feliz',brazos:i=>i%2?'saluda':'idle',seed:1,tilt:i=>(i<2?1:-1)*0.35*k});
+  raro({x:540,y:SUELO-80,s:1.15,t,expr:t>at(12)?'risa':'orgullo',brazos:'saluda',disfraz:'emperador',sq:gelatina(t,sc.start+0.1),wob:wobble(t,sc.start+0.1)});
+  chispas(t,at(12),300,1150,1.2); chispas(t,at(14),800,1150,1.2,'#FFD23F');
+}
+function S3(t,sc){ // San Francisco 1859; puf → comerciante rico
+  const p=pufCambio(t,sc.start+0.05);
+  raro({x:620,y:SUELO,s:1.3,t,expr:'orgullo',brazos:'jarras',disfraz:p.despues?'rico':'emperador',spin:p.spin,sq:gelatina(t,sc.start+0.4),wob:wobble(t,sc.start+0.4)});
+  nubePuf(t,sc.start+0.12,620,SUELO-180,1.5);
+  barco(220,SUELO-260,0.5,t);
+  letrero('SAN FRANCISCO · 1859',540,400,popIn(t,at(16)),'pergamino',{tam:62,t,t0:at(16)});
+}
+function S4(t,sc){ // había sido rico: lluvia de monedas, bolsas de oro
+  lluviaMonedas(t,sc.start,16);
+  cascada(t,at(18),4,(x,y,k,i)=>bolsaOro(x,y,k*1.1,t),{x0:150,y0:SUELO-40,cols:4,dx:110,dy:0,cada:0.12});
+  const b=brinco(t,at(22),0.45,160);
+  raro({x:700,y:SUELO,s:1.3,t,expr:'feliz',brazos:'carga',disfraz:'rico',sq:b.sq,alto:b.alto,wob:b.wob});
+  bolsaOro(700,SUELO-730-b.alto,1,t);
+  letrero('RICO',540,400,popIn(t,at(22)),'madera',{tam:84,t,t0:at(22)});
+  chispas(t,at(22)+0.1,700,800,1.4,'#FFD23F');
+}
+function S5(t,sc){ // apuesta todo a un barco de arroz
+  const P=PAL_ACTUAL; agua(t,P,SUELO-180);
+  const bx=lerp(1300,760,easeOut(prog(t,at(29),0.6)));
+  barco(bx,SUELO-170,0.95,t,'ARROZ');
+  const empuja=t>at(25);
+  cascada(t,at(26),3,(x,y,k,i)=>bolsaOro(x+(empuja?easeOut(prog(t,at(26),0.8))*140:0),y,k,t),{x0:120,y0:SUELO+70,cols:3,dx:100,dy:0,cada:0.08});
+  raro({x:330,y:SUELO+110,s:1.15,t,expr:empuja?'feliz':'sospecha',brazos:empuja?'frente':'jarras',disfraz:'rico',piernas:empuja?'camina':'quieto'});
+  chispas(t,at(31),760,1100,1.3);
+}
+function S6(t,sc){ // llegan más barcos; el precio se desploma (gráfica)
+  for(let i=0;i<4;i++){ const k=popIn(t,at(33)+i*0.12); if(k>0){ ctx.save(); ctx.translate(130+i*230,SUELO-40); ctx.scale(k,k); barco(0,0,0.6,t); ctx.restore(); } }
+  // pizarrón con la gráfica
+  const x0=170,y0=440,w=740,h=430; ctx.fillStyle='#1B1F3B'; rr(x0,y0,w,h,30); ctx.fill(); ctx.strokeStyle='#4CC9F0'; ctx.lineWidth=8; ctx.stroke(); ocupa(x0,y0,x0+w,y0+h,2.5);
+  const u=easeIn(prog(t,at(38)-0.25,0.35)); ctx.strokeStyle='#FF4D6D'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(x0+60,y0+120); ctx.lineTo(x0+260,y0+90); ctx.lineTo(x0+380,y0+110); ctx.lineTo(x0+380+u*280,y0+110+u*270); ctx.stroke();
+  ctx.fillStyle='#8FF0FF'; ctx.font=fuente(48); ctx.textAlign='left'; ctx.fillText('PRECIO DEL ARROZ',x0+40,y0+h-40);
+  ondaChoque(t,at(38),x0+660,y0+380,'#FF4D6D');
+  const s=susto(t,at(38));
+  raro({x:760,y:SUELO,s:1.0,t,expr:t>at(38)?'terror':'asombro',brazos:t>at(38)?'cara':'idle',disfraz:'rico',sq:s.sq,alto:s.alto,wob:s.wob});
+}
+function S7(t,sc){ // se queda sin nada; puf a harapos; "¿y qué hizo?" mira a cámara
+  const p=pufCambio(t,at(42));
+  const mira=t>at(44);
+  raro({x:540,y:SUELO,s:1.35,t,expr:mira?'sospecha':(p.despues?'llanto':'yavalio'),brazos:mira?'jarras':'idle',disfraz:p.despues?'campesino':'rico',spin:p.spin,mira:mira?{x:0,y:0}:undefined,
+        sq:gelatina(t,at(42)+0.36),wob:wobble(t,at(42)+0.36)});
+  nubePuf(t,at(42)+0.08,540,SUELO-180,1.5);
+  if(p.despues){ ctx.fillStyle='#FFFFFF'; ctx.globalAlpha=0.8; for(let i=0;i<3;i++){ const u=((t-at(42))*0.8+i/3)%1; blob(260+i*30,SUELO-300-u*400,10+u*20);} ctx.globalAlpha=1; }
+  letrero('$0',540,420,popIn(t,at(43)),'piedra',{tam:100,t,t0:at(43)});
+}
+function S8(t,sc){ // escribe la carta al periódico
+  ctx.fillStyle=mix(PAL_ACTUAL.oscuro,'#000000',0.1); rr(120,SUELO-180,840,60,20); ctx.fill(); ctx.fillRect(170,SUELO-130,40,200); ctx.fillRect(870,SUELO-130,40,200);
+  const vuela=prog(t,at(52),0.45);
+  ctx.save(); const cx=lerp(640,1250,easeIn(vuela)), cy=lerp(SUELO-240,300,easeIn(vuela)); ctx.translate(cx,cy); ctx.rotate(-0.1-vuela*0.8);
+  ctx.fillStyle='#FFFFFF'; rr(-110,-70,220,140,12); ctx.fill(); ctx.strokeStyle='#D9D4E8'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-110,-70); ctx.lineTo(0,10); ctx.lineTo(110,-70); ctx.stroke();
+  ctx.fillStyle='#E23D5B'; blob(0,10,18); ctx.restore();
+  raro({x:380,y:SUELO-100,s:1.3,t,expr:t>at(50)?'orgullo':'sospecha',brazos:'frente',disfraz:'campesino',tilt:Math.sin(t*12)*0.03});
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(470+Math.sin(t*14)*16,SUELO-290); ctx.lineTo(520,SUELO-480); ctx.stroke();
+  letrero('AL PERIÓDICO',540,400,popIn(t,at(52)),'madera',{tam:66,t,t0:at(52)});
+}
+function S9(t,sc){ // ¡Emperador! puf al uniforme con líneas de velocidad
+  const p=pufCambio(t,sc.start+0.05);
+  raro({x:540,y:SUELO,s:1.4,t,expr:'orgullo',brazos:p.despues?'arriba':'idle',disfraz:p.despues?'emperador':'campesino',spin:p.spin,sq:gelatina(t,sc.start+0.4),wob:wobble(t,sc.start+0.4)});
+  nubePuf(t,sc.start+0.12,540,SUELO-180,1.6);
+  lineasVelocidad(t,sc.start+0.1,540,1000);
+  letrero('"EMPERADOR"',540,440,popIn(t,sc.start+0.3),'pergamino',{tam:80,t,t0:sc.start+0.3});
+  chispas(t,at(57),300,1000,1.3,'#FFD23F'); chispas(t,at(58),800,950,1.3);
+}
+function S10(t,sc){ // el periódico la publicó
+  const k=popIn(t,at(61),0.35);
+  if(k>0){ ctx.save(); ctx.translate(560,800); ctx.rotate(-0.08+Math.sin(t*2)*0.02); ctx.scale(k,k);
+    ctx.fillStyle='#F7F3EA'; rr(-330,-380,660,560,14); ctx.fill(); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(46); ctx.textAlign='center'; ctx.fillText('EL BOLETÍN · 1859',0,-310);
+    ctx.fillRect(-300,-280,600,8); ctx.font=fuente(84); ctx.fillText('¡EMPERADOR!',0,-180);
+    ctx.fillStyle='#C9C3D9'; for(let i=0;i<6;i++){ rr(-300,-110+i*44,i%3==2?380:600,22,10); ctx.fill(); } ctx.restore(); ocupa(230,420,890,980,2.5); }
+  gomita({x:220,y:SUELO,s:0.85,t,expr:t>at(63)?'asombro':'neutral',brazos:'frente',seed:4});
+  raro({x:790,y:SUELO,s:1.0,t,expr:t>at(63)?'risa':'orgullo',brazos:'jarras',disfraz:'emperador',sq:gelatina(t,at(62)),wob:wobble(t,at(62))});
+  chispas(t,at(62),560,520,1.6);
+}
+function S11(t,sc){ // desfile: uniforme azul y charreteras doradas
+  const x=lerp(180,700,easeInOut(prog(t,sc.start,1.8)));
+  multitud(t,[120,980],SUELO+60,0.6,{expr:'feliz',brazos:'arriba',salta:30,seed:6});
+  raro({x,y:SUELO,s:1.3,t,expr:'orgullo',piernas:t<sc.start+1.8?'camina':'quieto',brazos:t>at(71)?'jarras':'idle',disfraz:'emperador',alto:Math.abs(Math.sin(t*9))*(t<sc.start+1.8?14:0),wob:Math.sin(t*9)*0.2});
+  for(const s of [-1,1]) chispas(t,at(71)+(s>0?0.08:0),x+s*170,SUELO-250,1,'#FFD23F');
+  letrero('UNIFORME AZUL',540,400,popIn(t,at(69)),'madera',{tam:66,t,t0:at(69)});
+}
+function S12(t,sc){ // emitía decretos
+  raro({x:330,y:SUELO,s:1.2,t,expr:'orgullo',brazos:'senala',disfraz:'emperador',sq:gelatina(t,at(75)),wob:wobble(t,at(75))});
+  pergaminoAbierto(700,900,easeOut(prog(t,at(75)-0.15,0.3)),t,['DECRETO','Yo, Norton I…'],440);
+}
+function S13(t,sc){ // ordena disolver el Congreso
+  edificio(560,SUELO-60,0.95,t,PAL_ACTUAL);
+  pergaminoAbierto(540,440,easeOut(prog(t,at(77),0.3)),t,['¡DISUÉLVASE','EL CONGRESO!'],600);
+  const b=brinco(t,at(79),0.4,120);
+  raro({x:860,y:SUELO+80,s:0.95,t,expr:'orgullo',brazos:'senala',espejo:true,disfraz:'emperador',sq:b.sq,alto:b.alto,wob:b.wob});
+}
+function S14(t,sc){ // el Congreso siguió como si nada
+  edificio(540,SUELO-80,1.0,t,PAL_ACTUAL);
+  ventanita(330,SUELO-260,t,1,PAL_ACTUAL); ventanita(540,SUELO-260,t,2,PAL_ACTUAL); ventanita(750,SUELO-260,t,3,PAL_ACTUAL);
+  const sa=saleArriba(t,sc.end);
+  raro({x:250,y:SUELO+90,s:0.85,t,expr:t>at(82)?'yavalio':'sospecha',brazos:'jarras',disfraz:'emperador',mira:t>at(84)?{x:0,y:0}:undefined,sq:sa.sq,alto:sa.alto});
+  // grillos: notas pequeñas
+  if(t>at(83)) for(let i=0;i<3;i++){ const u=((t-at(83))*1.2+i/3)%1; ctx.globalAlpha=1-u; ctx.fillStyle='#FFFFFF'; ctx.font=fuente(40); ctx.fillText('♪',880+i*30,SUELO-100-u*160); ctx.globalAlpha=1; }
+}
+function S15(t,sc){ // 1861: también emperador de México
+  const c=caida(t,sc.start);
+  raro({x:540,y:SUELO,s:1.3,t,expr:t>at(94)?'feliz':'orgullo',brazos:t>at(94)?'arriba':'jarras',disfraz:'emperador',sq:c.sq,alto:c.alto,wob:c.wob});
+  letrero('1861',540,380,popIn(t,at(90)),'madera',{tam:90,t,t0:at(90)});
+  letrero('EMPERADOR DE MÉXICO',540,540,popIn(t,at(94)),'pergamino',{tam:56,t,t0:at(94)});
+  chispas(t,at(96),540,800,1.5,'#FFD23F');
+}
+function S16(t,sc){ // "Protector de México": escudo enorme
+  const k=popIn(t,at(99));
+  raro({x:420,y:SUELO,s:1.25,t,expr:'orgullo',brazos:'frente',disfraz:'emperador',sq:gelatina(t,at(99)),wob:wobble(t,at(99))});
+  if(k>0){ ctx.save(); ctx.translate(600,SUELO-260); ctx.scale(k,k); ctx.rotate(Math.sin(t*3)*0.04);
+    ctx.fillStyle='#C9CFDA'; ctx.beginPath(); ctx.moveTo(-140,-170); ctx.lineTo(140,-170); ctx.quadraticCurveTo(150,80,0,190); ctx.quadraticCurveTo(-150,80,-140,-170); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.moveTo(-110,-140); ctx.lineTo(110,-140); ctx.quadraticCurveTo(118,60,0,150); ctx.quadraticCurveTo(-118,60,-110,-140); ctx.fill();
+    estrella4(0,0,80,'#E23D5B'); ctx.restore(); ocupa(460,SUELO-430,740,SUELO-70,1.5); }
+  letrero('PROTECTOR DE MÉXICO',540,400,popIn(t,at(99)+0.1),'madera',{tam:58,t,t0:at(99)+0.1});
+}
+function S17(t,sc){ // nadie se lo pidió: gomitas confundidas; freeze-zoom a Raro
+  multitud(t,[170,370,720,920],SUELO+20,0.7,{expr:'sospecha',brazos:'idle',seed:2});
+  [170,370,720,920].forEach((x,i)=>interrogacion(x,SUELO-330,popIn(t,at(102)+i*0.08),t,i));
+  const z=t>at(106)? 1+0.55*easeOut(prog(t,at(106),0.2)) : 1;
+  ctx.save(); ctx.translate(540,SUELO-300); ctx.scale(z,z); ctx.translate(-540,-(SUELO-300));
+  raro({x:540,y:SUELO-20,s:1.05,t,expr:t>at(106)?'feliz':'orgullo',brazos:'saluda',disfraz:'emperador',mira:t>at(106)?{x:0,y:0}:undefined,rubor:t>at(106)?1:0});
+  ctx.restore();
+}
+function S18(t,sc){ // imprime su propio dinero
+  ctx.fillStyle='#5B5470'; rr(560,SUELO-460,380,420,40); ctx.fill(); ctx.fillStyle='#8E8AA3'; rr(590,SUELO-430,320,90,20); ctx.fill();
+  for(let i=0;i<2;i++){ ctx.save(); ctx.translate(680+i*140,SUELO-385); ctx.rotate(t*6); ctx.fillStyle='#FFD23F'; ctx.fillRect(-30,-6,60,12); ctx.fillRect(-6,-30,12,60); ctx.restore(); }
+  for(let i=0;i<10;i++){ const t0=at(109)+i*0.13; if(t<t0) continue; const u=t-t0; billete(560-u*260-(i%3)*20, SUELO-300+Math.min(u,1)*(120+i*20)-Math.sin(u*3)*40, Math.min(1,u*4)*0.9, -0.3+i*0.1, t); }
+  raro({x:250,y:SUELO,s:1.15,t,expr:'feliz',brazos:'arriba',disfraz:'emperador',sq:gelatina(t,at(112)),wob:wobble(t,at(112))});
+  letrero('DINERO IMPERIAL',540,400,popIn(t,at(111)),'madera',{tam:62,t,t0:at(111)});
+}
+function S19(t,sc){ // algunos restaurantes se lo aceptaban
+  ctx.fillStyle=PAL_ACTUAL.oscuro; rr(80,SUELO-760,920,760,30); ctx.fill(); ctx.fillStyle='#FFF4DC'; rr(130,SUELO-700,820,120,24); ctx.fill();
+  ctx.fillStyle='#A9196F'; ctx.font=fuente(70); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('RESTAURANTE',540,SUELO-640); ocupa(130,SUELO-700,950,SUELO-580,2.5);
+  ctx.fillStyle='#E23D5B'; for(let i=0;i<8;i++){ ctx.beginPath(); ctx.arc(130+i*117+58,SUELO-560,58,0,Math.PI); ctx.fill(); }
+  const da=prog(t,at(118)-0.3,0.4);
+  gomita({x:760,y:SUELO,s:0.95,t,expr:t>at(118)?'feliz':'sospecha',brazos:'frente',disfraz:MESERO,seed:5});
+  billete(lerp(430,690,easeOut(da)),SUELO-330,1,0.1,t);
+  if(t>at(118)){ ctx.fillStyle='#FFFFFF'; blob(760,SUELO-470,70); ctx.fillStyle='#FF8A3D'; blob(740,SUELO-500,36); blob(785,SUELO-495,30); }
+  raro({x:330,y:SUELO,s:1.15,t,expr:t>at(118)?'risa':'orgullo',brazos:'senala',disfraz:'emperador'});
+  chispas(t,at(118),720,SUELO-450,1.2,'#FFD23F');
+}
+function S20(t,sc){ // un policía lo arresta; caen las rejas
+  const k=easeOut(prog(t,at(126)-0.1,0.25));
+  gomita({x:760,y:SUELO,s:1.05,t,expr:'sospecha',brazos:'senala',espejo:true,disfraz:POLI,color:'#B8E6FF',seed:2});
+  const s=susto(t,at(124));
+  raro({x:350,y:SUELO,s:1.2,t,expr:'terror',brazos:'arriba',disfraz:'emperador',sq:s.sq,alto:s.alto,wob:s.wob});
+  rejas(350,SUELO+20,k); ondaChoque(t,at(126)+0.15,350,SUELO,'#FFFFFF');
+  letrero('¡ARRESTADO!',540,400,popIn(t,at(124)),'piedra',{tam:72,t,t0:at(124)});
+}
+function S21(t,sc){ // la gente se indigna; lo sueltan
+  const sube=easeIn(prog(t,at(138)-0.2,0.35));
+  rejas(540,SUELO+20-sube*900,1);
+  multitud(t,[110,300,780,970],SUELO+40,0.72,{expr:'asco',brazos:'arriba',salta:t<at(138)?40:0,seed:7});
+  raro({x:540,y:SUELO-20,s:1.1,t,expr:t>at(138)?'feliz':'llanto',brazos:t>at(138)?'arriba':'cara',disfraz:'emperador',alto:t>at(138)?brinco(t,at(138),0.45,160).alto:0});
+  letrero('¡SUÉLTENLO!',540,400,popIn(t,at(130)),'madera',{tam:76,t,t0:at(130)});
+}
+function S22(t,sc){ // el jefe de policía le pide disculpas (reverencia)
+  const k=easeOut(prog(t,at(140),0.3));
+  gomita({x:720,y:SUELO,s:1.1,t,expr:'apenado',brazos:'frente',espejo:true,disfraz:POLI,color:'#C9F2B8',seed:3,tilt:-0.55*k});
+  raro({x:330,y:SUELO,s:1.1,t,expr:'sospecha',brazos:'jarras',disfraz:'emperador'});
+  if(t>at(140)) for(let i=0;i<3;i++){ const u=((t-at(140))*1.4+i/3)%1; ctx.fillStyle='#BFF4FF'; ctx.globalAlpha=1-u; blob(560+i*40,SUELO-420+u*120,10); ctx.globalAlpha=1; }
+  letrero('DISCULPAS',540,400,popIn(t,at(141)),'pergamino',{tam:70,t,t0:at(141)});
+}
+function S23(t,sc){ // perdón imperial
+  raro({x:380,y:SUELO,s:1.3,t,expr:'orgullo',brazos:t>at(148)?'saluda':'jarras',disfraz:'emperador',sq:gelatina(t,at(148)),wob:wobble(t,at(148))});
+  gomita({x:860,y:SUELO+40,s:0.75,t,expr:t>at(148)?'feliz':'apenado',brazos:'frente',espejo:true,disfraz:POLI,color:'#B8E6FF',seed:2});
+  pergaminoAbierto(600,560,easeOut(prog(t,at(147),0.3)),t,['PERDÓN','IMPERIAL'],440);
+  chispas(t,at(148),600,600,1.6,'#FFD23F');
+}
+function S24(t,sc){ // su decreto más famoso: abre el plano
+  const z=1+0.25*easeOut(prog(t,sc.start,1.2));
+  ctx.save(); ctx.translate(540,800); ctx.scale(z,z); ctx.translate(-540,-800);
+  pergaminoAbierto(540,700,easeOut(prog(t,sc.start+0.05,0.3)),t,['DECRETO','MÁS FAMOSO'],560);
+  ctx.restore();
+  raro({x:830,y:SUELO,s:1.0,t,expr:'orgullo',brazos:'senala',espejo:true,disfraz:'emperador',sq:gelatina(t,at(155)),wob:wobble(t,at(155))});
+  chispas(t,at(155),540,700,1.4);
+}
+function S25(t,sc){ // un puente entre San Francisco y Oakland (mapa de la bahía)
+  const P=PAL_ACTUAL; ctx.fillStyle='#7BD389'; ctx.beginPath(); ctx.ellipse(-60,1000,330,560,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(1140,950,330,560,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#5BB86B'; blob(130,820,70); blob(960,1100,80);
+  const u=easeOut(prog(t,at(157),0.7)); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=14; ctx.setLineDash([30,22]); ctx.beginPath(); ctx.moveTo(250,900); ctx.lineTo(250+u*580,900); ctx.stroke(); ctx.setLineDash([]);
+  letrero('SAN FRANCISCO',300,400,popIn(t,at(159)),'madera',{tam:46,t,t0:at(159)});
+  letrero('OAKLAND',800,520,popIn(t,at(162)),'madera',{tam:50,t,t0:at(162)});
+  const b=brinco(t,at(162),0.4,120);
+  raro({x:540,y:SUELO,s:0.95,t,expr:'feliz',brazos:'arriba',disfraz:'emperador',piernas:'flota',sq:b.sq,alto:b.alto+Math.sin(t*3)*10,wob:b.wob});
+}
+function S26(t,sc){ // décadas después: el puente se construye pieza por pieza
+  const P=PAL_ACTUAL; agua(t,P,SUELO-120);
+  const n=Math.floor(clamp((t-at(169))/((at(172)-at(169))*0.95))*8);
+  ctx.fillStyle='#E9ECF3'; for(let i=0;i<n;i++){ const k=popIn(t,at(169)+i*((at(172)-at(169))*0.95/8),0.2); ctx.save(); ctx.translate(90+i*125,SUELO-260); ctx.scale(1,k);
+    rr(0,0,130,34,10); ctx.fill(); if(i%3==1){ rr(50,-260,30,290,10); ctx.fill(); } ctx.restore(); }
+  ctx.strokeStyle='#E9ECF3'; ctx.lineWidth=8; if(n>4){ ctx.beginPath(); ctx.moveTo(90,SUELO-260); ctx.quadraticCurveTo(320,SUELO-420,465,SUELO-520); ctx.quadraticCurveTo(640,SUELO-330,840,SUELO-520); ctx.stroke(); }
+  raro({x:540,y:900+Math.sin(t*2.4)*20,s:0.8,t,expr:t>at(171)?'asombro':'neutral',brazos:'idle',piernas:'flota',disfraz:'emperador',sinSombra:true});
+  letrero('DÉCADAS DESPUÉS',540,330,popIn(t,sc.start+0.1),'pergamino',{tam:52,t,t0:sc.start+0.1});
+}
+function S27(t,sc){ // casi por donde él dijo: Raro presume a cámara
+  const z=1.0+0.35*easeOut(prog(t,at(175),0.25));
+  ctx.save(); ctx.translate(540,SUELO-300); ctx.scale(z,z); ctx.translate(-540,-(SUELO-300));
+  raro({x:540,y:SUELO,s:1.35,t,expr:t>at(175)?'risa':'orgullo',brazos:'jarras',disfraz:'emperador',mira:{x:0,y:0},sq:gelatina(t,sc.start+0.1),wob:wobble(t,sc.start+0.1),rubor:1});
+  ctx.restore();
+  chispas(t,at(176),280,900,1.3,'#FFD23F'); chispas(t,at(176)+0.08,800,900,1.3);
+}
+function S28(t,sc){ // murió en 1880 (tono respetuoso): sombrero sobre pedestal con flores
+  ctx.fillStyle='#E9ECF3'; rr(360,SUELO-300,360,300,20); ctx.fill(); ctx.fillStyle='#C9CFDA'; rr(330,SUELO-320,420,40,16); ctx.fill();
+  sombreroEmp(540,SUELO-340,0.9,t);
+  for(let i=0;i<7;i++) flor(360+i*60,SUELO+60,['#FF5FA2','#FFD23F','#B388FF','#FFFFFF'][i%4],t,i);
+  letrero('1880',540,400,popIn(t,at(180)),'piedra',{tam:96,t,t0:at(180)});
+}
+function S29(t,sc){ // unas 10 mil personas pasaron a despedirlo
+  for(let r=0;r<3;r++) multitud(t,[100,260,420,660,820,980].map(x=>x+(r%2)*70),SUELO-200+r*150,0.45+r*0.08,{expr:'apenado',brazos:'frente',seed:r*7});
+  raro({x:540,y:930+Math.sin(t*2)*16,s:0.7,t,expr:'feliz',brazos:'saluda',piernas:'flota',disfraz:'emperador',sinSombra:true});
+  ctx.fillStyle='#FFF7C2'; ctx.globalAlpha=0.9; ctx.lineWidth=12; ctx.strokeStyle='#FFE36A'; ctx.beginPath(); ctx.ellipse(540,930+Math.sin(t*2)*16-300,90,22,0,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
+  letrero(contador(t,at(182),0.9,0,10000)+' PERSONAS',540,400,popIn(t,at(182)),'madera',{tam:60,t,t0:at(182)});
+}
+function S30(t,sc){ // ¿tú qué decreto pondrías? Raro le ofrece la pluma a la cámara
+  raro({x:540,y:SUELO,s:1.35,t,expr:t>at(193)?'feliz':'sospecha',brazos:'frente',disfraz:'emperador',mira:{x:0,y:0},sq:gelatina(t,sc.start+0.1),wob:wobble(t,sc.start+0.1)});
+  pergaminoAbierto(540,450,easeOut(prog(t,at(189),0.3)),t,['TU DECRETO:','…'],460);
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=12; ctx.beginPath(); ctx.moveTo(610,SUELO-230); ctx.lineTo(700,SUELO-420); ctx.stroke();
+}
+function S31(t,sc){ // loop: igual que el cuadro 0
+  const b=brinco(t,sc.end-0.4,0.42,120);
+  caja(560,SUELO+60,1.15);
+  multitud(t,[130,950],SUELO+40,0.62,{expr:'sospecha',brazos:'idle',seed:3});
+  raro({x:560,y:SUELO-78,s:1.1,t,expr:'orgullo',brazos:'jarras',disfraz:'emperador',sq:gelatina(t,sc.start+0.3)+(b.sq||0),wob:wobble(t,sc.start+0.3)});
+  letrero('EMPERADOR DE EE. UU.',540,400,popIn(t,sc.start+0.1),'madera',{tam:66,t,t0:sc.start+0.1});
+}
+const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25,S26,S27,S28,S29,S30,S31];
+const CHIPS={};
+window.FONDOS={1:{pal:'magenta',tipo:'ciudad'},2:{pal:'turquesa',tipo:'cerros'},3:{pal:'limon',tipo:'olas'},4:{pal:'violeta',tipo:'interior'},5:{pal:'cielo',tipo:'liso'},
+  6:{pal:'mandarina',tipo:'olas'},7:{pal:'turquesa',tipo:'ciudad'},8:{pal:'magenta',tipo:'interior'},9:{pal:'cielo',tipo:'cerros'},10:{pal:'limon',tipo:'liso',pp:false},
+  11:{pal:'violeta',tipo:'ciudad'},12:{pal:'mandarina',tipo:'interior'},13:{pal:'turquesa',tipo:'cielo'},14:{pal:'magenta',tipo:'liso'},15:{pal:'mandarina',tipo:'desierto'},
+  16:{pal:'cielo',tipo:'cerros'},17:{pal:'violeta',tipo:'ciudad'},18:{pal:'limon',tipo:'interior'},19:{pal:'magenta',tipo:'ciudad'},20:{pal:'turquesa',tipo:'cerros'},
+  21:{pal:'mandarina',tipo:'ciudad'},22:{pal:'cielo',tipo:'interior'},23:{pal:'violeta',tipo:'cerros'},24:{pal:'limon',tipo:'liso',pp:false},25:{pal:'cielo',tipo:'olas',pp:false},
+  26:{pal:'magenta',tipo:'cielo'},27:{pal:'mandarina',tipo:'cerros'},28:{pal:'violeta',tipo:'cielo'},29:{pal:'cielo',tipo:'cerros'},30:{pal:'limon',tipo:'interior'},31:{pal:'magenta',tipo:'ciudad'}};
+window.TOMAS={1:{mov:'push',z:1.05,foco:[540,1000]},2:{mov:'pull',z:1.15,foco:[540,1100]},3:{mov:'paneo-der'},4:{mov:'sube'},5:{mov:'paneo-izq'},6:{mov:'push',z:1.1,foco:[540,700]},
+  7:{mov:'push',z:1.15,foco:[540,1000]},8:{mov:'paneo-der'},9:{mov:'pull',z:1.1,foco:[540,1000]},10:{mov:'push',z:1.1,foco:[560,800]},11:{mov:'paneo-der'},12:{mov:'push',z:1.2,foco:[520,1000]},
+  13:{mov:'sube'},14:{mov:'pull',z:1.2,foco:[540,1100]},15:{mov:'push',z:1.15,foco:[540,900]},16:{mov:'push',z:1.1,foco:[540,1000]},17:{mov:'fija'},18:{mov:'paneo-izq'},19:{mov:'push',z:1.15,foco:[540,1000]},
+  20:{mov:'paneo-der'},21:{mov:'push',z:1.05,foco:[540,960]},22:{mov:'push',z:1.1,foco:[540,1000]},23:{mov:'orbita'},24:{mov:'fija'},25:{mov:'paneo-der'},26:{mov:'sube'},27:{mov:'fija'},
+  28:{mov:'push',z:1.1,foco:[540,1100]},29:{mov:'pull',z:1.15,foco:[540,900]},30:{mov:'push',z:1.08,foco:[540,960]},31:{mov:'push',z:1.05,foco:[540,1000]}};
+// transiciones: 3 puf, 5 latigazo (vamos al puerto), 9 zoom, 15 salto (Raro cae), etc.
+window.TRANS={2:'bufanda',4:'latigazo',5:'latigazo',6:'zoom',8:'bufanda',9:'zoom',10:'latigazo',11:'bufanda',12:'zoom',13:'latigazo',14:'bufanda',16:'zoom',17:'latigazo',
+  18:'bufanda',19:'latigazo',20:'zoom',21:'bufanda',22:'latigazo',23:'zoom',24:'bufanda',25:'zoom',26:'latigazo',28:'bufanda',29:'latigazo',30:'zoom',31:'bufanda'};
+window.KEYWORDS=[4,12,17,22,31,38,43,54,63,71,75,79,85,90,99,105,112,118,124,138,142,148,155,162,171,176,182,193];
+window.SHAKES=[38,54,126,138];
+window.FLASHES=[[54,'#FFFFFF'],[126,'#FFFFFF'],[171,'#FFF4DC']];
+</script></body></html>
