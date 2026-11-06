@@ -444,16 +444,16 @@ const DISFRACES = {
       ctx.strokeStyle='#FFD23F'; ctx.lineWidth=18; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(40,-226); ctx.quadraticCurveTo(140,-226,150,-300); ctx.lineTo(160,-470); ctx.stroke();
       ctx.fillStyle='#FF6B35'; rr(144,-500,34,40,10); ctx.fill(); ctx.restore(); }
   },
-  playero: { // turista de playa: camisa de flores, sombrero de sol, lentes oscuros y flotador
+  playero: { // turista de playa: camisa de flores, sombrero de sol, lentes oscuros y flotador; o.sinSombrero=true quita el sombrero (se lo llevó el viento: dibújalo aparte con sombreroPlayero); o.sinFlotador=true quita el flotador
     cuerpo(o){ ctx.fillStyle='#FF5FA2'; ctx.fillRect(-200,-210,400,190);
       for(let i=0;i<9;i++){ const x=-160+rand(i)*320, y=-190+rand(i+5)*150; ctx.fillStyle=i%2?'#FFE36E':'#FFFFFF'; for(let k=0;k<5;k++){ const a=k/5*Math.PI*2; ctx.beginPath(); ctx.arc(x+Math.cos(a)*12,y+Math.sin(a)*12,9,0,Math.PI*2); ctx.fill(); } ctx.fillStyle='#FF8A3D'; ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fill(); } },
-    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-366); ctx.rotate(0.1+w*0.08);
+    cabeza(o){ if(o.sinSombrero) return; const w=o.wob||0; ctx.save(); ctx.translate(0,-366); ctx.rotate(0.1+w*0.08);
       ctx.fillStyle='#F2C65A'; ctx.beginPath(); ctx.ellipse(0,0,190,36,0,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#FFE08A'; ctx.beginPath(); ctx.moveTo(-80,-4); ctx.quadraticCurveTo(-70,-92,0,-94); ctx.quadraticCurveTo(70,-92,80,-4); ctx.closePath(); ctx.fill();
       ctx.fillStyle='#4CC9F0'; ctx.fillRect(-80,-26,160,20); ctx.restore(); },
     frente(o){ ctx.fillStyle='#1E1A2E'; for(const s of [-1,1]){ rr(s*52-44,-318,88,58,22); ctx.fill(); } ctx.fillRect(-12,-300,24,8);
       ctx.fillStyle='rgba(255,255,255,0.5)'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*52-16,-302,14,6,-0.4,0,Math.PI*2); ctx.fill(); }
-      ctx.save(); ctx.translate(0,-70+Math.sin(o.t*3)*4); ctx.lineWidth=50; for(let i=0;i<12;i++){ ctx.strokeStyle=i%2?'#FFFFFF':'#FF4D5E'; ctx.beginPath(); ctx.ellipse(0,0,178,44,0,i/12*Math.PI*2,(i+1)/12*Math.PI*2+0.02); ctx.stroke(); }
+      if(o.sinFlotador) return; ctx.save(); ctx.translate(0,-70+Math.sin(o.t*3)*4); ctx.lineWidth=50; for(let i=0;i<12;i++){ ctx.strokeStyle=i%2?'#FFFFFF':'#FF4D5E'; ctx.beginPath(); ctx.ellipse(0,0,178,44,0,i/12*Math.PI*2,(i+1)/12*Math.PI*2+0.02); ctx.stroke(); }
       ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=8; ctx.beginPath(); ctx.ellipse(0,-14,170,34,0,Math.PI*1.1,Math.PI*1.5); ctx.stroke(); ctx.restore(); }
   },
   cavernicola: {
@@ -915,3 +915,17 @@ DISFRACES.escolar = { // uniforme escolar: camisa blanca con suéter azul marino
     ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(-70,-120,16,0,Math.PI*2); ctx.fill(); },
   frente(o){ ctx.strokeStyle='#C42A48'; ctx.lineWidth=18; ctx.lineCap='round'; for(const s of [-1,1]){ ctx.beginPath(); ctx.moveTo(s*120,-215); ctx.quadraticCurveTo(s*135,-150,s*125,-80); ctx.stroke(); } }
 };
+
+// ---------- agregado con neptuno-001 (nov 2026) ----------
+// Sombrero de sol del disfraz playero, suelto (para que el viento se lo lleve). x,y = centro del ala; a = giro.
+function sombreroPlayero(x,y,a=0,s=1){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(s,s);
+  ctx.fillStyle='#F2C65A'; ctx.beginPath(); ctx.ellipse(0,0,190,36,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFE08A'; ctx.beginPath(); ctx.moveTo(-80,-4); ctx.quadraticCurveTo(-70,-92,0,-94); ctx.quadraticCurveTo(70,-92,80,-4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#4CC9F0'; ctx.fillRect(-80,-26,160,20); ctx.restore(); }
+// Rachas de viento: trazos blancos que cruzan la pantalla de izquierda a derecha. f = fuerza (velocidad y cantidad).
+function rachas(t,f=1,alpha=0.75,y0=200,y1=1700){ ctx.save(); ctx.lineCap='round'; const n=Math.round(14*f);
+  for(let i=0;i<n;i++){ const sp=(1800+rand(i)*1400)*f, L=160+rand(i+2)*320, y=y0+rand(i+5)*(y1-y0)+Math.sin(t*3+i)*20;
+    const x=((t*sp+rand(i+9)*3000)%(1080+L+400))-L-200; ctx.globalAlpha=alpha*(0.5+0.5*rand(i+1)); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=6+rand(i+3)*10;
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+L*0.5,y-18*Math.sin(i),x+L,y); ctx.stroke(); }
+  ctx.restore(); }
+
