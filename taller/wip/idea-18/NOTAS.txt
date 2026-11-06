@@ -1,0 +1,1 @@
+Voz (6 nov 2026, Mizael, 1 toma, 93.8 s). Recortado en words_raw.json: 'Hasta el planeta se encogió… como arrugas' -> 71.3 s con tempo 1.2. id: mercurio-001. words_full.json = transcripción completa.
