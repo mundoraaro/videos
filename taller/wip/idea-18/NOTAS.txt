@@ -1,1 +1,0 @@
-Voz (6 nov 2026, Mizael, 1 toma, 98.6 s). Recortados en words_raw.json: 'Lo descubrieron con pura matemática… primera noche', 'Pasó… y siguió de largo' y 'de los nuestros' -> 71.3 s con tempo 1.2. id: neptuno-001. words_full.json = transcripción completa.
