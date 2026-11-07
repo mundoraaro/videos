@@ -1,0 +1,11 @@
+{"musica":[{"t":0,"estilo":"misterio"},{"w":7,"estilo":"espacio"},{"w":36,"estilo":"jugueton"},{"w":47,"estilo":"misterio"},{"w":51,"estilo":"jugueton"},{"w":63,"estilo":"aventura"},{"w":79,"estilo":"misterio"},{"w":97,"estilo":"jugueton"},{"w":127,"estilo":"medieval"},{"w":150,"estilo":"aventura"},{"w":171,"estilo":"misterio"}],
+ "corte":[58,100,126,149],
+ "puf":[51,56,59,84,127],
+ "boing":[6,23,78,144,150,171],
+ "pop":[1,5,7,10,15,28,37,43,54,58,60,65,69,92,98,99,105,108,110,116,131,133,139,143,146,148,152,155,159,160,162,168,174],
+ "click":[120,98,99,100],
+ "thud":[12,48,72,83,88,93],
+ "whoosh":[2,18,64,74,103,123,164],
+ "chispa":[35,42,72,96,120,154],
+ "blip":[31,45,170],
+ "whoosh_escenas":true}
