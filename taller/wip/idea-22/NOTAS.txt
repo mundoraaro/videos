@@ -1,1 +1,2 @@
 emus-001 · voz Carito · disfraz soldado australiano 1932 (sombrero de ala doblada) → puf granjero (sombrero de paja) en loop no; Raro soldado todo el video
+voz Carito 1 toma (94.3 s → 71.7 s con tempo 1.2). Se recortaron del audio 'Le dicen la Gran Guerra del Emú' y 'Y aquí viene lo raro' para quedar en 62–72 s (words_full.json = todo; words_raw.json = recortado). voz.mp3 es la toma original.
