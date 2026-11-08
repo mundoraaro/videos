@@ -7,3 +7,5 @@ largo/*/voz.wav
 largo/*/video_mudo.mp4
 largo/*/render.log
 taller/**/_seg_*
+taller/pro/*/
+!taller/pro/ejemplos/
