@@ -7,7 +7,7 @@ ARGS=['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-bloc
 def abrir(p):
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=ARGS)
     pg=b.new_page(viewport={'width':1080,'height':1920}); pg.on('console',lambda m:print('CON',m.text) if 'deprec' not in m.text else None); pg.on('pageerror',lambda e:print('ERR',e))
-    pg.goto(f'http://127.0.0.1:8765/{D}/index.html'); pg.wait_for_function('typeof window.init==="function"',timeout=60000); pg.evaluate('tl=>init(tl)',TL); pg.wait_for_function('window.listo',timeout=300000); return b,pg
+    pg.goto(f'http://127.0.0.1:8765/{D}/index.html'+os.environ.get('Q','')); pg.wait_for_function('typeof window.init==="function"',timeout=60000); pg.evaluate('tl=>init(tl)',TL); pg.wait_for_function('window.listo',timeout=300000); return b,pg
 def trabajo(segs):
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:

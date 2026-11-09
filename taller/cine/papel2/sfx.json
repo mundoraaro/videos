@@ -1,0 +1,8 @@
+{"musica":{"bpm":120,"secciones":[[0,"intro"],[4.02,"subida"],[5.25,"valle"],[8.31,"subida"],[11.2,"drop"],[14.85,"final"]],"huecos":[4.02,11.2,16.17]},
+ "eventos":[[0.0,"viento",0.8],[0.9,"corte"],[1.1,"paso"],[1.58,"paso"],[1.72,"golpe"],[1.85,"doblez",1.2],[2.0,"corte",0.6],
+  [2.22,"paso",0.5],[2.58,"paso",0.7],[2.55,"doblez"],[3.04,"corte",0.6],[3.05,"doblez"],[3.38,"doblez"],[3.68,"doblez"],[3.2,"riser"],[3.55,"retumbo"],
+  [4.02,"despegue"],[4.63,"corte",0.5],[4.85,"impacto"],[5.25,"corte",0.5],[5.3,"paso",0.5],[5.78,"paso",0.5],[6.26,"paso",0.5],[6.3,"corte",0.4],
+  [7.43,"corte",0.5],[7.5,"ding"],[8.31,"corte",0.5],[8.4,"golpe"],[8.48,"doblez",1.2],[9.0,"pop"],
+  [9.3,"paso",0.5],[9.46,"doblez"],[9.78,"pop"],[9.9,"doblez"],[10.17,"pop"],[10.33,"doblez"],[10.55,"pop"],[10.62,"doblez"],[10.82,"pop"],[10.88,"doblez"],[11.06,"pop"],[10.4,"riser"],
+  [11.2,"erupcion"],[11.55,"pop"],[12.77,"corte",0.5],[13.3,"ding"],[13.98,"viento",0.6],[14.85,"viento"],[15.6,"viento",0.7],
+  [16.17,"impacto",0.5],[16.17,"brillo"],[16.61,"pop"]]}

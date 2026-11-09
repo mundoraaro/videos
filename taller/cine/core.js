@@ -10,6 +10,7 @@ import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {BokehPass} from 'three/addons/postprocessing/BokehPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+import {GTAOPass} from 'three/addons/postprocessing/GTAOPass.js';
 export {THREE};
 export const W=1080, H=1920;
 // ---------- utilidades ----------
@@ -54,6 +55,7 @@ export async function iniciar(){
   R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFShadowMap; R.toneMapping=THREE.ACESFilmicToneMapping; R.toneMappingExposure=1.0;
   E.R=R; E.cam=new THREE.PerspectiveCamera(35,W/H,0.05,20000);
   const comp=new EffectComposer(R); comp.setSize(W,H); E.rp=new RenderPass(new THREE.Scene(),E.cam); comp.addPass(E.rp);
+  E.ao=new GTAOPass(new THREE.Scene(),E.cam,W/2,H/2); E.ao.enabled=false; comp.addPass(E.ao);
   E.bokeh=new BokehPass(new THREE.Scene(),E.cam,{focus:5,aperture:0.002,maxblur:0.008}); E.bokeh.enabled=false; comp.addPass(E.bokeh);
   E.bloom=new UnrealBloomPass(new THREE.Vector2(W/2,H/2),0.6,0.5,0.85); comp.addPass(E.bloom);
   comp.addPass(new OutputPass());
@@ -79,12 +81,15 @@ export class Bot{
     this.root.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; o.frustumCulled=false; if(o.material){ o.material=o.material.clone(); o.material.envMapIntensity=0.8; } }
       if(o.morphTargetDictionary) this.heads.push(o); if(o.isBone) this.bones[o.name]=o; }); }
   // seq: [[clip, inicio, {once,vel,offset}], ...] ordenado por inicio; mezcla de 0.18 s entre clips
-  pose(t,seq,fade=0.18){ for(const k in this.A){ this.A[k].enabled=false; }
+  pose(t,seq,fade=0.18){ this.tb=t; for(const k in this.A){ this.A[k].enabled=false; }
     seq.forEach(([c,t0,o={}],i)=>{ const t1=i+1<seq.length?seq[i+1][1]:1e9; if(t<t0-0.0001||t>t1+fade) return; const a=this.A[c]; const d=a.getClip().duration;
       let w=Math.min(1,(t-t0)/fade+(i===0?1:0)); if(t>t1) w=Math.min(w,1-(t-t1)/fade); w=clamp(w); if(w<=0) return;
       let lt=(t-t0)*(o.vel||1)+(o.offset||0); lt=o.once?Math.min(lt,d-0.001):lt%d; if(o.fijo!==undefined) lt=o.fijo; a.enabled=true; a.time=lt; a.setEffectiveWeight(w); });
-    this.mx.update(0); }
-  cara({enojo=0,sorpresa=0,triste=0}={}){ for(const h of this.heads){ const d=h.morphTargetDictionary; h.morphTargetInfluences[d.Angry]=enojo; h.morphTargetInfluences[d.Surprised]=sorpresa; h.morphTargetInfluences[d.Sad]=triste; } }
+    this.mx.update(0); this.cara(); }
+  cara({enojo=0,sorpresa=0,triste=0,feliz=0,parpadeo=null,mira=0}={}){ if(parpadeo===null) parpadeo=Bot.blink(this.tb||0,this.seed||1)*(1-sorpresa*0.6); for(const h of this.heads){ const d=h.morphTargetDictionary, I=h.morphTargetInfluences; const put=(k,v)=>{ if(d[k]!==undefined) I[d[k]]=v; };
+    put('Angry',enojo); put('Surprised',sorpresa); put('Sad',triste); put('Feliz',feliz); put('Parpadeo',parpadeo); put('MiraIzq',Math.max(0,mira)); put('MiraDer',Math.max(0,-mira)); } }
+  // parpadeo natural: cada 1.2–3.2 s, 4 cuadros (determinista por semilla)
+  static blink(t,seed=1){ let tb=0.4+rand(seed)*1.5, k=0; while(tb<t){ const d=t-tb; if(d<0.14) return Math.sin(d/0.14*Math.PI); tb+=1.2+rand(seed+(++k)*7.3)*2.0; } return 0; }
   cabeza(rx=0,ry=0){ const b=this.bones.Head; if(b){ b.rotation.x+=rx; b.rotation.y+=ry; } }
 }
 // ---------- piezas ----------
@@ -108,14 +113,14 @@ export function cieloGrad(top,mid,bot,r=8000){ return new THREE.Mesh(new THREE.S
 const techo=std('#15171d',{roughness:0.9});
 export function edificio(w,h,d,col='#1b2030',luz=1.4){ const g=new THREE.BoxGeometry(w,h,d); const uv=g.attributes.uv; const n=g.attributes.normal;
   for(let i=0;i<uv.count;i++){ const nx=Math.abs(n.getX(i)); uv.setXY(i,uv.getX(i)*(nx>0.5?d:w)/4,uv.getY(i)*h/8); }
-  const m=new THREE.MeshStandardMaterial({color:col,roughness:0.55,metalness:0.2,emissive:'#ffffff',emissiveMap:TEX.ventanas,emissiveIntensity:luz,map:null});
+  const m=new THREE.MeshStandardMaterial({color:col,roughness:0.55,metalness:0.2,emissive:'#ffffff',emissiveMap:TEX.ventanas,emissiveIntensity:luz*2.2,map:null});
   const e=new THREE.Mesh(g,[m,m,techo,techo,m,m]); e.castShadow=true; e.receiveShadow=true; return e; }
 export function ciudad(grp,{n=260,r0=30,r1=500,hmin=10,hmax=90,y0=-60,seed=3,hueco=null}={}){ for(let i=0;i<n;i++){ const a=rand(i*1.7+seed)*Math.PI*2, r=r0+(r1-r0)*Math.pow(rand(i*2.3+seed),0.7);
     const x=Math.cos(a)*r, z=Math.sin(a)*r; if(hueco&&hueco(x,z)) continue; const w=6+rand(i*4.1)*14, d=6+rand(i*5.3)*14, h=hmin+(hmax-hmin)*Math.pow(rand(i*6.7+seed),1.6);
     const e=edificio(w,h,d,['#1b2030','#22283a','#171b26','#262c3d'][i%4],0.9+rand(i)*0.9); e.position.set(x,y0+h/2,z); grp.add(e); } }
 // bloque de capas de papel (lados rayados por capa, tapa lisa)
-export function bloque(){ const st=TEX.capas.clone(); st.needsUpdate=true; const sm=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:0.85,map:st});
-  const tp=TEX.papel.clone(); tp.needsUpdate=true; const top=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:0.8,map:tp,emissive:'#fff6e8',emissiveIntensity:0.04});
+export function bloque(){ const st=TEX.capas.clone(); st.needsUpdate=true; const sm=new THREE.MeshStandardMaterial({color:'#e2ded5',roughness:0.85,map:st});
+  const tp=TEX.papel.clone(); tp.needsUpdate=true; const top=new THREE.MeshStandardMaterial({color:'#e6e2d9',roughness:0.8,map:tp,emissive:'#fff6e8',emissiveIntensity:0.0});
   const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),[sm,sm,top,top,sm,sm]); m.castShadow=true; m.receiveShadow=true; m.userData.st=st; return m; }
 // Pila de papel que se dobla: n capas, doblez en curso fu (0..1), eje 'x' o 'z'
 export class Pila{
@@ -144,8 +149,62 @@ export function cifra(txt,x,y,size,k,{col='#FFFFFF',sub=null,subCol='#FFD23F'}={
   g.shadowColor='rgba(0,0,0,0.45)'; g.shadowBlur=30; g.fillStyle=col; g.fillText(txt,0,0);
   if(sub){ g.shadowBlur=0; g.font=FONT(800,size*0.3); g.lineWidth=8; g.strokeText(sub,0,size*0.68); g.fillStyle=subCol; g.fillText(sub,0,size*0.68); } g.restore(); }
 // render de un fotograma: escena + cámara + post + capa 2D
-export function render(scene,{eye,target,fov=35,roll=0,bloom=[0.6,0.5,0.85],dof=null,exp=1,flash=0,tint=[1,1,1],t=0}){ const c=E.cam; c.fov=fov; c.position.set(...eye); c.up.set(Math.sin(roll),Math.cos(roll),0); c.lookAt(...target); c.updateProjectionMatrix();
-  E.rp.scene=scene; E.R.toneMappingExposure=exp; E.bloom.strength=bloom[0]; E.bloom.radius=bloom[1]; E.bloom.threshold=bloom[2];
+export function render(scene,{eye,target,fov=35,roll=0,bloom=[0.6,0.5,0.85],dof=null,exp=1,flash=0,tint=[1,1,1],t=0,ao=null}){ const c=E.cam; c.fov=fov; c.position.set(...eye); c.up.set(Math.sin(roll),Math.cos(roll),0); c.lookAt(...target); c.updateProjectionMatrix();
+  E.rp.scene=scene; E.R.toneMappingExposure=exp; const useAO=ao??E.aoDefault??false; E.ao.enabled=useAO; if(useAO){ E.ao.scene=scene; E.ao.camera=c; if(E.ao.gtaoMaterial) E.ao.updateGtaoMaterial({radius:0.35,distanceExponent:1.5,thickness:1,scale:1}); E.ao.blendIntensity=1; } E.bloom.strength=bloom[0]; E.bloom.radius=bloom[1]; E.bloom.threshold=bloom[2];
   if(dof){ E.bokeh.enabled=true; E.bokeh.scene=scene; E.bokeh.camera=c; const u=E.bokeh.uniforms; u.focus.value=dof[0]; u.aperture.value=dof[1]; u.maxblur.value=dof[2]; u.nearClip.value=c.near; u.farClip.value=c.far; } else E.bokeh.enabled=false;
   E.grade.uniforms.t.value=t; E.grade.uniforms.flash.value=flash; E.grade.uniforms.tint.value.set(...tint); E.comp.render();
   E.ctx.setTransform(1,0,0,1,0,0); E.ctx.globalAlpha=1; E.ctx.drawImage(E.R.domElement,0,0,W,H); }
+
+// ======================= v2: assets reales, papel flexible, planetas NASA =======================
+const TL_=new THREE.TextureLoader(); const A='/assets/';
+const _cache={};
+export function tx(path,{srgb=true,rep=null}={}){ const k=path+srgb; if(_cache[k]) return _cache[k]; const t=TL_.load(A+path); if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  if(rep){ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(...rep); } return _cache[k]=t; }
+export function pbr(name,rep=[1,1],o={}){ const r=(f,s)=>{ const t=tx(`tex/${name}/${f}.jpg`,{srgb:s}).clone(); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(...rep); t.needsUpdate=true; return t; };
+  return new THREE.MeshStandardMaterial({map:r('diff',true),normalMap:r('nor',false),roughnessMap:r('rough',false),roughness:1,metalness:0,...o}); }
+export async function hdrLocal(name,tope=3){ const ld=new HDRLoader(); ld.setDataType(THREE.FloatType); const t=await ld.loadAsync(A+'hdri/'+name); t.mapping=THREE.EquirectangularReflectionMapping;
+  const env=E.pmrem.fromEquirectangular(t).texture; const d=t.image.data; for(let i=0;i<d.length;i++){ if(d[i]>tope) d[i]=tope; } t.needsUpdate=true; return {raw:t,env}; }
+export async function modelo(name,alto=null){ const g=await new GLTFLoader().loadAsync(`${A}models/${name}/${name}.gltf`); const o=g.scene;
+  o.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; } }); if(alto){ const b=new THREE.Box3().setFromObject(o); o.scale.setScalar(alto/(b.max.y-b.min.y)); }
+  const w=new THREE.Group(); w.add(o); const b2=new THREE.Box3().setFromObject(w); o.position.y-=b2.min.y; return w; }
+export function lunaReal(r,seg=256){ const g=new THREE.SphereGeometry(r,seg,seg/2); const m=new THREE.MeshStandardMaterial({map:tx('nasa/luna.jpg'),displacementMap:tx('nasa/luna_disp.png',{srgb:false}),displacementScale:r*0.012,displacementBias:-r*0.006,
+  bumpMap:tx('nasa/luna_disp.png',{srgb:false}),bumpScale:2,roughness:1,metalness:0,fog:false}); return new THREE.Mesh(g,m); }
+export function tierraReal(r){ const g=new THREE.Group();
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,192,96),new THREE.MeshStandardMaterial({map:tx('nasa/tierra.jpg'),roughnessMap:tx('nasa/tierra_rough.png',{srgb:false}),roughness:1,metalness:0.0,
+    emissiveMap:tx('nasa/luces.jpg'),emissive:'#ffcf8a',emissiveIntensity:0.0}));
+  const n=new THREE.Mesh(new THREE.SphereGeometry(r*1.008,192,96),new THREE.MeshStandardMaterial({color:'#ffffff',alphaMap:tx('nasa/nubes.png',{srgb:false}),transparent:true,depthWrite:false,roughness:1}));
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(r*1.05,128,64),new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false,uniforms:{sol:{value:new THREE.Vector3(-1,0.6,0.5).normalize()}},
+    vertexShader:'varying vec3 vN; varying vec3 vP; varying vec3 vW; void main(){ vN=normalize(normalMatrix*normal); vW=normalize((modelMatrix*vec4(normal,0.0)).xyz); vec4 p=modelViewMatrix*vec4(position,1.0); vP=p.xyz; gl_Position=projectionMatrix*p; }',
+    fragmentShader:'uniform vec3 sol; varying vec3 vN; varying vec3 vP; varying vec3 vW; void main(){ float f=pow(1.0-abs(dot(normalize(-vP),vN)),3.0); float d=clamp(dot(vW,sol)*0.8+0.4,0.05,1.0); gl_FragColor=vec4(vec3(0.3,0.6,1.0)*f*2.5*d,f*d); }'}));
+  g.add(m,n,atm); g.userData={m,n,atm}; return g; }
+// Papel flexible: base rígida + solapa que se curva en el pliegue (curvatura máxima a mitad del doblez, plano al terminar)
+export class PilaFlex{
+  constructor(th=0.03,seg=56){ this.th=th; this.g=new THREE.Group(); this.base=bloque(); this.g.add(this.base);
+    const mats=this.base.material.map(m=>{ const c=m.clone(); if(c.map){ c.map=c.map.clone(); c.map.needsUpdate=true; } return c; }); mats.forEach(m=>m.side=THREE.DoubleSide);
+    this.geo=new THREE.BoxGeometry(1,1,1,seg,2,1); this.p0=this.geo.attributes.position.array.slice(); this.flap=new THREE.Mesh(this.geo,mats); this.flap.castShadow=this.flap.receiveShadow=true; this.flap.frustumCulled=false;
+    this.flap.userData.st=mats[0].map; this.g.add(this.flap); }
+  // n capas en la base, fu progreso del doblez, Wd largo de la solapa en dirección del doblez, Dd ancho, eje 'x'|'z', alto (forzado) para torres
+  set(n,fu,Wd,Dd,eje='x',alto=null){ const h=alto??n*this.th; const capas=(st,hh)=>st.repeat.set(1,(hh>4?hh/0.35:Math.min(n,hh/0.012))/32);
+    this.base.scale.set(eje==='x'?Wd:Dd,h,eje==='x'?Dd:Wd); this.base.position.set(0,h/2,0); capas(this.base.userData.st,h);
+    if(alto!==null&&fu<=0){ this.flap.visible=false; return h; } this.flap.visible=true; capas(this.flap.userData.st,h);
+    const th=fu*Math.PI, b=Math.max(1e-4,Wd*(0.08+0.55*Math.sin(Math.PI*clamp(fu)))*(fu>0.999?0:1)+1e-4); const pos=this.geo.attributes.position.array, p0=this.p0;
+    // integra la curva del pliegue en 200 pasos
+    const N=200, cx=[0], cy=[0], ph=[0]; for(let i=1;i<=N;i++){ const s=i/N*Wd; const f=th*es(Math.min(1,s/b)); const ds=Wd/N; cx.push(cx[i-1]+Math.cos(f)*ds); cy.push(cy[i-1]+Math.sin(f)*ds); ph.push(f); }
+    for(let i=0;i<pos.length;i+=3){ const u=p0[i]+0.5, yl=(p0[i+1]-0.5)*h, w=p0[i+2]*Dd; const k=Math.min(N,Math.round(u*N)); const f=ph[k];
+      const x=cx[k]-Math.sin(f)*yl, y=cy[k]+Math.cos(f)*yl; // yl ∈ [-h,0]
+      if(eje==='x'){ pos[i]=Wd/2+x; pos[i+1]=h+y; pos[i+2]=w; } else { pos[i]=w; pos[i+1]=h+y; pos[i+2]=Wd/2+x; } }
+    this.geo.attributes.position.needsUpdate=true; this.geo.computeVertexNormals(); this.flap.position.set(0,0,0); return h; }
+}
+export function proyecta(v){ const p=new THREE.Vector3(...v).project(E.cam); return [(p.x+1)/2*W,(1-p.y)/2*H,p.z]; }
+// destello de lente simple (2D) para el sol
+export function destello(pos3,k=1){ if(k<=0) return; const [x,y,z]=proyecta(pos3); if(z>1||x<-400||x>W+400||y<-400||y>H+400) return; const g=E.ctx; g.save(); g.globalCompositeOperation='lighter';
+  const r=g.createRadialGradient(x,y,0,x,y,520); r.addColorStop(0,`rgba(255,250,235,${0.9*k})`); r.addColorStop(0.08,`rgba(255,230,190,${0.5*k})`); r.addColorStop(1,'rgba(255,200,150,0)'); g.fillStyle=r; g.fillRect(x-520,y-520,1040,1040);
+  const cx=W/2, cy=H/2; [[0.35,40,'120,170,255'],[0.6,80,'255,190,120'],[1.3,26,'160,255,200'],[1.7,120,'120,140,255']].forEach(([f,s,c])=>{ const px=x+(cx-x)*f*2, py=y+(cy-y)*f*2; const q=g.createRadialGradient(px,py,0,px,py,s); q.addColorStop(0,`rgba(${c},${0.22*k})`); q.addColorStop(1,`rgba(${c},0)`); g.fillStyle=q; g.fillRect(px-s,py-s,2*s,2*s); });
+  g.fillStyle=`rgba(255,240,220,${0.25*k})`; g.fillRect(x-700,y-1.5,1400,3); g.restore(); }
+// Inyecta expresiones calculadas en Blender (blender_robot.py → robot_expresiones.json) al modelo original, sin re-exportarlo.
+export async function expresionesRobot(gltf){ if(gltf.userData.expr) return; const J=await (await fetch('/assets/personajes/robot_expresiones.json')).json();
+  const cuenta=[0,0,0]; J.mat_por_vert.forEach(m=>cuenta[m]++); const off=[0,cuenta[0],cuenta[0]+cuenta[1]];
+  gltf.scene.traverse(o=>{ if(!o.isMesh||!o.morphTargetDictionary) return; const g=o.geometry, n=g.attributes.position.count; const mi=cuenta.indexOf(n); if(mi<0) return;
+    for(const [nm,lista] of Object.entries(J.claves)){ const arr=new Float32Array(n*3); for(const [i,dx,dy,dz] of lista){ const j=i-off[mi]; if(j>=0&&j<n){ arr[j*3]=dx; arr[j*3+1]=dy; arr[j*3+2]=dz; } }
+      const at=new THREE.Float32BufferAttribute(arr,3); at.name=nm; g.morphAttributes.position.push(at); if(g.morphAttributes.normal) g.morphAttributes.normal.push(new THREE.Float32BufferAttribute(new Float32Array(n*3),3)); }
+    o.updateMorphTargets(); }); gltf.userData.expr=true; }

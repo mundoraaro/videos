@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+<script type="module">
+await import('/papel2/shots.js'); const init0=window.init;  window.MAPA=await (await fetch('mapa.json')).json(); window.SUBS=false; window.AO=new URLSearchParams(location.search).get('ao')==='1';
+window.init=async(tl)=>{ const old=await (await fetch('/papel2/timeline.json')).json(); await init0(old); if(window.AO){ const {E}=await import('/core.js'); E.aoDefault=true; } };
+</script></body></html>
