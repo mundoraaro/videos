@@ -10,7 +10,7 @@ Todos los videos nuevos se hacen con **CINE v2** (animación 3D cinematográfica
 - **Ya NO se usan** el motor 2D, el personaje Raro, `IDENTIDAD.md` en lo visual, fondos de dulce, imágenes con zoom ni el letrero "MUNDO RAARO". Personaje fijo: el robot de CINE con expresiones (parpadeo, feliz, sorpresa, mirada).
 - Se conserva: voz Mizael, tono curioso y cero cringe, estructura de guion de esta guía, subtítulos con palabra clave en amarillo, música y efectos sincronizados, reglas de retención y monetización de abajo.
 - **Skills obligatorias por etapa** (cárgalas con la herramienta Skill antes de cada paso):
-  - Ideas: `social-media-skills:idea-generation-and-ideation`, `trend-jacking`, `viral-reverse-engineering`.
+  - Ideas: `social-media-skills:idea-generation-and-ideation`, `trend-jacking`, `viral-reverse-engineering`. **Variedad obligatoria (pedido de Héctor):** mezcla categorías — animales, cuerpo humano, historia, tecnología, México, comida, ingeniería y récords, naturaleza y clima, espacio. Máximo 1 de cada 4 ideas puede ser de espacio, y nunca dos ideas seguidas de la misma categoría.
   - Guion y gancho: `hook-writer` (5–10 ganchos con mecanismos distintos, elige 1), `short-form-video-script`, `tiktok-script`, `youtube-shorts`, `storytelling-and-narrative`.
   - Voz: `ai-voiceover` (escribir para el oído; Mizael por Speko). Audio: `ai-music-and-sound` (solo música original/sintetizada, nunca canciones con derechos).
   - Animación 3D: `threejs-animation`, `threejs-lighting`, `threejs-postprocessing`, `threejs-materials`; personaje: `blender-facial-shapekeys`, `blender-animation`; ambientes: `blender-time-of-day`, `blender-weather-fx`.
