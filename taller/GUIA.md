@@ -4,8 +4,18 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 - Estudio (base de datos): https://claude.ai/artifact/LsmiZWxSLDCBdtJ6BUT9q3 — colecciones `ideas` y `videos` (herramienta ArtifactData).
 - Repo: `mundoraaro/videos`. Los videos finales van en `videos/<id>.mp4`; su enlace público es `https://raw.githubusercontent.com/mundoraaro/videos/main/videos/<id>.mp4`.
-- **Identidad visual obligatoria: `taller/IDENTIDAD.md`** (Raro disfrazado, fondos de dulce, animación jugosa, transiciones y sonidos de firma). Léela completa antes de animar; en diseño manda sobre todo lo demás.
-- Referencia visual: `taller/ejemplos/raro-demo/` (hoja de modelo y demo de 10 s). Referencia de proceso y ritmo: `taller/ejemplos/pulpo-001/` (su diseño ya no se usa).
+## ⚠️ SISTEMA DE PRODUCCIÓN VIGENTE: CINE v2 (decisión de Héctor, 8 nov 2026)
+
+Todos los videos nuevos se hacen con **CINE v2** (animación 3D cinematográfica): manual en `taller/cine/PIPELINE.md`, entorno con `bash taller/cine/setup.sh`, plantilla de tomas en `taller/cine/papel2/shots.js`, ejemplo aprobado `taller/cine/papel3/` (prueba de 15 s que a Héctor "le gustó mucho").
+- **Ya NO se usan** el motor 2D, el personaje Raro, `IDENTIDAD.md` en lo visual, fondos de dulce, imágenes con zoom ni el letrero "MUNDO RAARO". Personaje fijo: el robot de CINE con expresiones (parpadeo, feliz, sorpresa, mirada).
+- Se conserva: voz Mizael, tono curioso y cero cringe, estructura de guion de esta guía, subtítulos con palabra clave en amarillo, música y efectos sincronizados, reglas de retención y monetización de abajo.
+- **Skills obligatorias por etapa** (cárgalas con la herramienta Skill antes de cada paso):
+  - Ideas: `social-media-skills:idea-generation-and-ideation`, `trend-jacking`, `viral-reverse-engineering`.
+  - Guion y gancho: `hook-writer` (5–10 ganchos con mecanismos distintos, elige 1), `short-form-video-script`, `tiktok-script`, `youtube-shorts`, `storytelling-and-narrative`.
+  - Voz: `ai-voiceover` (escribir para el oído; Mizael por Speko). Audio: `ai-music-and-sound` (solo música original/sintetizada, nunca canciones con derechos).
+  - Animación 3D: `threejs-animation`, `threejs-lighting`, `threejs-postprocessing`, `threejs-materials`; personaje: `blender-facial-shapekeys`, `blender-animation`; ambientes: `blender-time-of-day`, `blender-weather-fx`.
+  - Publicación: `caption-writer`, `hashtag-strategy`, `youtube-publishing-and-metadata`, `platform-specs-and-validation` (revisar formato antes de entregar).
+- Requisitos de cada video para poder monetizar (TikTok Recompensas, YouTube Shorts, Facebook): **62–72 s**, 1080×1920, 30 fps, sin marcas de agua de otras apps, **contenido original** (guion propio, narración propia, animación propia; nunca reutilizar clips ni plantillas idénticas entre videos: cada video cambia escenarios, cámaras y acciones), etiqueta de contenido generado con IA en TikTok (`isAigc: true`), música sin derechos de terceros, datos verificados con fuente, nada engañoso en el gancho (el video debe pagar lo que promete).
 
 ## Lo que Héctor pidió (reglas fijas)
 

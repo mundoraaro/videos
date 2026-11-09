@@ -25,14 +25,15 @@ No volver al motor 2D, al estilo "Raro" ni a imágenes con zoom, salvo que haya 
 - Caminata sin patinar: 0.64 u/s con `Walking` a vel 1 (correr ≈ 1.0 u/s).
 
 ## Pasos para un Short nuevo
-1. Guion (≤ 40 palabras para 15 s) siguiendo GUIA.md + hook-writer. Guardar en `<video>/guion.md`.
+0. Entorno: `bash taller/cine/setup.sh` y servidor local en segundo plano (`cd /home/claude/cine && python3 -m http.server 8765 --bind 127.0.0.1`).
+1. Guion de **62–72 s** (≈150–175 palabras; requisito de monetización en TikTok) siguiendo GUIA.md + skills hook-writer / short-form-video-script / tiktok-script. Un giro cada 15–20 s. Guardar en `<video>/guion.md`.
 2. Voz: 1 toma en Speko; transcribir con `word_timestamps`; `words_raw.json`; `apretar.py <dir> 0.2 <tempo>` (tempo ≤ 1.1).
 3. `timeline.json` = {duration, words}. Copiar `papel2/shots.js` como plantilla: escenas reutilizables (azotea, escritorio, calle, espacio) y tomas `tNN(t)`.
 4. Vista previa: `python3 render.py <video> preview t1 t2 …` → `contact.jpg`; corregir exposición y encuadre.
-5. Render 3D: `python3 render.py <video> all 2` (≈5–7 s/cuadro en CPU) → `video_mudo.mp4`.
+5. Render 3D: `python3 render.py <video> all 1` (un solo proceso: con 2 procesos el WebGL se queda sin memoria y salen cuadros negros; ≈3–6 s/cuadro). Para 70 s ≈ 1.5–2 h: sube puntos de guardado (`_seg_*.mp4`) a `taller/wip/<idea>/` y retoma si existen. Después: `ffmpeg -vf blackdetect` para verificar que no haya cuadros negros.
 6. Audio: `sfx.json` con eventos alineados a palabras → `python3 mix.py <video> <id>` → `_mezcla.wav`.
-7. Remotion: copiar `video_mudo.mp4`, `_mezcla.wav` y `timeline.json` a `remo/public/<video>/`; registrar composición en `Root.tsx`;
-   `npx remotion render src/index.ts <Comp> out/<id>.mp4 --browser-executable=/usr/bin/google-chrome --crf 18`.
+7. Remotion (`taller/cine/remotion`): copiar `video_mudo.mp4`, `_mezcla.wav` (como `mezcla.wav`) y `timeline.json` a `remotion/public/actual/`;
+   `npx remotion render src/index.ts Short out/<id>.mp4 --browser-executable=/usr/bin/google-chrome --codec=h264 --crf=17`; luego `ffmpeg … -af loudnorm=I=-14:TP=-1.5:LRA=9` y versión 720p.
 8. QA: hoja de contacto de 12 fotogramas + checklist de autoevaluación (abajo). Si falla, corregir y volver a renderizar.
 
 ## Autoevaluación obligatoria

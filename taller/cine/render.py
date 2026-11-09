@@ -1,7 +1,7 @@
 """python3 render.py <carpeta> preview t1 t2 ...  | python3 render.py <carpeta> all [workers]"""
 import json, sys, base64, subprocess, os, math, time
 from multiprocessing import Process
-D=sys.argv[1]; mode=sys.argv[2]; FPS=30; ROOT='/home/claude/cine'
+D=sys.argv[1]; mode=sys.argv[2]; FPS=30; ROOT=os.path.dirname(os.path.abspath(__file__))
 TL=json.load(open(os.path.join(ROOT,D,'timeline.json')))
 ARGS=['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']
 def abrir(p):

@@ -9,3 +9,14 @@ largo/*/render.log
 taller/**/_seg_*
 taller/pro/*/
 !taller/pro/ejemplos/
+taller/cine/three
+taller/cine/assets
+taller/cine/remotion/node_modules
+taller/cine/remotion/public/
+taller/cine/remotion/out/
+taller/cine/*/_seg_*
+taller/cine/*/video_mudo.mp4
+taller/cine/*/_mezcla.wav
+taller/cine/*/voz*.wav
+taller/cine/*/voz_raw.bin
+taller/cine/*/prev_*.jpg
