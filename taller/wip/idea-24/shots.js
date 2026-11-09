@@ -164,7 +164,7 @@ function espacio(t){ const P=S.es; P.T.rotation.set(0.366,0,0); P.T.position.set
 // B — 66 millones de años: el robot viaja parado sobre el asteroide; la Tierra al fondo
 function tB(t){ const P=S.es; espacio(t); const lt=t-2.4; const {ast,bot,key}=P; ast.position.set(0,0,-lt*14); ast.rotation.set(0.1,lt*0.15,0.05);
   bot.g.rotation.y=-0.5; bot.pose(lt,[['Idle',0],['ThumbsUp',0.6,{once:true}],['Idle',1.7]]); bot.cara({feliz:0.6*pr(lt,0.6,0.3)}); apunta(key,[-0.7,-0.45,-1],[0,0,ast.position.z],20);
-  const k=eio(lt/2.2); const z=ast.position.z; render(P.s,{eye:L3([16,6,z+22],[7,2.2,z+9],k),target:[0,0.3,z-4],fov:lerp(40,34,k),bloom:[0.5,0.5,1.35],exp:1.0,t});
+  const k=eio(lt/2.2); const z=ast.position.z; render(P.s,{eye:L3([16,6,z+22],[7,2.2,z+9],k),target:[-1.2,0.5,z-1.5],fov:lerp(40,36,k),bloom:[0.5,0.5,1.35],exp:1.0,t});
   if(t>=S.w66) cifra('66',540,330,230,pr(t,S.w66,0.3),{sub:'MILLONES DE AÑOS'}); }
 // C — órbita pegada a la roca (10 km) y giro hasta la vista "sobre el hombro" hacia Yucatán
 function tC(t){ const P=S.es; espacio(t); const lt=t-4.6; const {ast,bot,key,punto}=P; const z=-(2.2+lt)*14; ast.position.set(0,0,z); ast.rotation.set(0.1,(2.2+lt)*0.15,0.05);
