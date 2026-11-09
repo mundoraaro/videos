@@ -7,7 +7,7 @@ def dl(u,p):
     if os.path.exists(p): return
     os.makedirs(os.path.dirname(p),exist_ok=True)
     with urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=300) as r, open(p,'wb') as f: f.write(r.read())
-HDRI=['rooftop_night','modern_buildings_night','shanghai_bund','art_studio','secluded_beach','blue_grotto','the_sky_is_on_fire']
+HDRI=['rooftop_night','modern_buildings_night','shanghai_bund','art_studio','blue_grotto','kloofendal_48d_partly_cloudy_puresky','industrial_sunset_02_puresky','kloofendal_overcast_puresky']
 MOD=['desk_lamp_arm_01','alarm_clock_01','book_encyclopedia_set_01','potted_plant_02','street_lamp_01','binder_notebook','island_tree_01','moon_rock_01','coast_rocks_01','boulder_01']
 TEX=['kitchen_wood','anti_slip_concrete','asphalt_02','rectangular_facade_tiles','brushed_concrete','coast_sand_01','dark_rock','burned_ground_01','aerial_beach_01']
 for h in HDRI:
