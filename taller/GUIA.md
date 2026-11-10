@@ -98,11 +98,11 @@ Cada video se hace como si fuera a ser el más visto de la cuenta. Antes de rend
 ## Aprendizajes de los datos
 
 (Lo actualiza el revisor; datos completos en `taller/revisor/RESULTADOS.md`. Úsalo para decidir idea, gancho y formato.)
-- Corte 10 nov 2026 (vistas en Facebook): ganadores **saltar-001** (1,108; "¿qué pasaría si todos saltáramos?") y **neptuno-001** (950; "tu peinado no dura ni un segundo"). El resto, 195–370.
-- Lo que tienen los ganadores: le hablan al espectador o lo meten en la escena ("si todos…", "tu…"), acción absurda en el cuadro 0, respuesta contraintuitiva + segundo giro gracioso, referencias mexicanas concretas.
-- Lo más débil: historias en tercera persona (emperador, Yamaguchi, Zanzíbar, Cleopatra) y datos de animales contados desde fuera (wombat, hongo). Si usas esos temas, conviértelos a "si tú fueras…" / "esto te pasaría si…".
-- La retención es baja en todos (2–11 s promedio en Facebook): el gancho es la prioridad número uno.
-- Al elegir ideas, prioriza "¿qué pasaría si…?" con participación masiva o del espectador, y series de planetas/lugares extremos en segunda persona.
+- **YouTube Studio (10 nov 2026, la fuente principal):** canal 23,484 vistas, 57 % promedio reproducido, 40 s promedio. Top: saltar-001 (2,684 vistas, **82.56 % reproducido, 72.49 % se quedaron**), luna-001 (2,004), wombat-001 (1,672), yamaguchi-001 (1,554), emperador-001 (1,517). En Facebook también gana saltar (1,108) y le sigue neptuno (950).
+- **Fórmulas que funcionan:** 1) "¿Qué pasaría si…?" (la mejor); 2) afirmación bizarra o contraintuitiva en una frase ("el animal que hace popó en cubitos"); 3) personaje u objeto insólito (sobrevivir a dos bombas, nombrarse emperador), que trae vistas pero retiene menos (~51 %): exígele más al gancho.
+- **Meta de retención:** que ≥70 % se quede pasados los 3 s (los flojos rondan 50–60 %). La decisión se toma en los primeros 2–3 s: dato más impactante en pantalla y en voz desde el cuadro 0, nunca "¿alguna vez te has preguntado…?".
+- **Micro-revelaciones:** 2–3 fases de consecuencias antes de la conclusión; no guardes la respuesta solo para el final.
+- **Títulos breves y directos**, que se lean de un vistazo.
 
 ## 1. Guion
 

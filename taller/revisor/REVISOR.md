@@ -8,7 +8,8 @@ Tú no editas videos ni guiones. Solo juzgas, das notas y explicas exactamente q
 
 ## Antes de revisar
 1. Lee `taller/GUIA.md`, `taller/IDENTIDAD.md` y `taller/revisor/RESULTADOS.md`.
-2. Mira la referencia ganadora: `bash taller/revisor/qa.sh videos/saltar-001.mp4 /tmp/qa_ref` y abre `/tmp/qa_ref/inicio.jpg` y `video.jpg`. Ese es el piso mínimo de gancho y energía.
+2. Meta de retención (YouTube Studio): saltar-001 logró 82.56 % reproducido y 72.49 % "se quedaron a mirar"; los flojos rondan 50–60 %. Juzga cada video pensando en si logra que ≥70 % se quede pasados los 3 s.
+3. Mira la referencia ganadora: `bash taller/revisor/qa.sh videos/saltar-001.mp4 /tmp/qa_ref` y abre `/tmp/qa_ref/inicio.jpg` y `video.jpg`. Ese es el piso mínimo de gancho y energía.
 
 ## Proceso por video (estado "en_revision" en el Estudio)
 1. `git pull`. El archivo está en `videos/<id>.mp4`.
@@ -34,15 +35,15 @@ Tú no editas videos ni guiones. Solo juzgas, das notas y explicas exactamente q
 | # | Criterio | Mínimo | Qué buscar |
 |---|---|---|---|
 | 1 | **Gancho (0–3 s)** | **8** | Imagen y frase juntas provocan un "¿por qué?". Le habla al espectador o lo mete en la escena ("si tú…", "si todos…", "tu…"). Acción absurda visible desde el cuadro 0, como saltar-001 (multitud + Tierra + letrero). ¿Para el pulgar? Si es más débil que saltar-001, máximo 7. |
-| 2 | **Premisa / tema** | 7 | ¿Lo mandarías a un amigo? Cercano a la vida del espectador, contraintuitivo. Tercera persona sin conexión con el espectador (como wombat, Yamaguchi o emperador, que flojearon) máximo 6, salvo que el gancho lo convierta en "tú". |
-| 3 | **Guion** | 7 | Historia en cadena (no lista), giro cada 15–20 s, cada giro peor o más cercano, revelación fuerte al 75–90 %, segundo giro gracioso tipo "lo difícil es volver a casa", referencias mexicanas concretas, cero cringe, nada de "dato 1 de 4" ni "quédate al final". |
+| 2 | **Premisa / tema** | 7 | ¿Lo mandarías a un amigo? Orden de preferencia según datos de YouTube: 1) "¿Qué pasaría si…?" (saltar, luna); 2) afirmación bizarra o contraintuitiva en una frase (wombat "popó en cubitos"); 3) personaje u objeto insólito (Yamaguchi, emperador: buenas vistas pero retención ~51 %, exígeles gancho y micro-revelaciones extra). Un dato "interesante" pero no raro, máximo 6. |
+| 3 | **Guion** | 7 | Historia en cadena (no lista), **2–3 micro-revelaciones** antes de la conclusión (nunca guardar todo para el final), giro cada 15–20 s, cada giro peor o más cercano, revelación fuerte al 75–90 %, segundo giro gracioso tipo "lo difícil es volver a casa", referencias mexicanas concretas, cero cringe, nada de "dato 1 de 4" ni "quédate al final". |
 | 4 | **Voz** | 7 | Energía de amigo contando algo increíble, sin tono de locutor, ritmo rápido, sin trabas. |
 | 5 | **Animación y personajes** | **8** | Raro siempre actuando (nunca parado posando), disfraz que cuenta el dato, reacciones exageradas en los remates, gomitas y objetos claros, profundidad en el fondo, cero fallas. |
 | 6 | **Ritmo y flujo** | 7 | Cambio visual cada ≤2.5 s, cada palabra clave dispara algo, transiciones motivadas, ningún tramo explicativo largo, ningún bajón de energía a la mitad. |
 | 7 | **Textos en pantalla** | **8** | Subtítulos legibles desde el cuadro 0 (no palabras diminutas), palabra clave en lima, letreros que resumen el dato para quien ve sin sonido, ortografía perfecta. |
 | 8 | **Audio** | 7 | Música original sin tapar la voz, efectos en cada evento importante, sin saturación. |
 | 9 | **Loop y cierre** | 7 | La última frase desemboca en la primera y el último cuadro se parece al primero (`loop.jpg`). Cierre de máximo 1.5 s, sin logo final. |
-| 10 | **Publicación** | 7 | Caption ≤150 caracteres que termina en pregunta fácil, 5 hashtags con #mundoraaro, título de YouTube con palabras que se buscan ("qué pasaría si", "datos curiosos"). |
+| 10 | **Publicación** | 7 | Caption ≤150 caracteres que termina en pregunta fácil, 5 hashtags con #mundoraaro, título de YouTube breve y directo, que se lea de un vistazo, con la fórmula que funciona ("¿Qué pasaría si…?" o la anomalía en pocas palabras: "El animal que hace popó en cubitos"). |
 
 **Aprobado solo si:** cero rechazos automáticos, cada criterio en su mínimo o más y **promedio ≥ 8.0**. Pregunta final de control: "¿Esto le gana o empata a saltar-001?". Si la respuesta honesta es no, rechaza.
 

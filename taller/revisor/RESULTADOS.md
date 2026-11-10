@@ -29,10 +29,25 @@ Los videos se identifican por el texto del caption.
 
 YouTube (canal): 5 → 48 suscriptores del 2 al 10 nov; vistas diarias 2,520 (2 nov), 4,081 (3 nov), 6,698 (6 nov). Metricool no da vistas por Short.
 
-## Lectura (qué separa a los ganadores)
-- **Los 2 ganadores le hablan al espectador o lo meten en la escena**: "si *todos* saltamos", "*tu* peinado no dura". Los de abajo son datos en tercera persona ("este animal hace…", "sobrevivió…", "un señor se nombró…").
-- **Cuadro 0 con acción masiva o absurda**: saltar abre con una multitud, la Tierra y el letrero "¡TODOS A SALTAR!"; neptuno, con Raro volando por el viento. Wombat y Yamaguchi abren con Raro parado junto a un objeto.
-- **Respuesta contraintuitiva + segundo giro más gracioso**: "la Tierra ni se entera" → "lo difícil es volver a casa: 180 años por el AICM".
-- **Referencias mexicanas concretas** (metro a las 8, CDMX, AICM) y pregunta final fácil ("¿Tú saltarías?").
-- **Historia en tercera persona es el formato más débil** (emperador, Yamaguchi, Zanzíbar, Cleopatra).
-- **Retención general muy baja** (2–11 s en Facebook): el gancho de los primeros 3 s es el problema número uno.
+## YouTube Studio (lo compartió Héctor, 10 nov 2026, 14:03) — LA FUENTE MÁS IMPORTANTE
+Canal desde el inicio: 23,484 vistas · 167 h vistas · 57.01 % promedio reproducido · 40 s de duración promedio · +44 suscriptores.
+
+| Video | Vistas YT | % promedio reproducido | Se quedaron a mirar |
+|---|---|---|---|
+| saltar-001 ¿Qué pasaría si todos saltáramos? | **2,684** | **82.56 %** | **72.49 %** |
+| luna-001 ¿Qué pasaría si la Luna desapareciera? | 2,004 | 52.83 % | 69.70 % |
+| wombat-001 El animal que hace popó en cubitos | 1,672 | 63.87 % | 71.00 % |
+| yamaguchi-001 Sobrevivió a dos bombas atómicas | 1,554 | 51.06 % | 62.27 % |
+| emperador-001 Se nombró emperador de EE. UU. | 1,517 | 52.24 % | 65.46 % |
+
+Los videos más flojos de YouTube tienen 50–60 % en "se quedaron a mirar": la decisión se toma en los primeros 2–3 s.
+Cuando Héctor comparta datos nuevos de YouTube Studio, agrégalos aquí (Metricool no da YouTube por video).
+
+## Lectura (qué separa a los ganadores) — corregida con YouTube
+- **"¿Qué pasaría si…?" es el formato número uno** en las dos redes (saltar 1º en YouTube y Facebook; luna 2º en YouTube).
+- **El estándar:** saltar-001 = 82.56 % reproducido y 72.49 % se quedaron a mirar. Meta para todo video: que se quede ≥70 %.
+- **Afirmaciones bizarras o contraintuitivas también funcionan** en YouTube (wombat "popó en cubitos" 1,672 vistas y 71 % se quedaron), aunque en Facebook flojearon. Y **personajes insólitos** (Yamaguchi, emperador) superan 1,500 vistas en YouTube, pero con menor retención (51–52 %). Conclusión: la tercera persona NO está prohibida; lo que importa es una anomalía muy rara en una frase y retención alta.
+- **Cuadro 0 con acción absurda y frase impactante en <2 s** (saltar: multitud + Tierra + "¡TODOS A SALTAR!").
+- **Micro-revelaciones:** 2–3 fases intermedias de consecuencias antes de la conclusión (saltar: "la Tierra ni se entera" → "cabemos en una CDMX" → "temblor de magnitud 2" → "180 años para volver a casa").
+- **Títulos breves y directos** que se leen de un vistazo.
+- Referencias mexicanas concretas y pregunta final fácil ("¿Tú saltarías?").
