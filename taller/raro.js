@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante / escolar (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante / escolar / nutria (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -1056,3 +1056,45 @@ EXTRA_FONDOS.outback = function(t,P,px){ // desierto australiano: sol, roca redo
   ctx.fillStyle=mix(P.oscuro,P.medio,0.3); ctx.fillRect(-300,G-10,1680,900);
   ctx.fillStyle=mix(P.oscuro,'#000000',0.1); for(let i=0;i<10;i++){ const x=((rand(i+3)*1400+px(1.3))%1400)-160, y=G+60+rand(i+8)*380; blob(x,y,12+rand(i)*22); }
 };
+
+// ---------- agregados con nutrias-001 (nov 2026): disfraz de nutria marina + cuerpo acostado (flotando boca arriba) ----------
+DISFRACES.nutria = { // mameluco de nutria marina: cuerpo café con panza más clara, capucha color crema con orejitas, bigotes y cola plana que se menea.
+                     // o.cria=true colores de cría (más claros); o.esponjado (0..1) pelaje inflado; o.bolsillo (0..1) bolsillo bajo el brazo izquierdo que brilla;
+                     // o.piedra=true piedra en la mano derecha; o.almeja=true almeja en la mano izquierda
+  _c(o){ return o.cria? {cu:'#A9825F',pz:'#C9A784',cap:'#F1E6D2',os:'#8A6646'} : {cu:'#6E4A33',pz:'#8E6749',cap:'#E6D7BE',os:'#4E3322'}; },
+  atras(o){ const C=DISFRACES.nutria._c(o), t=o.t||0, w=o.wob||0;
+    ctx.save(); ctx.translate(110,-60); ctx.rotate(1.0+Math.sin(t*4)*0.12+w*0.3); ctx.fillStyle=C.os; ctx.beginPath(); ctx.ellipse(70,0,95,34,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=C.cu; ctx.beginPath(); ctx.ellipse(62,-6,84,26,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    const e=o.esponjado||0; if(e>0.01){ ctx.fillStyle=C.cu; const n=22; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2, x=Math.cos(a)*150*(1+0.16*e), y=-205+Math.sin(a)*175*(1+0.12*e);
+      blob(x,y,(26+10*Math.sin(i*2.3+t*5))*e+4); } } },
+  cuerpo(o){ const C=DISFRACES.nutria._c(o), e=o.esponjado||0; ctx.fillStyle=C.cu; ctx.fillRect(-200,-210,400,215);
+    ctx.fillStyle=C.pz; ctx.beginPath(); ctx.ellipse(0,-105,96,90,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=C.os; ctx.lineWidth=5+3*e; ctx.lineCap='round'; const n=10+Math.round(16*e);
+    for(let i=0;i<n;i++){ const x=-170+rand(i+3)*340, y=-190+rand(i+7)*150; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+6,y+10,x+2,y+18+8*e); ctx.stroke(); } },
+  cabeza(o){ const C=DISFRACES.nutria._c(o), w=o.wob||0, t=o.t||0; ctx.save(); ctx.rotate(w*0.03);
+    ctx.fillStyle=C.cap; ctx.beginPath(); ctx.moveTo(-162,-196); ctx.bezierCurveTo(-196,-470,196,-470,162,-196); ctx.lineTo(130,-206); ctx.bezierCurveTo(146,-392,-146,-392,-130,-206); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.ellipse(-70,-388,34,12,-0.6,0,Math.PI*2); ctx.fill();
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*126,-366); ctx.rotate(s*(0.3+w*0.2+Math.sin(t*3+s)*0.05));
+      ctx.fillStyle=C.os; ctx.beginPath(); ctx.ellipse(0,0,22,18,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle=C.cu; ctx.beginPath(); ctx.ellipse(0,2,11,9,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    ctx.restore(); },
+  frente(o,B){ const C=DISFRACES.nutria._c(o), t=o.t||0;
+    ctx.strokeStyle='#5A4636'; ctx.lineWidth=4; ctx.lineCap='round';   // bigotes a los lados de la cara
+    for(const s of [-1,1]) for(const k of [-1,0,1]){ ctx.beginPath(); ctx.moveTo(s*96,-246+k*12); ctx.quadraticCurveTo(s*150,-252+k*16+Math.sin(t*3+k)*3,s*196,-262+k*24); ctx.stroke(); }
+    const b=o.bolsillo||0; if(b>0.01){ ctx.save(); ctx.translate(-112,-118); ctx.fillStyle=C.os; ctx.beginPath(); ctx.ellipse(0,0,58*b,44*b,0.3,0,Math.PI*2); ctx.fill();
+      const g=ctx.createRadialGradient(0,-6,0,0,-6,70*b); g.addColorStop(0,'rgba(255,230,140,'+(0.9*b)+')'); g.addColorStop(1,'rgba(255,230,140,0)'); ctx.fillStyle=g; blob(0,-6,70*b);
+      ctx.fillStyle='#2A1A10'; ctx.beginPath(); ctx.ellipse(0,-4,40*b,22*b,0.3,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    if(o.piedra){ const h=B[1].h; piedraNutria(h[0],h[1]-6,1,t); }
+    if(o.almeja){ const h=B[-1].h; almeja(h[0],h[1]-6,1,t); } }
+};
+function piedraNutria(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(Math.sin((t||0)*2)*0.05);
+  ctx.fillStyle='#6F6B85'; ctx.beginPath(); ctx.ellipse(0,0,46,36,0.2,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#9C98B5'; ctx.beginPath(); ctx.ellipse(-10,-10,26,16,0.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFFFFF'; ctx.globalAlpha=0.8; blob(-18,-16,6); ctx.restore(); }
+function almeja(x,y,k,t,abierta=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k);
+  for(const s of [1,-1]){ ctx.save(); ctx.rotate(s*abierta*0.5); ctx.fillStyle=s>0?'#FF9F7A':'#F07A55'; ctx.beginPath(); ctx.moveTo(-44,0); ctx.quadraticCurveTo(-40,-s*46,0,-s*48); ctx.quadraticCurveTo(40,-s*46,44,0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#D9603E'; ctx.lineWidth=4; for(const a of [-0.8,-0.3,0.2,0.7]){ ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.sin(a)*40,-s*Math.cos(a)*40); ctx.stroke(); } ctx.restore(); }
+  ctx.restore(); }
+// Raro (o una gomita) acostado flotando boca arriba: cabeza hacia la izquierda (o.derecha=true: hacia la derecha). Mismo raro(), solo rotado.
+// Devuelve funciones para pasar puntos locales <-> mundo (para que dos nutrias se tomen de la mano).
+function acostadoCfg(o){ const tilt=(o.derecha?1:-1)*(Math.PI/2-(o.cabezaArriba??0.16)); return {...o, tilt, sinSombra:true, piernas:o.piernas||'flota'}; }
+function aMundo(o,lx,ly){ const c=Math.cos(o.tilt), s=Math.sin(o.tilt), k=o.s??1; return [o.x+(lx*c-ly*s)*k, o.y-(o.alto||0)+(lx*s+ly*c)*k]; }
+function aLocal(o,wx,wy){ const c=Math.cos(o.tilt), s=Math.sin(o.tilt), k=o.s??1, dx=(wx-o.x)/k, dy=(wy-o.y+(o.alto||0))/k; return [dx*c+dy*s, -dx*s+dy*c]; }
