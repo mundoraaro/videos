@@ -1098,3 +1098,38 @@ function almeja(x,y,k,t,abierta=0){ if(k<=0) return; ctx.save(); ctx.translate(x
 function acostadoCfg(o){ const tilt=(o.derecha?1:-1)*(Math.PI/2-(o.cabezaArriba??0.16)); return {...o, tilt, sinSombra:true, piernas:o.piernas||'flota'}; }
 function aMundo(o,lx,ly){ const c=Math.cos(o.tilt), s=Math.sin(o.tilt), k=o.s??1; return [o.x+(lx*c-ly*s)*k, o.y-(o.alto||0)+(lx*s+ly*c)*k]; }
 function aLocal(o,wx,wy){ const c=Math.cos(o.tilt), s=Math.sin(o.tilt), k=o.s??1, dx=(wx-o.x)/k, dy=(wy-o.y+(o.alto||0))/k; return [dx*c+dy*s, -dx*s+dy*c]; }
+
+// ---------- agregados con mosquitos-001 (nov 2026): mosquito de dulce + disfraz de mosquito ----------
+// mosquito(x,y,s,t,o): bichito pastel con alas que zumban, patas largas y trompa. o.hembra=true moño rosa; o.dir=-1 mira a la izquierda;
+// o.color cuerpo; o.panza (0..1) panza roja llena de sangre; o.borrado (0..1) se desvanece en migajas de goma; o.seed fase.
+function mosquito(x,y,s,t,o={}){ const b=o.borrado||0; if(b>=1||s<=0) return; const ph=(o.seed||0)*1.7, dir=o.dir||1;
+  ctx.save(); ctx.translate(x,y+Math.sin(t*9+ph)*6*s); ctx.scale(s*dir,s); ctx.rotate(Math.sin(t*5+ph)*0.08); ctx.globalAlpha=1-b;
+  const col=o.color||'#8E86B5', osc=mix(col,'#2E2A40',0.35);
+  ctx.strokeStyle=osc; ctx.lineWidth=5; ctx.lineCap='round';
+  for(const k of [-1,0,1]){ ctx.beginPath(); ctx.moveTo(k*14,10); ctx.quadraticCurveTo(k*38-6,48,k*52-10,92+Math.sin(t*6+k+ph)*6); ctx.stroke(); }
+  const ab=Math.sin(t*90+ph); ctx.fillStyle='rgba(225,245,255,0.75)';
+  for(const sd of [-1,1]){ ctx.save(); ctx.translate(-6,-12); ctx.rotate(-0.9-sd*0.25+ab*0.35); ctx.beginPath(); ctx.ellipse(0,-40,18,46,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle=osc; ctx.beginPath(); ctx.ellipse(-62,8,58,20,0.25,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=col; for(let i=0;i<4;i++){ ctx.beginPath(); ctx.ellipse(-36-i*24,4+i*4,13,17,0.25,0,Math.PI*2); ctx.fill(); }
+  if(o.panza){ ctx.fillStyle='#FF4D6D'; ctx.beginPath(); ctx.ellipse(-62,8,40*o.panza+12,16*o.panza+8,0.25,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle=col; blob(0,0,26); blob(36,-8,22);
+  ctx.strokeStyle=osc; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(52,-4); ctx.lineTo(108,10); ctx.stroke();
+  ctx.lineWidth=3; for(const k of [-1,1]){ ctx.beginPath(); ctx.moveTo(40,-26); ctx.quadraticCurveTo(52+k*6,-56,66+k*14,-62); ctx.stroke(); }
+  ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(44,-12,9,11,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFFFFF'; blob(47,-15,3);
+  if(o.hembra){ ctx.fillStyle='#FF5FA2'; ctx.save(); ctx.translate(26,-30); for(const sd of [-1,1]){ ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(sd*20,-12); ctx.lineTo(sd*20,12); ctx.closePath(); ctx.fill(); } blob(0,0,6); ctx.restore(); }
+  ctx.restore();
+  if(b>0){ ctx.fillStyle='#FFB8D2'; for(let i=0;i<7;i++){ const a=i/7*Math.PI*2+ph; blob(x+Math.cos(a)*70*b*s,y+Math.sin(a)*50*b*s+b*40*s,(8-6*b)*s+1); } }
+}
+DISFRACES.mosquito = { // mameluco de mosquito: cuerpo gris lavanda a rayas, alas transparentes que zumban, antenas que rebotan y trompa larga;
+                       // o.flor=true trae una flor de néctar en la mano derecha
+  atras(o){ const t=o.t||0, ab=Math.sin(t*70); ctx.fillStyle='rgba(225,245,255,0.7)'; ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=4;
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*90,-250); ctx.rotate(s*(0.7+ab*0.25)); ctx.beginPath(); ctx.ellipse(s*60,-70,60,140,s*0.2,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); } },
+  cuerpo(o){ ctx.fillStyle='#8E86B5'; ctx.fillRect(-200,-210,400,215); ctx.fillStyle='#6E6795'; for(const y of [-170,-120,-70]) { ctx.fillRect(-200,y,400,22); } },
+  cabeza(o){ const t=o.t||0, w=o.wob||0; ctx.save(); ctx.translate(0,-370); ctx.fillStyle='#8E86B5'; ctx.beginPath(); ctx.ellipse(0,0,150,32,0,Math.PI,0); ctx.fill(); rr(-150,-6,300,26,13); ctx.fill();
+    ctx.strokeStyle='#5A5380'; ctx.lineWidth=7; ctx.lineCap='round';
+    for(const s of [-1,1]){ const tx=s*(90+Math.sin(t*5+s)*10+w*30), ty=-120+Math.cos(t*4+s)*10; ctx.beginPath(); ctx.moveTo(s*40,-20); ctx.quadraticCurveTo(s*40,-90,tx,ty); ctx.stroke(); ctx.fillStyle='#5A5380'; blob(tx,ty,13); }
+    ctx.restore(); },
+  frente(o,B){ const t=o.t||0; ctx.strokeStyle='#5A5380'; ctx.lineWidth=9; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-222); ctx.quadraticCurveTo(10,-180,6+Math.sin(t*3)*6,-140); ctx.stroke();
+    if(o.flor){ const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.strokeStyle='#3FAF5A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(0,10); ctx.lineTo(0,-110); ctx.stroke();
+      ctx.translate(0,-130); ctx.rotate(t*0.6); ctx.fillStyle='#FF8FC7'; for(let i=0;i<6;i++){ ctx.save(); ctx.rotate(i/6*Math.PI*2); ctx.beginPath(); ctx.ellipse(0,-34,18,30,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } ctx.fillStyle='#FFD23F'; blob(0,0,18); ctx.restore(); } }
+};
