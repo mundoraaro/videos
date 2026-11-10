@@ -1,6 +1,6 @@
 # Guía de producción — Mundo Raaro
 
-Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos curiosos, historias y "¿qué pasaría si?". Cada video lo revisa Héctor en el Estudio antes de publicarse.
+Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos curiosos, historias y "¿qué pasaría si?". Cada video lo revisa el **agente revisor** (`taller/revisor/REVISOR.md`), muy estricto, antes de publicarse; Héctor ya no aprueba. Produce pensando en pasar ese filtro: gancho que le hable al espectador, Raro en acción desde el cuadro 0, cero fallas.
 
 - Estudio (base de datos): https://claude.ai/artifact/LsmiZWxSLDCBdtJ6BUT9q3 — colecciones `ideas` y `videos` (herramienta ArtifactData).
 - Repo: `mundoraaro/videos`. Los videos finales van en `videos/<id>.mp4`; su enlace público es `https://raw.githubusercontent.com/mundoraaro/videos/main/videos/<id>.mp4`.
@@ -96,8 +96,12 @@ Cada video se hace como si fuera a ser el más visto de la cuenta. Antes de rend
 
 ## Aprendizajes de los datos
 
-(Lo actualiza la revisión semanal. Úsalo para decidir guion, duración y formato.)
-- Aún no hay datos suficientes.
+(Lo actualiza el revisor; datos completos en `taller/revisor/RESULTADOS.md`. Úsalo para decidir idea, gancho y formato.)
+- Corte 10 nov 2026 (vistas en Facebook): ganadores **saltar-001** (1,108; "¿qué pasaría si todos saltáramos?") y **neptuno-001** (950; "tu peinado no dura ni un segundo"). El resto, 195–370.
+- Lo que tienen los ganadores: le hablan al espectador o lo meten en la escena ("si todos…", "tu…"), acción absurda en el cuadro 0, respuesta contraintuitiva + segundo giro gracioso, referencias mexicanas concretas.
+- Lo más débil: historias en tercera persona (emperador, Yamaguchi, Zanzíbar, Cleopatra) y datos de animales contados desde fuera (wombat, hongo). Si usas esos temas, conviértelos a "si tú fueras…" / "esto te pasaría si…".
+- La retención es baja en todos (2–11 s promedio en Facebook): el gancho es la prioridad número uno.
+- Al elegir ideas, prioriza "¿qué pasaría si…?" con participación masiva o del espectador, y series de planetas/lugares extremos en segunda persona.
 
 ## 1. Guion
 
