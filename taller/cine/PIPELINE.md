@@ -1,7 +1,7 @@
-# CINE v2 — pipeline de producción de Shorts (predeterminado desde el 8 nov 2026)
+# CINE v2 — pipeline 3D (EN PAUSA desde el 10 nov 2026)
 
-Decisión de Héctor (8 nov 2026): todos los Shorts nuevos se producen con este pipeline.
-No volver al motor 2D, al estilo "Raro" ni a imágenes con zoom, salvo que haya una limitación técnica real.
+Decisión de Héctor (10 nov 2026): se regresa al estilo Raro 2D (ver `taller/GUIA.md` e `IDENTIDAD.md`).
+Este pipeline solo se usa si Héctor lo pide para un video concreto.
 
 ## Estudio (roles → herramienta)
 | Rol | Herramienta | Archivo |

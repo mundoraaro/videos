@@ -4,18 +4,17 @@ Videos cortos 100% animados para TikTok, YouTube Shorts y Facebook Reels. Datos 
 
 - Estudio (base de datos): https://claude.ai/artifact/LsmiZWxSLDCBdtJ6BUT9q3 — colecciones `ideas` y `videos` (herramienta ArtifactData).
 - Repo: `mundoraaro/videos`. Los videos finales van en `videos/<id>.mp4`; su enlace público es `https://raw.githubusercontent.com/mundoraaro/videos/main/videos/<id>.mp4`.
-## ⚠️ SISTEMA DE PRODUCCIÓN VIGENTE: CINE v2 (decisión de Héctor, 8 nov 2026)
+## ⚠️ SISTEMA DE PRODUCCIÓN VIGENTE: estilo Raro 2D (decisión de Héctor, 10 nov 2026)
 
-Todos los videos nuevos se hacen con **CINE v2** (animación 3D cinematográfica): manual en `taller/cine/PIPELINE.md`, entorno con `bash taller/cine/setup.sh`, plantilla de tomas en `taller/cine/papel2/shots.js`, ejemplo aprobado `taller/cine/papel3/` (prueba de 15 s que a Héctor "le gustó mucho").
-- **Ya NO se usan** el motor 2D, el personaje Raro, `IDENTIDAD.md` en lo visual, fondos de dulce, imágenes con zoom ni el letrero "MUNDO RAARO". Personaje fijo: el robot de CINE con expresiones (parpadeo, feliz, sorpresa, mirada).
-- Se conserva: voz Mizael, tono curioso y cero cringe, estructura de guion de esta guía, subtítulos con palabra clave en amarillo, música y efectos sincronizados, reglas de retención y monetización de abajo.
-- **Skills obligatorias por etapa** (cárgalas con la herramienta Skill antes de cada paso):
+Héctor regresó al diseño anterior porque "me empezó a funcionar bien": **personaje Raro disfrazado, motor 2D (`engine.js` + `raro.js`), fondos de dulce, captions Fredoka con palabra clave en lima**, todo según `IDENTIDAD.md` y la sección "3. Animación" de esta guía (base: `ejemplos/raro-demo/scene.html`).
+- **CINE v2 (robot 3D) queda en pausa**: no lo uses salvo que Héctor lo pida para un video concreto. Su manual sigue en `taller/cine/PIPELINE.md`.
+- **Skills por etapa** (cárgalas con la herramienta Skill antes de cada paso):
   - Ideas: `social-media-skills:idea-generation-and-ideation`, `trend-jacking`, `viral-reverse-engineering`. **Variedad obligatoria (pedido de Héctor):** mezcla categorías — animales, cuerpo humano, historia, tecnología, México, comida, ingeniería y récords, naturaleza y clima, espacio. Máximo 1 de cada 4 ideas puede ser de espacio, y nunca dos ideas seguidas de la misma categoría.
   - Guion y gancho: `hook-writer` (5–10 ganchos con mecanismos distintos, elige 1), `short-form-video-script`, `tiktok-script`, `youtube-shorts`, `storytelling-and-narrative`.
   - Voz: `ai-voiceover` (escribir para el oído; Mizael por Speko). Audio: `ai-music-and-sound` (solo música original/sintetizada, nunca canciones con derechos).
-  - Animación 3D: `threejs-animation`, `threejs-lighting`, `threejs-postprocessing`, `threejs-materials`; personaje: `blender-facial-shapekeys`, `blender-animation`; ambientes: `blender-time-of-day`, `blender-weather-fx`.
   - Publicación: `caption-writer`, `hashtag-strategy`, `youtube-publishing-and-metadata`, `platform-specs-and-validation` (revisar formato antes de entregar).
-- Requisitos de cada video para poder monetizar (TikTok Recompensas, YouTube Shorts, Facebook): **62–72 s**, 1080×1920, 30 fps, sin marcas de agua de otras apps, **contenido original** (guion propio, narración propia, animación propia; nunca reutilizar clips ni plantillas idénticas entre videos: cada video cambia escenarios, cámaras y acciones), etiqueta de contenido generado con IA en TikTok (`isAigc: true`), música sin derechos de terceros, datos verificados con fuente, nada engañoso en el gancho (el video debe pagar lo que promete).
+- Requisitos de cada video para poder monetizar (TikTok Recompensas, YouTube Shorts, Facebook): **62–72 s**, 1080×1920, 30 fps, sin marcas de agua de otras apps, **contenido original** (guion, narración y animación propios; cada video cambia disfraz, fondos, tomas y acciones), etiqueta de contenido generado con IA en TikTok (`isAigc: true`), música sin derechos de terceros, datos verificados con fuente, nada engañoso en el gancho.
+- **Ritmo de publicación: 3 videos diarios** (lun–sáb 10:00 · 12:00 · 16:00; domingo 10:00 · 16:00 · 18:00, hora de Monterrey/CDMX), elegidos con los mejores horarios de Metricool por red.
 
 ## Lo que Héctor pidió (reglas fijas)
 
@@ -28,7 +27,7 @@ Todos los videos nuevos se hacen con **CINE v2** (animación 3D cinematográfica
 - TikTok (Programa de Recompensas, México): 10,000 seguidores + 100,000 vistas en 30 días, y solo pagan videos de más de 1 minuto → todos los videos duran 62–72 s (decisión de Héctor: desde ya, para que los que peguen cuenten para monetizar). La retención se logra con ritmo, no acortando.
 - YouTube Shorts: 1,000 suscriptores + 10 M vistas de Shorts en 90 días (20 M para quien solicite desde el 1 de febrero de 2027).
 - Facebook Estrellas: 500 seguidores.
-- Lo que más empuja: retención (que lo vean completo y lo repitan), comentarios, compartidos y constancia (2 videos diarios, 12:00 y 18:00).
+- Lo que más empuja: retención (que lo vean completo y lo repitan), comentarios, compartidos y constancia (3 videos diarios; horarios arriba).
 
 ## Retención (lo más importante, pedido por Héctor)
 
