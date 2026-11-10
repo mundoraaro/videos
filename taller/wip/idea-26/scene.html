@@ -82,7 +82,8 @@ function confeti(t,n=26){ for(let i=0;i<n;i++){ const y=((rand(i)*2000+t*(260+ra
 const ENJ=[[230,820],[820,760],[400,640],[690,980],[170,1060],[900,1100],[560,560],[330,1180],[760,600],[120,700]];
 function escenaBorrar(t,lt){ cama(540,SUELO+40,1,false);
   const sw=Math.sin(lt*5.5); const gx=540+230*sw, gy=760+40*Math.cos(lt*11);
-  ENJ.forEach(([x,y],i)=>{ const te=0.25+i*0.27; const b=clamp((lt-te)/0.3,0,1); mosquito(x+Math.sin(t*3+i)*30,y,1.2,t,{seed:i,dir:i%2?-1:1,borrado:b,hembra:i%3===0}); });
+  ENJ.forEach(([x,y],i)=>{ const te=0.25+i*0.27; const b=clamp((lt-te)/0.3,0,1); mosquito(x+Math.sin(t*3+i)*30,y,1.2,t,{seed:i,dir:i%2?-1:1,borrado:b,hembra:i%3===0}); if(lt>=te&&lt<te+0.5){ chispas(t,te+(t-lt),x,y,1.4,'#FFFFFF'); ondaChoque(t,te+(t-lt),x,y,'#FFB8D2',0.4); } });
+  if(lt>0.6&&lt<1.0) lineasVelocidad(t,0.6+(t-lt),gx,gy,'#FFFFFF',0.35);
   raro({x:560,y:SUELO-150,s:0.95,t,expr:'orgullo',brazos:'carga',manos:{d:[(gx-560)/0.95+40,-560],i:[(gx-560)/0.95-80,-540]},disfraz:'piyama',tilt:sw*0.08,wob:Math.sin(lt*11)*0.3});
   goma(gx,gy,0.9,sw*0.4); migajas(t,gx,gy+40);
   cama(540,SUELO+40,1,true); }
@@ -123,7 +124,7 @@ function S8(t,sc){ const su=susto(t,at(41)); const tx=lerp(1100,700,easeOut(prog
 // S9 (17.41–19.35) "necesita sangre para sus huevos." Olas magenta: la hembra con la panza roja deja una balsita de huevitos que van apareciendo con pop.
 function S9(t,sc){ const pz=easeOut(prog(t,at(46),0.5)); mosquito(380,820,1.4,t,{hembra:true,panza:pz,seed:6});
   for(let i=0;i<7;i++){ const k=popIn(t,at(48)+i*0.08); if(k>0){ ctx.fillStyle='#FFF4DC'; ctx.beginPath(); ctx.ellipse(560+i*44,SUELO-60,16*k,26*k,0.2,0,PI*2); ctx.fill(); } }
-  raro({x:860,y:SUELO+60,s:0.6,t,expr:'asco',brazos:'cara',disfraz:'piyama',piernas:'flota',tilt:Math.sin(t*2)*0.1});
+  raro({x:820,y:SUELO+60,s:0.6,t,expr:'asco',brazos:'cara',disfraz:'piyama',piernas:'flota',tilt:Math.sin(t*2)*0.1});
   letrero(t>=at(48)?'PARA SUS HUEVOS':'SANGRE',540,400,popIn(t,at(46)),'pergamino',{tam:66,t,t0:t>=at(48)?at(48):at(46)}); }
 // S10 (19.35–22.18) "Los machos ni pican. Toman néctar de flores." Selva limón: ¡puf! Raro se vuelve mosquito macho y sorbe néctar de una flor gigante.
 const FLOR=(x,y,s,t,c)=>{ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.strokeStyle='#3FAF5A'; ctx.lineWidth=14; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,400); ctx.stroke(); ctx.rotate(Math.sin(t*1.2+x)*0.08);
@@ -141,10 +142,10 @@ function S11(t,sc){ const gy=lerp(-200,820,easeInOut(prog(t,at(60),1.4))); const
 function S12(t,sc){ signos(t,540,880); raro({x:540,y:SUELO,s:1.3,t,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',disfraz:'mosquito',sq:gelatina(t,sc.start)});
   letrero('¿QUIÉN LOS EXTRAÑARÍA?',540,400,popIn(t,sc.start+0.05),'pergamino',{tam:60,t,t0:sc.start}); }
 // S13 (26.46–29.81) "Los peces: se comen sus larvas en charcos y lagos." Bajo el agua turquesa: larvas que se retuercen; un pez pasa y se las come (cada "ñam" desaparece una); Raro mosquito flota asustado.
-function S13(t,sc){ const px=lerp(1300,-300,prog(t,at(69)-0.2,2.8)); const L=[[980,1010],[820,1060],[640,990],[460,1080],[300,1000],[150,1060]];
+function S13(t,sc){ const px=lerp(1300,-300,prog(t,at(69)-0.2,2.8)); const L=[[980,930],[820,980],[640,910],[460,1000],[300,920],[150,980]];
   L.forEach(([x,y],i)=>{ const comida=px<x+60; larva(x,y,1.3,t,comida?1-clamp((x+60-px)/40,0,1):popIn(t,sc.start+i*0.06)); });
-  pez(px,1040,1.1,t,{dir:-1,color:'#FF9F6B',boca:0.5+0.5*Math.sin(t*14)});
-  raro({x:560,y:760,s:0.7,t,expr:'terror',brazos:'cara',piernas:'flota',disfraz:'mosquito',tilt:Math.sin(t*2)*0.12,sinSombra:true});
+  pez(px,960,1.1,t,{dir:-1,color:'#FF9F6B',boca:0.5+0.5*Math.sin(t*14)});
+  raro({x:560,y:1440,s:0.7,t,expr:'terror',brazos:'cara',piernas:'flota',disfraz:'mosquito',tilt:Math.sin(t*2)*0.12,sinSombra:true});
   letrero(t>=at(73)?'SE COMEN SUS LARVAS':'LOS PECES',540,400,popIn(t,at(69)),'madera',{tam:62,t,t0:t>=at(73)?at(73):at(69)}); }
 // S14 (29.81–31.5) "Las aves del Ártico:" Nieve cielo: ¡puf! Raro en parka; una parvada de aves cruza el cielo.
 function S14(t,sc){ for(let i=0;i<6;i++){ const x=lerp(1300,-300,prog(t,sc.start-0.3+i*0.12,2.2)); ave(x,700+(i%3)*120,0.45,t,{vuela:true,seed:i,dir:-1,color:PAST[i%6]}); }
@@ -175,19 +176,19 @@ function S19(t,sc){ caribu(560,SUELO,1.0,t,{expr:'yavalio',brazos:'cara'}); cons
   for(let i=0;i<9;i++){ const a=t*1.4+i/9*PI*2; mosquito(560+Math.cos(a)*330,960+Math.sin(a)*220,0.7,t,{seed:i,dir:Math.sin(a)>0?-1:1,panza:pz,hembra:true}); }
   sudor(t,560,SUELO-470); letrero(contador(t,at(119),1.0,0,300)+' ML AL DÍA',540,400,popIn(t,at(119)),'panel',{tam:64,t,t0:at(119)}); }
 // S20 (45.11–46.46) "Casi una lata de refresco." Liso turquesa: una lata gigante cae con thud junto al caribú; Raro con ojos al doble.
-function S20(t,sc){ const c=caida(t,at(126),900); lata(700,SUELO-c.alto,1.1,1,t); if(t>=at(126)+0.2) ondaChoque(t,at(126)+0.2,700,SUELO);
-  caribu(300,SUELO,0.75,t,{expr:'asombro',brazos:'arriba'}); raro({x:960,y:SUELO+60,s:0.45,t,expr:'asombro',brazos:'arriba',disfraz:'abrigo'});
+function S20(t,sc){ const c=caida(t,at(126),900); lata(640,SUELO-c.alto,1.1,1,t); if(t>=at(126)+0.2) ondaChoque(t,at(126)+0.2,640,SUELO);
+  caribu(260,SUELO,0.75,t,{expr:'asombro',brazos:'arriba'}); raro({x:870,y:SUELO+60,s:0.42,t,expr:'asombro',brazos:'arriba',disfraz:'abrigo'});
   letrero('CASI UNA LATA',540,400,popIn(t,at(125)),'madera',{tam:70,t,t0:at(125)}); }
 // S21 (46.46–47.83) "Pero aquí viene lo fuerte:" Cielo magenta, cerrado: ¡puf! de vuelta a piyama; Raro serio mira a cámara. Corte de música.
 function S21(t,sc){ const p=pufCambio(t,sc.start+0.05); raro({x:540,y:SUELO,s:1.3,t,expr:'sospecha',mira:{x:0,y:0},brazos:'idle',disfraz:p.despues?'piyama':'abrigo',spin:p.spin});
-  nubePuf(t,sc.start+0.12,540,SUELO-200,1.5); letrero('LO FUERTE',540,400,popIn(t,at(134)),'panel',{tam:72,t,t0:at(134)}); }
+  nubePuf(t,sc.start+0.12,540,SUELO-200,1.5); letrero(t>=at(134)?'LO FUERTE':'PERO…',540,400,popIn(t,sc.start+0.05),'panel',{tam:72,t,t0:t>=at(134)?at(134):sc.start}); }
 // S22 (47.83–51.35) "el mosquito es el animal que más vidas humanas cobra." Liso violeta: podio que sube; el mosquito queda en el 1er lugar; Raro serio al lado.
-function S22(t,sc){ podio(t,at(136),540,SUELO); const k=popIn(t,at(141)); if(k>0) mosquito(540,SUELO-470,1.3*k,t,{seed:8,hembra:true});
-  raro({x:930,y:SUELO+60,s:0.55,t,expr:'yavalio',brazos:'idle',disfraz:'piyama'});
+function S22(t,sc){ podio(t,at(136),470,SUELO); const k=popIn(t,at(141)); if(k>0) mosquito(470,SUELO-470,1.3*k,t,{seed:8,hembra:true});
+  raro({x:862,y:SUELO+60,s:0.48,t,expr:'yavalio',brazos:'idle',disfraz:'piyama'});
   letrero(t>=at(141)?'EL MÁS MORTAL':'EL MOSQUITO',540,400,popIn(t,at(136)),'piedra',{tam:70,t,t0:t>=at(141)?at(141):at(136)}); }
 // S23 (51.35–53.05) "Solo la malaria que transmite" Espacio cielo: la Tierra gira y un mosquito le da vueltas; Raro flota serio.
 function S23(t,sc){ tierra(540,1000,300,t); const a=t*2; mosquito(540+Math.cos(a)*420,1000+Math.sin(a)*140,0.8,t,{seed:9,dir:Math.sin(a)>0?-1:1});
-  raro({x:880,y:SUELO+40,s:0.5,t,expr:'apenado',brazos:'idle',disfraz:'piyama',piernas:'flota'});
+  raro({x:840,y:SUELO+40,s:0.5,t,expr:'apenado',brazos:'idle',disfraz:'piyama',piernas:'flota'});
   letrero('MALARIA',540,400,popIn(t,at(147)),'panel',{tam:76,t,t0:at(147)}); }
 // S24 (53.05–56.7) "se llevó a unas 610,000 personas en 2024." Liso turquesa, tono respetuoso: letrero de piedra con la cifra; velitas que se encienden en fila; Raro se quita el gorro con tristeza.
 function vela(x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.fillStyle='#FFF4DC'; rr(-18,-90,36,90,10); ctx.fill();
@@ -201,7 +202,7 @@ function S25(t,sc){ hoyo(560,SUELO+40,300); const k=easeOut(prog(t,at(164),1.0))
     if(k>0.5){ ctx.fillStyle=PAST[i%6]; blob(x+Math.sin(t*2+i)*10,SUELO+40-h,22*popIn(t,at(166)+i*0.05)); } }
   if(k>0.6) for(let i=0;i<3;i++) ave(260+i*300,700+i*40,0.35,t,{vuela:true,seed:i,color:PAST[(i+2)%6]});
   gomita({x:150,y:SUELO+40,s:0.55,t,seed:2,color:'#B8E6FF',expr:'orgullo',brazos:'senala',disfraz:'cientifico'});
-  raro({x:900,y:SUELO+40,s:0.65,t,expr:k>0.5?'asombro':'sospecha',brazos:k>0.5?'arriba':'idle',disfraz:'piyama',sq:gelatina(t,at(167))});
+  raro({x:820,y:SUELO+40,s:0.65,t,expr:k>0.5?'asombro':'sospecha',brazos:k>0.5?'arriba':'idle',disfraz:'piyama',sq:gelatina(t,at(167))});
   letrero(t>=at(166)?'SE LLENA RÁPIDO':'LA NATURALEZA…',540,400,popIn(t,sc.start+0.1),'madera',{tam:66,t,t0:t>=at(166)?at(166):sc.start}); }
 // S26 (60.38–63.93) "El problema es quién lo llenaría… y si sería algo peor." Selva violeta oscura: en el hueco se abren ojos amarillos; en "peor" sale una sombra de bicho con muchos ojos; Raro brinca del susto.
 function S26(t,sc){ hoyo(540,SUELO+20,330,'#140C24'); const ojos=t>=at(171);
@@ -237,6 +238,6 @@ window.TOMAS={1:{mov:'push',z:1.04},2:{mov:'pull',z:1.06},3:{mov:'push',z:1.15,f
  28:{mov:'sube',z:1.04},29:{mov:'push',z:1.04}};
 window.TRANS={2:'bufanda',4:'latigazo',6:'zoom',8:'bufanda',10:'latigazo',12:'zoom',14:'bufanda',16:'latigazo',18:'bufanda',20:'zoom',22:'bufanda',23:'zoom',25:'latigazo',27:'bufanda',29:'latigazo'};
 window.KEYWORDS=[7,11,14,17,23,31,33,44,46,53,55,64,67,69,73,81,91,98,102,111,113,119,127,134,141,147,154,166,178,181,191];
-window.SHAKES=[7,17,41,64,98,113,126,141,178,186];
-window.FLASHES=[[41,'#FF5FA2'],[64,'#FFFFFF'],[126,'#FFFFFF'],[178,'#FFFFFF']];
+window.SHAKES=[2,5,7,17,41,64,98,113,126,141,178,186];
+window.FLASHES=[[2,'#FFFFFF'],[5,'#FFB8D2'],[41,'#FF5FA2'],[64,'#FFFFFF'],[126,'#FFFFFF'],[178,'#FFFFFF']];
 </script></body></html>
