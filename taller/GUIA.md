@@ -14,6 +14,7 @@ Héctor regresó al diseño anterior porque "me empezó a funcionar bien": **per
   - Voz: `ai-voiceover` (escribir para el oído; Mizael por Speko). Audio: `ai-music-and-sound` (solo música original/sintetizada, nunca canciones con derechos).
   - Publicación: `caption-writer`, `hashtag-strategy`, `youtube-publishing-and-metadata`, `platform-specs-and-validation` (revisar formato antes de entregar).
 - Requisitos de cada video para poder monetizar (TikTok Recompensas, YouTube Shorts, Facebook): **62–72 s**, 1080×1920, 30 fps, sin marcas de agua de otras apps, **contenido original** (guion, narración y animación propios; cada video cambia disfraz, fondos, tomas y acciones), etiqueta de contenido generado con IA en TikTok (`isAigc: true`), música sin derechos de terceros, datos verificados con fuente, nada engañoso en el gancho.
+- **Meta de Héctor: siempre 2 días próximos completos programados** (todos los horarios de mañana y pasado mañana ocupados). La producción corre 6 veces al día y solo produce cuando falta para cubrir esa meta.
 - **Ritmo de publicación: 3 videos diarios** (lun–sáb 10:00 · 12:00 · 16:00; domingo 10:00 · 16:00 · 18:00, hora de Monterrey/CDMX), elegidos con los mejores horarios de Metricool por red.
 
 ## Lo que Héctor pidió (reglas fijas)
