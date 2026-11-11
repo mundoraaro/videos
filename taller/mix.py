@@ -91,6 +91,17 @@ def chispa():
     return y
 def blip():
     d = np.arange(int(.08 * SR)) / SR; return np.sin(2 * np.pi * 1320 * d) * np.exp(-d * 40)
+def splash():  # chapuzón: ruido filtrado con caída + burbujitas (agregado con hielo-001)
+    n = int(.6 * SR); d = np.arange(n) / SR
+    x = np.convolve(rng.standard_normal(n), np.ones(18) / 18, 'same') * np.exp(-d * 7) * np.minimum(1, d / 0.01) * 2.0
+    for k in range(4):
+        dd = np.arange(int(.06 * SR)) / SR; i = int((0.08 + k * 0.07) * SR); f = 500 + 500 * rng.random()
+        x[i:i+len(dd)] += 0.5 * np.sin(2 * np.pi * np.cumsum(f * (1 + 3 * dd)) / SR) * np.exp(-dd * 50)
+    return x
+def gota():    # gotita que cae (blup)
+    d = np.arange(int(.12 * SR)) / SR; return np.sin(2 * np.pi * np.cumsum(600 + 2200 * d / .12) / SR) * np.exp(-d * 35)
+for c in cues.get('splash', []): place(splash(), when(c), 0.3)
+for c in cues.get('gota', []): place(gota(), when(c), 0.18)
 if cues.get('whoosh_escenas', True):
     for s in T['scenes'][1:]: place(whoosh(), s['start'] - 0.12, 0.18)
 for c in cues.get('pop', []): place(pop(), when(c), 0.22)
