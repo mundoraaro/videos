@@ -4,7 +4,8 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
-## Corte del 10 nov 2026
+## Corte del 11 nov 2026 (8:40)
+Facebook sin cambios respecto al corte del 10 nov: Metricool devuelve exactamente las mismas vistas y segundos para los 18 Reels (aún no aparecen publicaciones del 11 nov). TikTok solo devuelve pulpo-001, sin vistas (sin dato).
 
 | Video | Formato | Publicado | Vistas FB | Seg. vistos FB | Nota |
 |---|---|---|---|---|---|
@@ -27,7 +28,7 @@ Los videos se identifican por el texto del caption.
 | mercurio-001 | serie | 10 nov 12:00 | 13 | 11 | Recién publicado |
 | cleopatra-001 | historia | 5 nov 18:00 | 1 | 1 | Probable falla de distribución |
 
-YouTube (canal): 5 → 48 suscriptores del 2 al 10 nov; vistas diarias 2,520 (2 nov), 4,081 (3 nov), 6,698 (6 nov). Metricool no da vistas por Short.
+YouTube (canal): 5 → 48 suscriptores del 2 al 10 nov (33 el 8, 37 el 9, 48 el 10); vistas diarias 139 (1 nov), 2,520 (2 nov), 4,081 (3 nov), 123 (4 nov), 2 (5 nov), 6,698 (6 nov), 3,023 (7 nov); sin dato del 8 al 10 nov. Metricool no da vistas por Short.
 
 ## YouTube Studio (lo compartió Héctor, 10 nov 2026, 14:03) — LA FUENTE MÁS IMPORTANTE
 Canal desde el inicio: 23,484 vistas · 167 h vistas · 57.01 % promedio reproducido · 40 s de duración promedio · +44 suscriptores.
