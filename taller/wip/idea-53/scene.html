@@ -1,0 +1,356 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// apolo-001 — "¡Tu selfie no cabría en el Apolo 11!" Raro astronauta empuja una selfie gigante que no cabe por la escotilla de la cápsula.
+// Disfraces: astronauta → playero (selfie, celular) → astronauta → piyama (stickers) → costurera (memoria tejida a mano) → anciano (8 semanas)
+// → piyama (actualizar) → astronauta (alunizaje, alarma 1202, aterrizaje) → piyama (galería) → astronauta (loop).
+const PI=Math.PI;
+// ---------- disfraz nuevo: costurera (pañoleta, delantal, aguja con alambre de cobre en la mano derecha) ----------
+DISFRACES.costurera={
+  cuerpo(o){ ctx.fillStyle='#FF8FB8'; ctx.fillRect(-200,-200,400,180); ctx.fillStyle='#FFF4DC'; rr(-95,-190,190,170,40); ctx.fill();
+    ctx.fillStyle='#FF5FA2'; for(const [x,y] of [[-40,-120],[35,-80],[-10,-50]]){ for(let i=0;i<5;i++){ const a=i/5*PI*2; blob(x+Math.cos(a)*11,y+Math.sin(a)*11,8);} ctx.fillStyle='#FFD23F'; blob(x,y,7); ctx.fillStyle='#FF5FA2'; }
+    ctx.fillStyle='#E0E0F0'; rr(-60,-160,40,30,8); ctx.fill(); },
+  cabeza(o){ const w=o.wob||0; ctx.fillStyle='#8D4DFF'; ctx.beginPath(); ctx.moveTo(-158,-318); ctx.quadraticCurveTo(-150,-420,0,-424); ctx.quadraticCurveTo(150,-420,158,-318); ctx.quadraticCurveTo(0,-350,-158,-318); ctx.fill();
+    ctx.fillStyle='#FFFFFF'; for(const [x,y] of [[-90,-370],[-20,-395],[60,-385],[110,-345],[-130,-335]]) blob(x,y,10);
+    ctx.fillStyle='#7A3BE8'; ctx.save(); ctx.translate(150,-322); ctx.rotate(0.3+Math.sin(o.t*3)*0.1+w*0.3); blob(0,0,22); rr(4,-10,70,22,11); ctx.fill(); rr(4,6,60,20,10); ctx.fill(); ctx.restore(); },
+  frente(o,B){ if(o.sinAguja) return; const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(-0.6);
+    ctx.fillStyle='#E8ECF5'; rr(-8,-150,16,190,8); ctx.fill(); ctx.fillStyle='#9AA3B8'; rr(-4,-140,8,30,4); ctx.fill();
+    ctx.strokeStyle='#E8833A'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-128); ctx.bezierCurveTo(60,-100+Math.sin(o.t*5)*20,-40,10,30,90); ctx.stroke(); ctx.restore(); }
+};
+// ---------- helpers del mundo ----------
+function luna(x,y,r,t){ ctx.fillStyle='rgba(255,255,255,0.18)'; blob(x,y,r*1.15); ctx.fillStyle='#EDEAF7'; blob(x,y,r); ctx.fillStyle='#CFC9E6';
+  for(const [a,b,c] of [[-0.35,-0.25,0.22],[0.3,0.1,0.28],[-0.1,0.45,0.15],[0.45,-0.45,0.12]]) blob(x+a*r,y+b*r,c*r); ctx.fillStyle='rgba(255,255,255,0.6)'; blob(x-r*0.4,y-r*0.45,r*0.12); ocupa(x-r,y-r,x+r,y+r,1); }
+function tierra(x,y,r,t){ ctx.fillStyle='rgba(140,220,255,0.3)'; blob(x,y,r*1.15); ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.fillStyle='#7FD34E'; blob(x-r*0.3,y-r*0.2,r*0.38); blob(x+r*0.35,y+r*0.25,r*0.3); ctx.fillStyle='#FFFFFF'; blob(x+r*0.2,y-r*0.55,r*0.2); }
+function suelo(t,y,P,crat=true){ ctx.fillStyle=P.oscuro; rr(-300,y,1680,900,0); ctx.fill(); ctx.fillStyle=mix(P.oscuro,P.medio,0.45); rr(-300,y,1680,26,0); ctx.fill();
+  if(crat){ ctx.fillStyle=mix(P.oscuro,'#000000',0.18); for(const [cx,w] of [[140,150],[520,90],[860,170],[330,60]]){ ctx.beginPath(); ctx.ellipse(cx,y+70+(cx%3)*30,w,w*0.22,0,0,PI*2); ctx.fill(); } } }
+function plataforma(y){ ctx.fillStyle='#5B4B8A'; rr(-300,y,1680,700,0); ctx.fill(); ctx.fillStyle='#7C6BB0'; rr(-300,y,1680,30,0); ctx.fill();
+  ctx.strokeStyle='#9A8DC6'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(-300,y-120); ctx.lineTo(1380,y-120); ctx.stroke(); for(let x=-280;x<1380;x+=120){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-120); ctx.stroke(); } }
+function capsula(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+  ctx.fillStyle='#9AA0B8'; ctx.beginPath(); ctx.moveTo(-240,0); ctx.lineTo(-90,-560); ctx.quadraticCurveTo(0,-600,90,-560); ctx.lineTo(240,0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#E6E9F2'; ctx.beginPath(); ctx.moveTo(-226,-10); ctx.lineTo(-84,-548); ctx.quadraticCurveTo(0,-585,70,-552); ctx.lineTo(190,-10); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#C9CFDA'; for(let i=1;i<6;i++){ const yy=-i*95; const hw=240-i*95*0.268; rr(-hw,yy-5,hw*2,8,4); ctx.fill(); }
+  ctx.fillStyle='#3A3456'; rr(-90,-300,180,190,40); ctx.fill(); ctx.fillStyle='#1E1A2E'; rr(-74,-286,148,162,32); ctx.fill();
+  ctx.fillStyle='#2B3A8C'; for(const xx of [-130,130]){ ctx.beginPath(); ctx.ellipse(xx*0.75,-430,26,34,0,0,PI*2); ctx.fill(); }
+  ctx.fillStyle='rgba(143,230,255,0.6)'; for(const xx of [-130,130]){ ctx.beginPath(); ctx.ellipse(xx*0.75-6,-440,8,14,0,0,PI*2); ctx.fill(); }
+  ctx.fillStyle='#FF8A2B'; rr(-240,-24,480,30,10); ctx.fill(); ctx.restore(); ocupa(x-240*s,y-590*s,x+240*s,y,1.2); }
+function polaroid(x,y,w,h,rot,t,o={}){ ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(o.sx||1,o.sy||1);
+  ctx.fillStyle='rgba(30,20,60,0.25)'; rr(-w/2+14,-h/2+16,w,h,18); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-w/2,-h/2,w,h,18); ctx.fill();
+  const iw=w*0.86, ih=h*0.72, ix=-iw/2, iy=-h/2+w*0.07; ctx.save(); rr(ix,iy,iw,ih,10); ctx.clip(); ctx.fillStyle=o.bg||'#FFB8D2'; ctx.fillRect(ix,iy,iw,ih);
+  ctx.fillStyle='#FFE3A3'; blob(ix+iw*0.8,iy+ih*0.2,iw*0.12); ctx.fillStyle='#FF9BDD'; ctx.beginPath(); ctx.ellipse(0,iy+ih,iw*0.7,ih*0.25,0,0,PI*2); ctx.fill();
+  raro({x:0,y:iy+ih+ih*0.08,s:ih/430,t,expr:'feliz',brazos:'saluda',sinSombra:true,npc_peso:0});
+  ctx.restore(); ctx.fillStyle='#D7FF3D'; rr(-w*0.18,h/2-h*0.15,w*0.36,h*0.06,8); ctx.fill(); ctx.restore(); ocupa(x-w/2,y-h/2,x+w/2,y+h/2,2); }
+// computadora del Apolo: caja metálica con su DSKY (pantalla verde y teclado)
+function agc(x,y,s,t,o={}){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); if(o.rot) ctx.rotate(o.rot);
+  ctx.fillStyle='#5D6680'; rr(-250,-330,510,340,34); ctx.fill(); ctx.fillStyle='#8A93AD'; rr(-260,-340,500,330,30); ctx.fill(); ctx.fillStyle='#A9B1C8'; rr(-240,-322,460,40,16); ctx.fill();
+  ctx.fillStyle='#2E3348'; rr(-220,-270,200,240,18); ctx.fill();
+  const al=o.alarma&&(Math.floor(t*6)%2===0); ctx.fillStyle=al?'#FF2E4D':(o.err?'#3A0E1A':'#0E3B2A'); rr(-208,-258,176,96,12); ctx.fill();
+  ctx.font=fuente(o.tam||52); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle=o.alarma?(al?'#FFFFFF':'#FF6B7F'):(o.err?'#FF5A6E':'#7DFF9B'); ctx.fillText(o.txt??'00000',-120,-208);
+  for(let r=0;r<3;r++) for(let c=0;c<4;c++){ ctx.fillStyle='#E9ECF5'; rr(-208+c*44,-150+r*40,36,32,8); ctx.fill(); }
+  // luces de estado
+  for(let i=0;i<4;i++){ const on=o.alarma? (Math.floor(t*8+i)%2===0) : (i===0); ctx.fillStyle=on?(o.alarma?'#FF2E4D':'#FFD23F'):'#4A4F66'; rr(10,-262+i*58,190,44,12); ctx.fill(); }
+  ctx.fillStyle='#4A4F66'; for(let i=0;i<5;i++){ rr(-230+i*96,-26,60,14,7); ctx.fill(); }
+  ctx.restore(); ocupa(x-260*s,y-340*s,x+260*s,y,1.6); }
+function celular(x,y,w,h,t,o={}){ ctx.save(); ctx.translate(x,y); ctx.rotate(o.rot||0); ctx.scale(o.k??1,o.k??1);
+  ctx.fillStyle='rgba(30,20,60,0.25)'; rr(-w/2+12,-h/2+14,w,h,w*0.16); ctx.fill(); ctx.fillStyle='#1E1A2E'; rr(-w/2,-h/2,w,h,w*0.16); ctx.fill();
+  const sx=-w/2+w*0.06, sy=-h/2+w*0.06, sw=w*0.88, sh=h-w*0.12; ctx.save(); rr(sx,sy,sw,sh,w*0.11); ctx.clip(); ctx.fillStyle=o.pantalla||'#3AB6FF'; ctx.fillRect(sx,sy,sw,sh);
+  if(o.dibuja) o.dibuja(sx,sy,sw,sh); ctx.restore(); ctx.fillStyle='#1E1A2E'; rr(-w*0.14,sy+6,w*0.28,w*0.06,w*0.03); ctx.fill(); ctx.restore(); if(!o.sinOcupa) ocupa(x-w/2,y-h/2,x+w/2,y+h/2,1.8); }
+function txt(s,x,y,sz,c='#FFFFFF',st='#1E1A2E'){ ctx.font=fuente(sz); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.lineJoin='round'; ctx.lineWidth=sz*0.18; ctx.strokeStyle=st; ctx.strokeText(s,x,y); ctx.fillStyle=c; ctx.fillText(s,x,y); }
+function anillo(x,y,r,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.strokeStyle='#3A3456'; ctx.lineWidth=r*0.55; ctx.beginPath(); ctx.arc(0,0,r,0,PI*2); ctx.stroke();
+  ctx.strokeStyle='#6E6890'; ctx.lineWidth=r*0.2; ctx.beginPath(); ctx.arc(-r*0.08,-r*0.08,r,PI*0.9,PI*1.6); ctx.stroke(); ctx.restore(); }
+function cobre(pts,w=10){ ctx.save(); ctx.strokeStyle='#C2581E'; ctx.lineWidth=w+5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); pts.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b)); ctx.stroke();
+  ctx.strokeStyle='#F09A4A'; ctx.lineWidth=w; ctx.stroke(); ctx.restore(); }
+function aguja(x,y,a,s=1){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(s,s); ctx.fillStyle='#E8ECF5'; rr(-130,-9,260,18,9); ctx.fill(); ctx.fillStyle='#9AA3B8'; rr(-115,-4,40,8,4); ctx.fill(); ctx.beginPath(); ctx.moveTo(130,-9); ctx.lineTo(170,0); ctx.lineTo(130,9); ctx.fillStyle='#E8ECF5'; ctx.fill(); ctx.restore(); }
+function campana(x,y,s,t,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.rotate(Math.sin(t*40)*0.18);
+  ctx.fillStyle='#B0102F'; ctx.beginPath(); ctx.moveTo(-80,40); ctx.quadraticCurveTo(-80,-90,0,-95); ctx.quadraticCurveTo(80,-90,80,40); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FF2E4D'; ctx.beginPath(); ctx.moveTo(-74,34); ctx.quadraticCurveTo(-74,-84,-4,-89); ctx.quadraticCurveTo(50,-84,58,34); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FFD23F'; rr(-96,30,192,22,11); ctx.fill(); blob(0,64,18); ctx.fillStyle='rgba(255,255,255,0.6)'; rr(-50,-60,14,60,7); ctx.fill();
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=8; ctx.lineCap='round'; for(const sg of [-1,1]){ for(let i=0;i<2;i++){ ctx.beginPath(); ctx.arc(0,-10,120+i*34,sg>0?-0.5:PI-0.5,sg>0?0.5:PI+0.5); ctx.stroke(); } }
+  ctx.restore(); ocupa(x-110*s,y-100*s,x+110*s,y+80*s,1.2); }
+function moduloLunar(x,y,s,t,o={}){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+  if(o.fuego){ const f=0.8+0.2*Math.sin(t*40); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.moveTo(-40,40); ctx.quadraticCurveTo(0,40+200*f*o.fuego,40,40); ctx.fill(); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-18,40); ctx.quadraticCurveTo(0,40+110*f*o.fuego,18,40); ctx.fill(); }
+  ctx.strokeStyle='#C9CFDA'; ctx.lineWidth=14; ctx.lineCap='round'; for(const sg of [-1,1]){ ctx.beginPath(); ctx.moveTo(sg*110,-30); ctx.lineTo(sg*210,110); ctx.stroke(); ctx.fillStyle='#C9CFDA'; ctx.beginPath(); ctx.ellipse(sg*210,116,40,12,0,0,PI*2); ctx.fill(); }
+  ctx.fillStyle='#4A4F66'; ctx.beginPath(); ctx.moveTo(-30,0); ctx.lineTo(-44,42); ctx.lineTo(44,42); ctx.lineTo(30,0); ctx.fill();
+  ctx.fillStyle='#E0A82E'; rr(-150,-110,300,120,18); ctx.fill(); ctx.fillStyle='#FFD25A'; rr(-150,-110,300,30,14); ctx.fill(); ctx.fillStyle='#C68A1C'; for(let i=0;i<4;i++){ rr(-130+i*72,-70,40,60,8); ctx.fill(); }
+  ctx.fillStyle='#C9CFDA'; ctx.beginPath(); ctx.moveTo(-130,-110); ctx.lineTo(-100,-270); ctx.lineTo(100,-270); ctx.lineTo(130,-110); ctx.closePath(); ctx.fill(); ctx.fillStyle='#E6E9F2'; ctx.beginPath(); ctx.moveTo(-118,-115); ctx.lineTo(-92,-260); ctx.lineTo(60,-260); ctx.lineTo(80,-115); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.moveTo(-70,-240); ctx.lineTo(-20,-240); ctx.lineTo(-30,-180); ctx.lineTo(-80,-185); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(70,-240); ctx.lineTo(20,-240); ctx.lineTo(30,-180); ctx.lineTo(80,-185); ctx.closePath(); ctx.fill();
+  if(o.luz){ const on=Math.floor(t*7)%2===0; ctx.fillStyle=on?'#FF2E4D':'#7A1020'; blob(0,-290,22); if(on){ ctx.fillStyle='rgba(255,46,77,0.35)'; blob(0,-290,60); } }
+  ctx.fillStyle='#9AA0B8'; rr(-8,-330,16,60,8); ctx.fill(); ctx.restore(); ocupa(x-220*s,y-330*s,x+220*s,y+130*s,1.4); }
+function sticker(x,y,s,k,i,t){ if(k<=0) return; const C=['#FFD23F','#FF5FA2','#7FD34E','#3AB6FF','#FF8A2B','#8D4DFF'][i%6]; ctx.save(); ctx.translate(x,y+Math.sin(t*3+i)*8); ctx.scale(s*k,s*k); ctx.rotate(Math.sin(i*2.3)*0.3);
+  ctx.fillStyle='#FFFFFF'; rr(-62,-62,124,124,32); ctx.fill(); ctx.fillStyle=C; rr(-52,-52,104,104,26); ctx.fill(); ctx.fillStyle='#1E1A2E';
+  if(i%3===0){ blob(-18,-10,9); blob(18,-10,9); ctx.lineWidth=8; ctx.strokeStyle='#1E1A2E'; ctx.beginPath(); ctx.arc(0,6,22,0.2,PI-0.2); ctx.stroke(); }
+  else if(i%3===1){ ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(0,30); ctx.bezierCurveTo(-50,-5,-25,-45,0,-18); ctx.bezierCurveTo(25,-45,50,-5,0,30); ctx.fill(); }
+  else { ctx.fillStyle='#FFFFFF'; blob(-20,0,14); blob(20,0,14); ctx.fillStyle='#1E1A2E'; blob(-16,2,7); blob(24,2,7); }
+  ctx.restore(); }
+function sofa(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#6B3FB8'; rr(-380,-330,760,260,70); ctx.fill(); ctx.fillStyle='#8A5BD6'; rr(-420,-170,840,190,60); ctx.fill(); ctx.fillStyle='#A47BEA'; rr(-470,-260,120,280,50); ctx.fill(); rr(350,-260,120,280,50); ctx.fill(); ctx.fillStyle='#4A2A8A'; rr(-380,10,40,40,10); ctx.fill(); rr(340,10,40,40,10); ctx.fill(); ctx.restore(); }
+function barra(x,y,w,p,t){ ctx.fillStyle='#1E1A2E'; rr(x-w/2-8,y-30,w+16,60,30); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(x-w/2,y-22,w,44,22); ctx.fill(); ctx.fillStyle='#7FD34E'; rr(x-w/2,y-22,Math.max(44,w*p),44,22); ctx.fill(); }
+function signos(t,x,y,n=3){ ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; for(let i=0;i<n;i++){ const u=(t*0.8+i/n)%1; ctx.globalAlpha=Math.sin(u*PI); txt('?',x+(i-(n-1)/2)*170,y-u*110,110); } ctx.globalAlpha=1; }
+function sudor(t,x,y){ ctx.fillStyle='#7FD8FF'; for(let i=0;i<3;i++){ const u=((t*1.5+i/3)%1); ctx.globalAlpha=1-u; ctx.beginPath(); ctx.ellipse(x+(i-1)*40,y+u*80,8,12,0,0,PI*2); ctx.fill(); } ctx.globalAlpha=1; }
+function humo(t,x,y,s=1){ ctx.save(); for(let i=0;i<5;i++){ const u=(t*0.9+i/5)%1; ctx.globalAlpha=(1-u)*0.7; ctx.fillStyle='#8E8AA3'; blob(x+Math.sin(i*2+t*2)*30*s,y-u*260*s,(30+u*50)*s); } ctx.restore(); }
+function telarana(x,y,r,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=4;
+  for(let i=0;i<6;i++){ const a=i/6*PI*0.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r); ctx.stroke(); }
+  for(let j=1;j<4;j++){ ctx.beginPath(); for(let i=0;i<6;i++){ const a=i/6*PI*0.5; const rr2=r*j/4; i?ctx.lineTo(Math.cos(a)*rr2,Math.sin(a)*rr2):ctx.moveTo(Math.cos(a)*rr2,Math.sin(a)*rr2); } ctx.stroke(); } ctx.restore(); }
+function hojaCal(x,y,k,txt2,rot=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(k,k); ctx.fillStyle='#FFFFFF'; rr(-110,-120,220,240,20); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-110,-120,220,64,20); ctx.fill(); ctx.fillRect(-110,-80,220,24);
+  ctx.fillStyle='#1E1A2E'; blob(-60,-120,10); blob(60,-120,10); ctx.font=fuente(70); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt2,0,30); ctx.restore(); }
+function reinicio(x,y,r,t,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(t*6); ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=26; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(0,0,r,0.3,PI*1.7); ctx.stroke(); ctx.fillStyle='#D7FF3D'; const a=PI*1.7; ctx.beginPath(); ctx.moveTo(Math.cos(a)*r+40,Math.sin(a)*r-10); ctx.lineTo(Math.cos(a)*r-30,Math.sin(a)*r-40); ctx.lineTo(Math.cos(a)*r-10,Math.sin(a)*r+40); ctx.fill(); ctx.restore(); }
+function capa(x,y,t,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,1); ctx.fillStyle='#D7FF3D'; ctx.beginPath(); ctx.moveTo(-200,0); ctx.quadraticCurveTo(-320,200,-260+Math.sin(t*6)*30,380); ctx.lineTo(260+Math.sin(t*6+1)*30,380); ctx.quadraticCurveTo(320,200,200,0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#9DC41C'; for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(i*80,20); ctx.lineTo(i*110+Math.sin(t*6+i)*20,370); ctx.lineWidth=10; ctx.strokeStyle='#B8E02E'; ctx.stroke(); } ctx.restore(); }
+
+// ---------- gancho y loop: la selfie atorada en la escotilla del Apolo ----------
+function escenaSelfie(t,lt,cartel){
+  const P=PAL_ACTUAL; luna(840,650,105,t); plataforma(SUELO);
+  capsula(705,SUELO,1.0);
+  const push=0.5+0.5*Math.sin(lt*6.5), emp=Math.pow(push,0.6);
+  const rx=205+emp*26;
+  // la selfie gigante se aplasta contra la escotilla (no cabe)
+  polaroid(560+emp*26,1105,400,470,-0.06+emp*0.03,t,{sx:1-emp*0.07,sy:1+emp*0.04,bg:'#FFB8D2'});
+  chispas(t,t-((lt+20)%0.6),760,1060,0.7,'#FFFFFF');
+  raro({x:rx,y:SUELO,s:1.05,t,expr:'terror',ojos:1.25,brazos:'frente',manos:{i:[140+emp*14,-210],d:[150+emp*14,-300]},piernas:'camina',disfraz:'astronauta',tilt:0.16+emp*0.06,sq:-emp*0.08,wob:Math.sin(lt*13)*0.15});
+  sudor(t,rx+20,SUELO-470);
+  letrero(cartel,540,420,1,'madera',{tam:72,t,t0:-1}); }
+
+// ========== ESCENAS ==========
+// S1 (0–2.6) GANCHO: plataforma de lanzamiento violeta con la Luna; Raro astronauta empuja con todas sus fuerzas una selfie gigante (él mismo saludando) que se aplasta contra la escotilla de la cápsula Apolo y no entra. Letrero "TU SELFIE NO CABE" desde el cuadro 0. Toma: push.
+function S1(t,sc){ escenaSelfie(t,t,'TU SELFIE NO CABE'); }
+// S2 (2.6–4.9) "La computadora que llevó al hombre a la Luna" Cabina cielo: Raro astronauta cae con boing frente a la computadora del Apolo y teclea rápido; en "Luna" la ventana de la Luna hace pop. Toma: paneo.
+function S2(t,sc){ const P=PAL_ACTUAL; luna(800,760,110*(t>=at(16)?popIn(t,at(16)):0.75),t);
+  ctx.fillStyle=P.oscuro; rr(-100,SUELO-20,1280,600,0); ctx.fill(); ctx.fillStyle=mix(P.oscuro,P.medio,0.5); rr(380,SUELO-360,600,360,30); ctx.fill();
+  agc(690,SUELO-340,0.95,t,{txt:t>=at(9)?['31','42','68','11','07'][Math.floor(t*6)%5]+'0':'00000'});
+  const c=caida(t,sc.start); const tec=Math.sin(t*28)*16;
+  raro({x:300,y:SUELO,s:1.08,t,expr:t>=at(16)?'asombro':'feliz',brazos:'frente',manos:{i:[200,-300+tec],d:[260,-310-tec]},disfraz:'astronauta',alto:c.alto,sq:c.sq,wob:c.wob});
+  if(t>=at(16)) chispas(t,at(16),800,760,1.2,'#FFFFFF'); }
+// S3 (4.9–8.6) "tenía unos 72 kilobytes para sus programas…" Cerros mandarina: Raro mete bloquecitos de programa a la computadora uno por uno; el letrero cuenta hasta 72 KB. Toma: push.
+function S3(t,sc){ agc(640,SUELO-10,1.05,t,{txt:contador(t,sc.start,Math.max(0.4,at(20)-sc.start),0,72)+'KB',tam:46});
+  const per=0.42, u=((t-sc.start)%per)/per; const bx=lerp(330,470,easeInOut(u)), by=lerp(SUELO-330,SUELO-240,u*u);
+  for(let i=0;i<Math.min(8,Math.floor((t-sc.start)/per));i++){ ctx.fillStyle=['#FFD23F','#FF5FA2','#7FD34E','#3AB6FF'][i%4]; rr(820-i*0+(i%2)*30-30,SUELO-60-i*44,90,40,10); ctx.fill(); }
+  ctx.fillStyle='#FFD23F'; rr(bx-45,by-22,90,44,10); ctx.fill(); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(26); ctx.textAlign='center'; ctx.fillText('KB',bx,by+2);
+  const b=brinco(t,sc.start+0.15+Math.floor(Math.max(0,t-sc.start-0.15)/0.84)*0.84,0.35,60);
+  raro({x:230,y:SUELO,s:1.0,t,expr:'orgullo',brazos:'frente',manos:{i:[130,-280],d:[170,-300]},disfraz:'astronauta',alto:b.alto,sq:b.sq,wob:b.wob,tilt:Math.sin(t*6)*0.05});
+  letrero(contador(t,sc.start,Math.max(0.4,at(20)-sc.start),0,72)+' KB PARA PROGRAMAS',540,420,popIn(t,sc.start+0.03),'panel',{tam:62,t,t0:sc.start}); }
+// S4 (8.6–10.4) "y apenas 4 para trabajar." Interior turquesa, plano cerrado: Raro con una lupa gigante busca un letrerito diminuto de "4 KB"; en "4" la lupa lo agranda y Raro pone cara de sospecha. Toma: push cerrado.
+function S4(t,sc){ const k=popIn(t,at(26)); letrero('4 KB',700,1240,0.45+0.0*k,'piedra',{tam:60,t,t0:at(26)});
+  const lx=lerp(560,700,easeOut(prog(t,sc.start,0.5))), ly=1150; ctx.save(); ctx.beginPath(); ctx.arc(lx,ly,130,0,PI*2); ctx.clip(); ctx.fillStyle='rgba(220,250,255,0.35)'; ctx.fillRect(lx-140,ly-140,280,280);
+  if(k>0){ ctx.translate(700,1240); ctx.scale(2.1,2.1); ctx.translate(-700,-1240); letrero('4 KB',700,1240,0.45,'piedra',{tam:60}); } ctx.restore();
+  ctx.strokeStyle='#A8703C'; ctx.lineWidth=22; ctx.beginPath(); ctx.arc(lx,ly,136,0,PI*2); ctx.stroke(); ctx.lineCap='round'; ctx.lineWidth=30; ctx.beginPath(); ctx.moveTo(lx-100,ly+100); ctx.lineTo(lx-210,ly+220); ctx.stroke(); ocupa(lx-150,ly-150,lx+150,ly+150,2);
+  raro({x:320,y:SUELO+40,s:1.25,t,expr:t>=at(26)?'sospecha':'asombro',brazos:'frente',manos:{i:[120,-150],d:[180,-180]},disfraz:'astronauta',tilt:0.1+Math.sin(t*3)*0.04});
+  letrero('APENAS 4 PARA TRABAJAR',540,420,popIn(t,sc.start+0.03),'pergamino',{tam:60,t,t0:sc.start}); }
+// S5 (10.4–12.8) "Una foto de tu celular pesa como 3 megas." Ciudad magenta: ¡puf! Raro playero se toma una selfie con el celular arriba, flash blanco en "foto"; letrero "1 FOTO = 3 MB". Toma: pull.
+function S5(t,sc){ const p=pufCambio(t,sc.start+0.02); const ph=t>=at(30)?1:0;
+  raro({x:470,y:SUELO,s:1.2,t,expr:ph?'risa':'feliz',brazos:'saluda',manos:{d:[230,-470]},disfraz:p.despues?'playero':'astronauta',sinFlotador:true,spin:p.spin,tilt:-0.08+Math.sin(t*4)*0.04});
+  nubePuf(t,sc.start+0.08,470,SUELO-200,1.4);
+  celular(470+230*1.2,SUELO-470*1.2-60,120,220,t,{rot:-0.2,pantalla:'#FFB8D2',k:popIn(t,sc.start+0.1)});
+  if(t>=at(30)&&t<at(30)+0.25){ ctx.fillStyle='rgba(255,255,255,'+(1-(t-at(30))/0.25)+')'; blob(746,800,200); }
+  letrero(t>=at(36)?'1 FOTO = '+contador(t,at(36),0.3,0,3)+' MB':'1 FOTO =',540,420,popIn(t,sc.start+0.1),'madera',{tam:70,t,t0:t>=at(36)?at(36):sc.start}); }
+// S6 (12.8–15.5) "O sea, ¡40 veces toda su memoria!" Cerros limón: una pared de 40 computaditas del Apolo aparece en cascada con click; Raro playero carga su selfie y se queda con ojos al doble. Toma: pull.
+function S6(t,sc){ const t0=sc.start+0.1; let n=0; cascada(t,t0,40,(x,y,k,i)=>{ n=i+1; ctx.save(); ctx.translate(x,y); ctx.scale(k*0.17,k*0.17); agc(0,0,1,t,{txt:''}); ctx.restore(); },{x0:150,y0:720,cols:8,dx:98,dy:78,cada:Math.max(0.02,(at(40)-t0)/40)});
+  ocupa(100,640,940,1040,1.3);
+  const su=susto(t,at(40));
+  raro({x:330,y:SUELO,s:1.0,t,expr:t>=at(40)?'asombro':'feliz',ojos:t>=at(40)?1.7:1,brazos:'frente',manos:{i:[150,-260],d:[230,-270]},disfraz:'playero',sinFlotador:true,alto:su.alto,sq:su.sq,wob:su.wob});
+  polaroid(330+235,SUELO-280-su.alto,190,220,0.12,t,{bg:'#B8E6FF'});
+  if(t>=at(40)) lineasVelocidad(t,at(40),540,900,'#FFFFFF',0.4);
+  letrero('×'+Math.max(1,n)+' MEMORIAS',540,420,popIn(t,t0),'panel',{tam:72,t,t0:at(40)}); }
+// S7 (15.5–19.3) "¿Y tu celular? El promedio ya trae más de 8 gigas de RAM." Cerros cielo: un celular gigante cae del cielo con thud y onda de choque; Raro playero brinca del susto; en la pantalla crece "8 GB RAM". Toma: sube.
+function S7(t,sc){ const d=0.35, u=clamp((t-sc.start-0.05)/d); const cy=lerp(-500,1060,easeIn(u)); const land=sc.start+0.05+d;
+  const g=gelatina(t,land,0.3);
+  celular(640,cy,360,640,t,{pantalla:'#1C79D2',dibuja:(x,y,w,h)=>{ if(t>=at(54)){ txt(contador(t,at(54),0.4,0,8)+' GB',x+w/2,y+h*0.42,110,'#D7FF3D'); txt('RAM',x+w/2,y+h*0.62,80); } else { ctx.fillStyle='rgba(255,255,255,0.3)'; for(let i=0;i<4;i++) for(let j=0;j<5;j++){ rr(x+30+i*76,y+60+j*96,56,56,14); ctx.fill(); } } },k:1+g*0.2});
+  if(t>=land) ondaChoque(t,land,640,1390,'#FFFFFF');
+  const su=susto(t,land);
+  raro({x:250,y:SUELO,s:0.95,t,expr:t>=land?(t>=at(55)?'asombro':'terror'):'neutral',ojos:t>=at(55)?1.5:1.2,brazos:t>=at(55)?'senala':'arriba',manos:t>=at(55)?{d:[260,-300]}:undefined,disfraz:'playero',sinFlotador:true,alto:su.alto,sq:su.sq,wob:su.wob});
+  letrero('TU CELULAR',540,420,popIn(t,land),'madera',{tam:72,t,t0:land}); }
+// S8 (19.3–21.5) "Como 2 millones de veces la del Apolo." Espacio violeta: ¡puf! Raro astronauta flota entre una computadora del Apolo diminuta y un celular enorme como rascacielos; el contador sube a 2,000,000. Toma: orbita.
+function S8(t,sc){ const p=pufCambio(t,sc.start+0.02); celular(790,1080,280,760,t,{pantalla:'#D7FF3D',dibuja:(x,y,w,h)=>{ txt('8 GB',x+w/2,y+h*0.45,90,'#1E1A2E','#FFFFFF'); }});
+  agc(220,1330,0.32,t,{txt:''}); txt('4 KB',220,1390,56);
+  const fy=980+Math.sin(t*2.2)*30; raro({x:430,y:fy,s:0.82,t,expr:t>=at(59)?'asombro':'feliz',ojos:t>=at(60)?1.7:1,brazos:'arriba',piernas:'flota',disfraz:p.despues?'astronauta':'playero',sinFlotador:true,spin:p.spin,sinSombra:true,tilt:Math.sin(t*1.4)*0.15});
+  nubePuf(t,sc.start+0.08,430,fy-160,1.2);
+  letrero(contador(t,at(59)-0.1,0.6,1,2000000)+' VECES',540,420,popIn(t,sc.start+0.05),'panel',{tam:66,t,t0:at(59)}); }
+// S9 (21.5–24.2) "Y esa computadora pesaba 32 kilos." Interior mandarina: Raro astronauta carga la computadora arriba de la cabeza, le tiemblan las piernas y se aplasta en "kilos" (thud). Toma: push.
+function S9(t,sc){ const fl=t>=at(71); const aplast=fl? Math.min(0.45,(t-at(71))*3) : 0.12+Math.sin(t*30)*0.04;
+  const rx=520+Math.sin(t*18)*8;
+  raro({x:rx,y:SUELO,s:1.15,t,expr:fl?'yavalio':'terror',ojos:fl?1.5:1.2,brazos:'carga',piernas:'quieto',disfraz:'astronauta',sq:aplast,wob:Math.sin(t*25)*0.1});
+  const top=SUELO-1.15*(376+44)*(1-0.25*aplast)+20; agc(rx,top+10,0.75,t,{txt:'32KG',tam:50});
+  sudor(t,rx+120,SUELO-430); if(fl){ estrellitas(t,at(71),rx,SUELO-520); }
+  letrero(contador(t,at(70)-0.1,0.5,0,32)+' KILOS',540,420,popIn(t,sc.start+0.05),'piedra',{tam:72,t,t0:at(70)}); }
+// S10 (24.2–26.1) "Tú usas la tuya para mandar stickers." Interior magenta: ¡puf! Raro en piyama echado en el sillón con el celular, stickers que brotan con pop; en "stickers" mira a cámara con sospecha (freeze con zoom). Toma: push cerrado.
+function S10(t,sc){ const p=pufCambio(t,sc.start+0.02); sofa(540,SUELO+60,1.1);
+  for(let i=0;i<6;i++){ const t0=sc.start+0.25+i*0.22; const a=-PI*0.9+i*0.36; sticker(560+Math.cos(a)*330,980+Math.sin(a)*220,0.9,popIn(t,t0),i,t); }
+  const lk=t>=at(78); raro({x:540,y:SUELO-40,s:1.1,t,expr:lk?'sospecha':'risa',mira:lk?{x:0,y:0}:{x:12,y:-6},brazos:'frente',manos:{i:[110,-200],d:[190,-210]},disfraz:p.despues?'piyama':'astronauta',spin:p.spin,sinSombra:true,tilt:lk?0:Math.sin(t*5)*0.06});
+  celular(540+215,SUELO-40-230,110,190,t,{rot:-0.3,pantalla:'#FF9BDD',sinOcupa:true});
+  nubePuf(t,sc.start+0.08,540,SUELO-200,1.3); }
+// S11 (26.1–28.8) "Lo más raro: esa memoria no se descargaba…" Ciudad turquesa: Raro en piyama ve una nube de descarga gigante; la barra se atora y en "descargaba" un tache rojo enorme la cancela. Raro: sospecha → asombro. Toma: paneo.
+function S11(t,sc){ const k=popIn(t,sc.start+0.05); ctx.save(); ctx.translate(560,900); ctx.scale(k,k); ctx.fillStyle='#FFFFFF'; nube(0,0,2.4); ctx.fillStyle='#3AB6FF'; rr(-26,-80,52,120,20); ctx.fill(); ctx.beginPath(); ctx.moveTo(-70,30); ctx.lineTo(0,100); ctx.lineTo(70,30); ctx.fill(); ctx.restore(); ocupa(320,740,800,1040,1.6);
+  barra(560,1120,520,0.12+0.06*Math.sin(t*2),t);
+  if(t>=at(86)){ const x=popIn(t,at(86)); ctx.save(); ctx.translate(560,950); ctx.scale(x,x); ctx.strokeStyle='#FF2E4D'; ctx.lineWidth=60; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-220,-220); ctx.lineTo(220,220); ctx.moveTo(220,-220); ctx.lineTo(-220,220); ctx.stroke(); ctx.restore(); }
+  const su=susto(t,at(86)); raro({x:220,y:SUELO,s:0.95,t,expr:t>=at(86)?'asombro':'sospecha',ojos:t>=at(86)?1.6:1,brazos:t>=at(86)?'cara':'jarras',disfraz:'piyama',alto:su.alto,sq:su.sq,wob:su.wob});
+  letrero('NO SE DESCARGABA',540,420,popIn(t,at(82)),'madera',{tam:68,t,t0:at(82)}); }
+// S12 (28.8–30.4) "¡se tejía a mano!" Liso limón con canastas de estambre: ¡puf! Raro se vuelve costurera con pañoleta y aguja; brinca y sostiene un carrete de alambre de cobre gigante. Toma: pull.
+function S12(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.claro; blob(200,700,180); blob(900,620,140); ctx.fillStyle=P.medio; rr(-100,1180,1280,300,140); ctx.fill(); ctx.fillStyle=P.oscuro; rr(-100,SUELO-10,1280,600,0); ctx.fill();
+  for(const [x,c] of [[150,'#FF5FA2'],[930,'#3AB6FF']]){ ctx.fillStyle='#A8703C'; rr(x-90,SUELO-110,180,110,30); ctx.fill(); ctx.fillStyle=c; blob(x-30,SUELO-120,50); blob(x+35,SUELO-130,45); }
+  const p=pufCambio(t,sc.start+0.02), b=brinco(t,at(90)-0.05,0.45,160);
+  raro({x:520,y:SUELO,s:1.2,t,expr:'risa',brazos:'arriba',disfraz:p.despues?'costurera':'piyama',spin:p.spin,alto:b.alto,sq:b.sq,wob:b.wob});
+  nubePuf(t,sc.start+0.08,520,SUELO-220,1.5);
+  ctx.save(); ctx.translate(760,SUELO-80); ctx.fillStyle='#A8703C'; rr(-70,-150,140,150,20); ctx.fill(); ctx.fillStyle='#F09A4A'; for(let i=0;i<6;i++){ rr(-60,-140+i*22,120,16,8); ctx.fill(); } ctx.restore();
+  if(t>=at(90)) chispas(t,at(90),520,SUELO-500,1.2,'#D7FF3D');
+  letrero('¡TEJIDA A MANO!',540,420,popIn(t,sc.start+0.05),'pergamino',{tam:74,t,t0:sc.start}); }
+// S13 (30.4–33.5) "Mujeres expertas en costura pasaban un alambre con aguja" Interior cielo: un panel de anillos al centro; Raro costurera y una gomita costurera se pasan la aguja de un lado a otro y el alambre de cobre va dejando su camino. Toma: paneo.
+function S13(t,sc){ ctx.fillStyle='#5B4B8A'; rr(300,640,480,560,30); ctx.fill(); ctx.fillStyle='#7C6BB0'; rr(316,656,448,528,24); ctx.fill();
+  for(let r=0;r<5;r++) for(let c=0;c<4;c++) anillo(380+c*108,730+r*100,26);
+  const u=0.5+0.5*Math.sin((t-sc.start)*3.2); const ax=lerp(330,750,u), ay=880+Math.sin(t*3.2)*30;
+  cobre([[330,880],[400,860],[470,900],[540,870],[610,900],[ax,ay]],8); aguja(ax,ay,u>0.5?0:PI,0.8);
+  ocupa(300,640,780,1200,1.5);
+  gomita({x:820,y:SUELO,s:0.75,t,expr:'feliz',brazos:'frente',manos:{i:[-150,-300],d:[-160,-320]},espejo:true,disfraz:'costurera',sinAguja:true,seed:1});
+  raro({x:190,y:SUELO,s:0.95,t,expr:t>=at(94)?'orgullo':'feliz',brazos:'frente',manos:{i:[150,-420],d:[170,-440]},disfraz:'costurera',sinAguja:true,tilt:Math.sin(t*3.2)*0.08});
+  letrero(t>=at(97)?'ALAMBRE + AGUJA':'EXPERTAS EN COSTURA',540,420,popIn(t,sc.start+0.05),'madera',{tam:62,t,t0:t>=at(97)?at(97):sc.start}); }
+// S14 (33.5–35.5) "por miles de anillitos magnéticos." Liso violeta, plano general: cientos de anillitos aparecen en cascada llenando la pantalla; Raro costurera, diminuto entre ellos, se rasca la cabeza asombrado. Toma: pull.
+function S14(t,sc){ cascada(t,sc.start+0.05,48,(x,y,k)=>anillo(x,y,30,k),{x0:120,y0:600,cols:8,dx:120,dy:105,cada:0.025}); ocupa(80,560,1000,1240,1.2);
+  const b=brinco(t,at(103),0.4,120);
+  raro({x:540,y:SUELO+20,s:0.95,t,expr:'asombro',ojos:1.5,brazos:'cara',disfraz:'costurera',sinAguja:true,alto:b.alto,sq:b.sq,wob:b.wob});
+  letrero('MILES DE ANILLOS',540,420,popIn(t,sc.start+0.05),'panel',{tam:66,t,t0:sc.start}); }
+// S15 (35.5–38.0) "Si el alambre pasaba por dentro, era un uno." Liso mandarina: un anillo gigante; Raro costurera empuja la aguja POR DENTRO del anillo y el alambre la sigue; en "uno" un 1 lima enorme hace pop con chispas. Toma: push.
+function S15(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.oscuro; rr(-100,SUELO,1280,600,0); ctx.fill(); ctx.fillStyle=P.claro; blob(160,640,120); blob(920,760,90);
+  const RX=620, RY=980; const u=easeInOut(prog(t,at(105)+0.2,Math.max(0.4,at(110)-at(105)))); const ax=lerp(300,900,u);
+  ctx.save(); ctx.beginPath(); ctx.rect(-200,0,RX+200,1920); ctx.clip(); anillo(RX,RY,150); ctx.restore();
+  cobre([[160,RY],[ax-150,RY]],14); aguja(ax,RY,0,1.1);
+  ctx.save(); ctx.beginPath(); ctx.rect(RX,0,800,1920); ctx.clip(); anillo(RX,RY,150); ctx.restore(); ocupa(RX-200,RY-200,RX+200,RY+200,1.5);
+  if(t>=at(113)){ const k=popIn(t,at(113)); ctx.save(); ctx.translate(RX,RY-300); ctx.scale(k,k); txt('1',0,0,220,'#D7FF3D'); ctx.restore(); chispas(t,at(113),RX,RY-300,1.3,'#D7FF3D'); }
+  raro({x:lerp(170,260,u),y:SUELO,s:1.0,t,expr:t>=at(113)?'risa':'orgullo',brazos:'frente',manos:{i:[160,-250],d:[190,-260]},piernas:'camina',disfraz:'costurera',sinAguja:true,tilt:0.12});
+  letrero('POR DENTRO',540,420,popIn(t,sc.start+0.05),'madera',{tam:72,t,t0:sc.start}); }
+// S16 (38.0–39.7) "Si le daba la vuelta, un cero." Liso turquesa: el alambre rodea el anillo por fuera mientras Raro costurera corre alrededor con la aguja; en "cero" un 0 enorme hace pop. Toma: orbita.
+function S16(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.oscuro; rr(-100,SUELO,1280,600,0); ctx.fill();
+  const RX=540, RY=960; anillo(RX,RY,150); const u=easeInOut(prog(t,sc.start+0.1,Math.max(0.4,at(118)-sc.start))); const pts=[[120,RY+260]];
+  for(let i=0;i<=24;i++){ const v=i/24*u; const a=PI*0.75-v*PI*1.5; pts.push([RX+Math.cos(a)*280,RY+Math.sin(a)*-280+40]); } cobre(pts,14); ocupa(RX-300,RY-300,RX+300,RY+300,1.5);
+  if(t>=at(120)){ const k=popIn(t,at(120)); ctx.save(); ctx.translate(RX,RY); ctx.scale(k,k); txt('0',0,0,200,'#D7FF3D'); ctx.restore(); chispas(t,at(120),RX,RY,1.2,'#D7FF3D'); }
+  const rx=lerp(200,860,u); raro({x:rx,y:SUELO,s:0.8,t,expr:'risa',brazos:'corre',piernas:'corre',disfraz:'costurera',espejo:false,tilt:0.1});
+  letrero('POR FUERA',540,420,popIn(t,sc.start+0.05),'pergamino',{tam:72,t,t0:sc.start}); }
+// S17 (39.7–42.4) "Un hilo mal puesto y el programa fallaba." Interior magenta: Raro costurera jala un alambre mal puesto; la computadora del Apolo echa chispas, humo y "ERROR" en rojo; Raro: "ya valió". Toma: push.
+function S17(t,sc){ const er=t>=at(127); agc(640,SUELO-20,1.05,t,{txt:er?'ERROR':'10101',err:er,tam:er?48:52});
+  if(er){ humo(t,640,SUELO-380,1.2); chispas(t,at(128),760,SUELO-300,1.3,'#FFD23F'); }
+  cobre([[260,SUELO-280],[360,SUELO-300+Math.sin(t*12)*30],[470,SUELO-200]],10);
+  const su=susto(t,at(128)); raro({x:230,y:SUELO,s:1.05,t,expr:er?'yavalio':'apenado',ojos:er?1.5:1,rubor:!er,brazos:er?'cara':'frente',manos:er?undefined:{i:[140,-280],d:[150,-300]},disfraz:'costurera',alto:su.alto,sq:su.sq,wob:su.wob});
+  letrero(er?'¡FALLA!':'HILO MAL PUESTO',540,420,popIn(t,sc.start+0.05),'piedra',{tam:72,t,t0:er?at(127):sc.start}); }
+// S18 (42.4–44.7) "Cada módulo tardaba como 8 semanas." Cerros cielo: Raro costurera teje sin parar mientras vuelan hojas de calendario SEMANA 1…8; en "semanas" ¡puf! se vuelve anciano con bigote. Toma: pull.
+function S18(t,sc){ const sem=Math.min(8,1+Math.floor(prog(t,sc.start,Math.max(0.5,at(134)-sc.start))*7.99));
+  for(let i=1;i<sem;i++){ const tt=t-(sc.start+(i-1)*((at(134)-sc.start)/8)); const u=clamp(tt/0.9); hojaCal(800+u*400,900-u*500+u*u*200,1-u*0.3,String(i),u*3); }
+  hojaCal(800,900,popIn(t,sc.start+0.05),String(sem));
+  const p=pufCambio(t,at(134));
+  raro({x:330,y:SUELO,s:1.1,t,expr:p.despues?'yavalio':'feliz',brazos:'frente',manos:{i:[120,-300+Math.sin(t*20)*20],d:[180,-300-Math.sin(t*20)*20]},disfraz:p.despues?'anciano':'costurera',spin:p.spin});
+  nubePuf(t,at(134)+0.06,330,SUELO-200,1.3);
+  letrero('SEMANA '+sem,540,420,popIn(t,sc.start+0.05),'madera',{tam:72,t,t0:sc.start}); }
+// S19 (44.7–48.0) "Imagínate esperar 2 meses para actualizar WhatsApp." Interior limón: ¡puf! Raro en piyama sentado con el celular "ACTUALIZANDO… 1 %"; le salen telarañas y en "WhatsApp" llora a chorros. Toma: push cerrado.
+function S19(t,sc){ const p=pufCambio(t,sc.start+0.02); sofa(540,SUELO+60,1.1);
+  const ll=t>=at(141); raro({x:500,y:SUELO-40,s:1.15,t,expr:ll?'llanto':'sospecha',brazos:'frente',manos:{i:[90,-250],d:[160,-280]},disfraz:p.despues?'piyama':'anciano',spin:p.spin,sinSombra:true});
+  nubePuf(t,sc.start+0.08,500,SUELO-200,1.3);
+  celular(780,860,260,460,t,{pantalla:'#FFFFFF',dibuja:(x,y,w,h)=>{ txt('ACTUALIZANDO…',x+w/2,y+h*0.35,30,'#1E1A2E','#FFFFFF'); barra(x+w/2,y+h*0.5,w*0.75,0.01,t); txt('1 %',x+w/2,y+h*0.66,50,'#1E1A2E','#FFFFFF'); },k:popIn(t,sc.start+0.15)});
+  telarana(120,560,260,popIn(t,at(137))); telarana(960,1220,200,popIn(t,at(138)));
+  letrero('2 MESES',540,420,popIn(t,at(137)),'piedra',{tam:76,t,t0:at(137)}); }
+// S20 (48.0–50.9) "Y en pleno alunizaje… la computadora se saturó." Cabina violeta: ¡puf! Raro astronauta al mando con la palanca; por las ventanas la Luna se acerca; en "saturó" la computadora se pone roja y echa humo. Toma: push.
+function S20(t,sc){ const P=PAL_ACTUAL; const u=prog(t,sc.start,3); ctx.fillStyle='#2B2060'; ctx.beginPath(); ctx.moveTo(120,560); ctx.lineTo(520,560); ctx.lineTo(470,900); ctx.lineTo(160,880); ctx.closePath(); ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle='#CFC9E6'; blob(320,1300-u*180,520); ctx.fillStyle='#B0A8D0'; blob(230,880-u*150,40); blob(420,930-u*150,60); ctx.restore();
+  ctx.strokeStyle=P.claro; ctx.lineWidth=18; ctx.beginPath(); ctx.moveTo(120,560); ctx.lineTo(520,560); ctx.lineTo(470,900); ctx.lineTo(160,880); ctx.closePath(); ctx.stroke();
+  ctx.fillStyle=P.oscuro; rr(-100,SUELO-20,1280,600,0); ctx.fill();
+  const sat=t>=at(149); agc(700,SUELO-120,0.85,t,{txt:sat?'99999':'00420',err:sat}); if(sat){ humo(t,700,SUELO-420,1); }
+  const p=pufCambio(t,sc.start+0.02), su=susto(t,at(149));
+  raro({x:330,y:SUELO,s:1.1,t,expr:sat?'terror':'orgullo',ojos:sat?1.5:1,brazos:'frente',manos:{i:[160,-200],d:[190,-210]},disfraz:p.despues?'astronauta':'piyama',spin:p.spin,alto:su.alto,sq:su.sq,wob:su.wob});
+  nubePuf(t,sc.start+0.08,330,SUELO-200,1.3);
+  ctx.fillStyle='#1E1A2E'; rr(330+1.1*160-10,SUELO-200,20,200,10); ctx.fill(); ctx.fillStyle='#FF2E4D'; blob(330+1.1*175,SUELO-200*1.1,26);
+  letrero(sat?'¡SE SATURÓ!':'ALUNIZAJE',540,420,popIn(t,sc.start+0.05),'panel',{tam:72,t,t0:sat?at(149):sc.start}); }
+// S21 (50.9–52.6) "¡Alarma 1202!" Interior mandarina, plano cerrado: la pantalla de la computadora gigante parpadea en rojo "1202", campanas sonando, Raro brinca del susto con ojos al doble. Toma: push cerrado.
+function S21(t,sc){ agc(560,1260,1.45,t,{txt:'1202',alarma:true,tam:62}); const on=Math.floor(t*6)%2===0; if(on){ ctx.fillStyle='rgba(255,46,77,0.18)'; ctx.fillRect(-200,0,1480,1920); }
+  campana(160,700,0.9,t,popIn(t,sc.start+0.05)); campana(900,720,0.9,t,popIn(t,at(151)));
+  const su=susto(t,at(150)+0.05); raro({x:300,y:SUELO+80,s:1.0,t,expr:'terror',ojos:1.8,brazos:'arriba',disfraz:'astronauta',alto:su.alto,sq:su.sq,wob:su.wob});
+  letrero('ALARMA 1202',540,420,popIn(t,sc.start+0.02),'panel',{tam:74,t,t0:sc.start,color:'#FF8A9A'}); }
+// S22 (52.6–54.4) "Ni los astronautas sabían qué era." Liso turquesa: Raro astronauta hojea un manual al revés y una gomita astronauta se rasca la cabeza; signos de pregunta. Toma: paneo.
+function S22(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.oscuro; rr(-100,SUELO,1280,600,0); ctx.fill(); signos(t,540,760);
+  gomita({x:800,y:SUELO,s:0.9,t,expr:'sospecha',brazos:'cara',disfraz:'astronauta',seed:3,espejo:true});
+  raro({x:330,y:SUELO,s:1.05,t,expr:t>=at(155)?'sospecha':'asombro',brazos:'frente',manos:{i:[120,-260],d:[200,-270]},disfraz:'astronauta',tilt:Math.sin(t*2)*0.06});
+  ctx.save(); ctx.translate(330+170,SUELO-280); ctx.rotate(PI+Math.sin(t*4)*0.1); ctx.fillStyle='#2B3A8C'; rr(-110,-80,220,160,14); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-100,-70,95,140,8); ctx.fill(); rr(5,-70,95,140,8); ctx.fill(); ctx.fillStyle='#9AA3B8'; for(let i=0;i<5;i++){ rr(-90,-55+i*24,75,8,4); ctx.fill(); rr(15,-55+i*24,75,8,4); ctx.fill(); } ctx.restore();
+  letrero('¿QUÉ ES 1202?',540,420,popIn(t,sc.start+0.05),'pergamino',{tam:72,t,t0:sc.start}); }
+// S23 (54.4–56.3) "Pero el programa estaba hecho para eso:" Cielo limón: a la computadora le sale una capa lima de superhéroe y presume; Raro astronauta respira aliviado y la señala orgulloso. Toma: pull.
+function S23(t,sc){ const k=popIn(t,at(160)); ctx.save(); ctx.translate(600,SUELO-330); ctx.rotate(-2.2+Math.sin(t*5)*0.08); capa(0,0,t,k); ctx.restore(); agc(600,SUELO-20,1.0,t,{txt:'OK',tam:60});
+  if(t>=at(162)) chispas(t,at(162),600,SUELO-400,1.4,'#D7FF3D');
+  const b=brinco(t,at(164)-0.1,0.4,140); raro({x:220,y:SUELO,s:1.0,t,expr:t>=at(162)?'orgullo':'apenado',brazos:'senala',disfraz:'astronauta',alto:b.alto,sq:b.sq,wob:b.wob});
+  letrero('HECHO PARA ESO',540,420,popIn(t,sc.start+0.05),'madera',{tam:72,t,t0:sc.start}); }
+// S24 (56.3–58.9) "se reiniciaba solito y seguía guiando la nave." Espacio cielo: el módulo lunar baja firme con su fuego; un ícono lima de reinicio gira; Raro astronauta va montado encima surfeando. Toma: baja.
+function S24(t,sc){ const y=lerp(1200,1330,prog(t,sc.start,2.6)); ocupa(330,560,760,1150,3); luna(840,640,70,t); ctx.fillStyle='#CFC9E6'; ctx.beginPath(); ctx.ellipse(540,1900,1100,420,0,0,PI*2); ctx.fill(); ctx.fillStyle='#B0A8D0'; blob(250,1560,60); blob(800,1620,90);
+  moduloLunar(540,y,1.0,t,{fuego:1});
+  reinicio(820,820,80,t,popIn(t,at(166)));
+  raro({x:520,y:y-330+10,s:0.72,t,expr:t>=at(170)?'risa':'asombro',brazos:'arriba',disfraz:'astronauta',tilt:Math.sin(t*3)*0.14,sinSombra:true,viento:0.6});
+  letrero(t>=at(169)?'Y SIGUE GUIANDO':'SE REINICIA SOLITO',540,420,popIn(t,sc.start+0.05),'panel',{tam:62,t,t0:t>=at(169)?at(169):sc.start}); }
+// S25 (58.9–60.5) "Sonaron cinco alarmas…" Liso magenta: cinco campanas rojas aparecen una por una sonando; Raro astronauta se tapa la cara temblando. Toma: push.
+function S25(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.oscuro; rr(-100,SUELO,1280,600,0); ctx.fill(); let n=0;
+  for(let i=0;i<5;i++){ const t0=sc.start+0.05+i*Math.max(0.08,(at(174)-sc.start-0.05)/4); if(t>=t0) n=i+1; const a=PI*(1.05+i*0.225); campana(540+Math.cos(a)*330,1060+Math.sin(a)*330,0.72,t,popIn(t,t0)); }
+  raro({x:540+Math.sin(t*40)*8,y:SUELO,s:1.0,t,expr:'terror',brazos:'cara',disfraz:'astronauta',sq:0.06});
+  letrero(n+(n===1?' ALARMA':' ALARMAS'),540,420,popIn(t,sc.start+0.05),'piedra',{tam:72,t,t0:sc.start}); }
+// S26 (60.5–62.3) "¡y aun así, aterrizaron!" Liso violeta, suelo lunar: el módulo toca la Luna con onda de polvo; Raro astronauta salta de alegría con estrellas. Toma: pull.
+function S26(t,sc){ const P=PAL_ACTUAL; tierra(840,640,80,t); suelo(t,SUELO,{oscuro:'#B0A8D0',medio:'#CFC9E6'});
+  const land=at(179); const y=t<land? lerp(1120,1280,clamp((t-sc.start)/(land-sc.start))) : 1280; moduloLunar(680,y,0.9,t,{fuego:t<land?1:0});
+  if(t>=land){ ondaChoque(t,land,680,1390,'#FFFFFF'); chispas(t,land,680,1380,1.4,'#FFFFFF'); }
+  const b=brinco(t,land+0.05,0.55,280); raro({x:270,y:SUELO,s:1.0,t,expr:t>=land?'risa':'asombro',brazos:'arriba',disfraz:'astronauta',alto:b.alto,sq:b.sq,wob:b.wob});
+  if(t>=land) estrellitas(t,land,270,SUELO-520);
+  letrero('¡ATERRIZARON!',540,420,popIn(t,land-0.1),'madera',{tam:76,t,t0:land}); }
+// S27 (62.3–64.4) "Con 4 kilobytes llegaron a la Luna." Espacio cielo con suelo lunar: Raro astronauta en la Luna levanta orgulloso un chip diminuto "4 KB" mientras la Tierra flota atrás. Toma: orbita.
+function S27(t,sc){ tierra(250,700,110,t); suelo(t,SUELO,{oscuro:'#B0A8D0',medio:'#CFC9E6'});
+  const b=brinco(t,at(186)-0.1,0.4,120); raro({x:560,y:SUELO,s:1.15,t,expr:'orgullo',brazos:'carga',disfraz:'astronauta',alto:b.alto,sq:b.sq,wob:b.wob});
+  const hy=SUELO-1.15*420-b.alto; ctx.fillStyle='#2E3348'; rr(560-95,hy-110,190,110,16); ctx.fill(); ctx.fillStyle='#7DFF9B'; ctx.font=fuente(58); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('4 KB',560,hy-52); ocupa(460,hy-120,660,hy,2);
+  if(t>=at(186)) chispas(t,at(186),560,hy-40,1,'#D7FF3D');
+  letrero('4 KB → LA LUNA',540,420,popIn(t,sc.start+0.05),'panel',{tam:70,t,t0:sc.start}); }
+// S28 (64.4–67.1) "Tú, con 8 gigas, no encuentras la foto de ayer." Interior mandarina: ¡puf! Raro en piyama desliza sin fin una galería de fotos en un celular grande; suda y mira a cámara con sospecha en "ayer". Toma: push.
+function S28(t,sc){ const p=pufCambio(t,sc.start+0.02); const off=((t-sc.start)*700)%200;
+  celular(700,960,330,600,t,{pantalla:'#FFFFFF',dibuja:(x,y,w,h)=>{ for(let r=-1;r<6;r++) for(let c=0;c<3;c++){ ctx.fillStyle=PASTELES[(r*3+c+Math.floor((t-sc.start)*3.5)*3+60)%6]; rr(x+12+c*(w-24)/3,y+40+r*100+off-100,(w-24)/3-10,90,10); ctx.fill(); } }});
+  const lk=t>=at(196); raro({x:300,y:SUELO,s:1.1,t,expr:lk?'sospecha':'asombro',mira:lk?{x:0,y:0}:{x:14,y:-4},brazos:'frente',manos:{i:[200,-330],d:[250,-380+Math.sin(t*14)*30]},disfraz:p.despues?'piyama':'astronauta',spin:p.spin});
+  nubePuf(t,sc.start+0.08,300,SUELO-200,1.3); sudor(t,330,SUELO-470);
+  letrero(t>=at(194)?'¿Y LA FOTO DE AYER?':'8 GIGAS',540,420,popIn(t,sc.start+0.05),'madera',{tam:66,t,t0:t>=at(194)?at(194):sc.start}); }
+// S29 (67.1–71.2) LOOP: misma toma que el cuadro 0 (plataforma violeta, Luna, Raro astronauta empujando la selfie atorada). En "memoria llena" el letrero dice MEMORIA LLENA y vuelve a TU SELFIE NO CABE en "porque", igual que el primer cuadro.
+function S29(t,sc){ const lt=t-TL.duration; escenaSelfie(t,lt,(t>=at(202)&&t<at(207))?'MEMORIA LLENA':'TU SELFIE NO CABE'); nubePuf(t,sc.start+0.04,300,SUELO-200,1.4); }
+
+// Captions: bloques cortos (máx. 13 letras) y pop corto desde 88 % para que ninguna palabra salga diminuta.
+function buildChunks(){ CH=[]; let cur=[]; W.forEach((w,i)=>{ const len=cur.concat([i]).map(j=>W[j].t).join(' ').length; if(cur.length&&(len>13)){CH.push(cur);cur=[];} cur.push(i); if(/[.,?!:…]$/.test(w.t)||cur.length>=3){CH.push(cur);cur=[];} }); if(cur.length) CH.push(cur); }
+function captions(t){
+  if(window.HIDE_CAPTIONS_LAST!==false && t>=SC[SC.length-1].start-0.05) return;
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) return; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=(window.CAPTION_SIZE||80)*(t<2.7?1.08:1); const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci];
+  let x=540-total/2;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i);
+    const k=t<W[i].s?0:(kw?popIn(t,W[i].s,0.22):back((t-W[i].s)/0.16));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(0.88,1,k)*(kw?1:1); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz);
+      ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);            // sombra
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);       // contorno grueso
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+
+
+const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25,S26,S27,S28,S29];
+const CHIPS={};
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_SIZE=92;
+window.FONDOS={1:{pal:'violeta',tipo:'espacio'},2:{pal:'cielo',tipo:'interior'},3:{pal:'mandarina',tipo:'cerros'},4:{pal:'turquesa',tipo:'interior'},5:{pal:'magenta',tipo:'ciudad'},
+ 6:{pal:'limon',tipo:'cerros'},7:{pal:'cielo',tipo:'cielo'},8:{pal:'violeta',tipo:'espacio'},9:{pal:'mandarina',tipo:'interior'},10:{pal:'magenta',tipo:'interior'},
+ 11:{pal:'turquesa',tipo:'ciudad'},12:{pal:'limon',tipo:'liso',pp:false},13:{pal:'cielo',tipo:'interior'},14:{pal:'violeta',tipo:'liso'},15:{pal:'mandarina',tipo:'liso'},
+ 16:{pal:'turquesa',tipo:'liso'},17:{pal:'magenta',tipo:'interior'},18:{pal:'cielo',tipo:'cerros'},19:{pal:'limon',tipo:'interior'},20:{pal:'violeta',tipo:'liso'},
+ 21:{pal:'mandarina',tipo:'interior'},22:{pal:'turquesa',tipo:'liso'},23:{pal:'limon',tipo:'cielo'},24:{pal:'cielo',tipo:'espacio'},25:{pal:'magenta',tipo:'liso'},
+ 26:{pal:'violeta',tipo:'espacio'},27:{pal:'cielo',tipo:'espacio'},28:{pal:'mandarina',tipo:'interior'},29:{pal:'violeta',tipo:'espacio'}};
+window.TOMAS={1:{mov:'push',z:1.03},2:{mov:'paneo-der',z:1.04},3:{mov:'push',z:1.04},4:{mov:'push',z:1.1,foco:[540,1000]},5:{mov:'pull',z:1.05},6:{mov:'pull',z:1.04},7:{mov:'sube',z:1.04},
+ 8:{mov:'orbita',z:1.04},9:{mov:'push',z:1.05},10:{mov:'push',z:1.25,foco:[560,1050]},11:{mov:'paneo-izq',z:1.04},12:{mov:'pull',z:1.05},13:{mov:'paneo-der',z:1.04},14:{mov:'pull',z:1.04},
+ 15:{mov:'push',z:1.04},16:{mov:'orbita',z:1.04},17:{mov:'push',z:1.05},18:{mov:'pull',z:1.04},19:{mov:'push',z:1.2,foco:[600,1000]},20:{mov:'push',z:1.04},21:{mov:'push',z:1.1},
+ 22:{mov:'paneo-izq',z:1.04},23:{mov:'pull',z:1.05},24:{mov:'baja',z:1.04},25:{mov:'push',z:1.05},26:{mov:'pull',z:1.05},27:{mov:'orbita',z:1.04},28:{mov:'push',z:1.05},29:{mov:'push',z:1.03}};
+window.TRANS={2:'bufanda',3:'latigazo',4:'zoom',5:'bufanda',6:'latigazo',7:'zoom',8:'bufanda',9:'latigazo',10:'zoom',11:'bufanda',12:'zoom',13:'latigazo',14:'bufanda',
+ 15:'zoom',16:'latigazo',17:'bufanda',18:'latigazo',19:'zoom',20:'bufanda',21:'zoom',22:'latigazo',23:'bufanda',24:'latigazo',25:'zoom',26:'bufanda',27:'latigazo',28:'zoom',29:'bufanda'};
+window.KEYWORDS=[1,3,9,16,19,26,30,36,40,47,54,59,70,78,86,88,90,94,99,103,110,113,118,120,123,128,134,138,141,145,149,151,154,162,166,174,179,181,186,190,196,202,206];
+window.SHAKES=[3,40,47,71,86,128,149,151,179];
+window.FLASHES=[[30,'#FFFFFF'],[40,'#D7FF3D'],[86,'#FFFFFF'],[113,'#D7FF3D'],[149,'#FF2E4D'],[151,'#FF2E4D'],[179,'#FFFFFF']];
+</script></body></html>
