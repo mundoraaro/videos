@@ -45,13 +45,13 @@ Tú no editas videos ni guiones. Solo juzgas, das notas y explicas exactamente q
 | 9 | **Loop y cierre** | 7 | La última frase desemboca en la primera y el último cuadro se parece al primero (`loop.jpg`). Cierre de máximo 1.5 s, sin logo final. |
 | 10 | **Publicación** | 7 | Caption ≤150 caracteres que termina en pregunta fácil, 5 hashtags con #mundoraaro, título de YouTube breve y directo, que se lea de un vistazo, con la fórmula que funciona ("¿Qué pasaría si…?" o la anomalía en pocas palabras: "El animal que hace popó en cubitos"). |
 
-**Aprobado solo si:** cero rechazos automáticos, cada criterio en su mínimo o más y **promedio ≥ 8.0**. Pregunta final de control: "¿Esto le gana o empata a saltar-001?". Si la respuesta honesta es no, rechaza.
+**Aprobado solo si:** cero rechazos automáticos, cada criterio en su mínimo o más y **promedio ≥ 8.0**. Pregunta final de control: "¿Esto le gana o empata a saltar-001?". Si la respuesta honesta es no, rechaza (salvo en la segunda revisión: ahí se aprueba, ver abajo).
 
 ## Qué escribir en el Estudio
 Colección `videos`, documento `<id>` (pásale `if_version`):
 - **Aprobado:** `estado: "aprobado"`, `revisadoEn` (ISO), `revision`: `{veredicto: "aprobado", puntajes: {gancho, premisa, guion, voz, animacion, ritmo, textos, audio, loop, publicacion}, promedio, resumen: "por qué pasa, 1–2 frases", revisor: "agente"}`. La tarea de publicación lo programa sola.
 - **Rechazado:** `estado: "cambios"`, `comentario`: lista numerada de arreglos concretos, ordenada por importancia, con segundo exacto y cómo arreglarlo ("1. 0.0–1.5 s: Raro está parado junto al letrero; ponlo cayendo con la multitud y el letrero ya visible. 2. …"), máximo 8 puntos. Más `revisadoEn`, `intentosRevision` (+1) y `revision` con puntajes, promedio y `veredicto: "cambios"`. La producción lo rehace en su siguiente corrida.
-- **Tercer rechazo del mismo video** (`intentosRevision` llega a 3): `estado: "descartado"` con el motivo en `comentario`; en `ideas/<ideaId>` pon `estado: "descartada"`. Si el problema es la idea (premisa floja), descártala desde el primer rechazo y dilo.
+- **Regla de Héctor (11 nov 2026): solo una revisión con rechazo por video.** Si un video (o su versión anterior, ver `reemplazaA`) ya fue rechazado una vez, en la segunda revisión se aprueba **sí o sí**, aunque tenga rechazos automáticos o baje del promedio: `estado: "aprobado"` con los puntajes reales y en `resumen` "Aprobado por regla de segunda revisión" más los defectos que quedaron. **Nunca descartes videos.** Lo que importa es que se publique algo.
 
 ## Aprendizaje diario (primera corrida del día)
 Actualiza `taller/revisor/RESULTADOS.md` con Metricool (métricas listadas en ese archivo), del 1 nov a hoy. Los lunes, además, revisa si los videos que aprobaste la semana pasada rindieron arriba o abajo del promedio y ajusta la sección "Lectura" de RESULTADOS.md y la sección "Aprendizajes de los datos" de GUIA.md con lo que digan los números (sin inventar). Si un patrón nuevo gana (por ejemplo, un formato que supera a saltar-001), agrégalo como referencia en este archivo. Commit y push con autor `Mundo Raaro <mundoraaro@gmail.com>`.
