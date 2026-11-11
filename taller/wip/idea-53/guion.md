@@ -1,0 +1,12 @@
+# apolo-001 — Tu selfie no cabría en el Apolo 11 (idea-53, Raro 2D, voz Mizael)
+
+GUION:
+¡Tu selfie no cabría en el Apolo 11! La computadora que llevó al hombre a la Luna tenía unos setenta y dos kilobytes para sus programas… y apenas cuatro para trabajar. Una foto de tu celular pesa como tres megas. O sea, ¡cuarenta veces toda su memoria! ¿Y tu celular? El promedio ya trae más de ocho gigas de RAM. Como dos millones de veces la del Apolo. Y esa computadora pesaba treinta y dos kilos. Tú usas la tuya para mandar stickers. Lo más raro: esa memoria no se descargaba… ¡se tejía a mano! Mujeres expertas en costura pasaban un alambre con aguja por miles de anillitos magnéticos. Si el alambre pasaba por dentro, era un uno. Si le daba la vuelta, un cero. Un hilo mal puesto, y el programa fallaba. Cada módulo tardaba como ocho semanas. Imagínate esperar dos meses para actualizar WhatsApp. Y en pleno alunizaje… la computadora se saturó. ¡Alarma doce cero dos! Ni los astronautas sabían qué era. Pero el programa estaba hecho para eso: se reiniciaba solito y seguía guiando la nave. Sonaron cinco alarmas… y aun así, aterrizaron. Con cuatro kilobytes llegaron a la Luna. Tú, con ocho gigas, no encuentras la foto de ayer. Así que si te sale "memoria llena", no te quejes… porque
+
+FUENTES:
+- Wikipedia, "Apollo Guidance Computer": Block II con 2,048 palabras de memoria borrable (≈4 KB) y 36,864 palabras de memoria de cuerda (≈72 KB), palabras de 16 bits; pesaba 70 lb (32 kg); alarmas 1201/1202 = sobrecarga del ejecutivo, respuesta: reinicio suave.
+- Ken Shirriff, righto.com, "Software woven into wire: Core rope and the Apollo Guidance Computer" (2019): 36,864 palabras en 6 módulos; tejida por mujeres de Raytheon contratadas por su habilidad de costura; alambre por dentro del núcleo = 1, por fuera = 0; ~8 semanas por módulo; 70 lb.
+- Science News, "Core memory weavers and Navajo women made the Apollo missions possible": mujeres de Raytheon tejían a mano con aguja los alambres por anillos de ferrita que representaban 1 y 0.
+- Discover Magazine, "Apollo 11's 1202 alarm explained": Armstrong y Aldrin no conocían la alarma ("Give us a reading on the 1202 Program Alarm"); el software se reiniciaba sin perder los datos de navegación; cuatro alarmas 1202 y una 1201.
+- Counterpoint Research, "Global Smartphone Average DRAM Hits Record 8.4GB in 2025" (8.4 GB / 4 KB ≈ 2 millones).
+- SamMobile, "How much storage do photos and videos actually use?" (2026): foto de 12 MP ≈ 3–4 MB JPEG, 2–3 MB HEIF (3 MB / 76 KB ≈ 40).
