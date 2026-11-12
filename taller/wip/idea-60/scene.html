@@ -4,7 +4,7 @@
 <script src="../../engine.js"></script>
 <script src="../../raro.js"></script>
 <script>
-// mar-001 — "¡Si todos nos metemos al mar, ni se entera!". Serie "¿Qué pasaría si TODOS…?" (sucesora de saltar-001).
+// mar-001-v2 — "¡Si todos nos aventamos al mar, sube menos que un cabello!". Serie "¿Qué pasaría si TODOS…?" (sucesora de saltar-001).
 // Raro salvavidas (DISFRACES.salvavidas) → buzo (escenas de agua) → playero (el viaje a la playa) → salvavidas (loop).
 // ---------- utilería propia de este video ----------
 const AGUA='#3AB6FF';
@@ -92,19 +92,28 @@ function cabecita(x,y,r,t,i){ // cabeza de gomita asomando del agua
   ctx.fillStyle='#1E1A2E'; blob(x-r*0.32,yy-r*0.1,r*0.12); blob(x+r*0.32,yy-r*0.1,r*0.12); ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=r*0.08; ctx.beginPath(); ctx.arc(x,yy+r*0.15,r*0.22,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); }
 
 // ---------- escenas ----------
-// S1 · cuadro 0 = gancho: Raro salvavidas YA saltando al mar junto con una multitud de gomitas; letrero "¡TODOS AL MAR!" desde el cuadro 0;
-//      a la derecha el medidor del nivel del mar no se mueve; al oír "entera" Raro lo voltea a ver con ojos de "¿neta?". Fondo cielo olas. Toma: push.
-function hookFrame(t,sc,mira){
-  multitudSalta(t,1290,9,0.36,[50,760],0);
-  multitudSalta(t,1500,3,0.55,[110,720],11);
-  const ph=(t*1.6)%1, alto=Math.sin(ph*Math.PI)*280;
-  if(ph<0.06) splashFx(t,t-ph/1.6,420,1500,1.4);
-  raro({x:420,y:1500,s:1.25,t,expr:mira?'sospecha':'feliz',mira:mira?{x:0.9,y:-0.2}:undefined,brazos:'arriba',piernas:'flota',disfraz:'salvavidas',alto,tilt:-0.08+Math.sin(t*3)*0.05,sq:ph<0.12?0.25*(1-ph/0.12):0});
-  aguaFrente(t,1440);
-  medidor(830,1430,t,0,'NIVEL: +0');
-  letrero('¡TODOS AL MAR!',440,400,1,'madera',{sinPalo:true,tam:84,t,t0:-1});
+// S1 · cuadro 0 = gancho: Raro salvavidas YA en el aire cayendo DE BOMBA al mar (hecho bolita) y detrás una lluvia de gomitas cayendo de bomba con splash;
+//      letrero "¡TODOS AL MAR!" y el medidor marcando "+0.0015 MM" desde el cuadro 0, con la aguja quieta. En "cabello" Raro, flotando, voltea al medidor con cara de "¿neta?".
+//      Fondo cielo olas. Toma: push.
+const BOMBA_A=470, BOMBA_T=0.6;
+function multitudBomba(t,n,xs,seed){ // gomitas que caen de bomba al agua del fondo y luego asoman la cabeza
+  for(let i=0;i<n;i++){ const per=1.5+rand(i+seed)*0.5, off=rand(i+seed+7)*per, ph=((t+off)%per)/per, x=xs[0]+(xs[1]-xs[0])*(i/(n-1))+Math.sin(i*7)*25;
+    const caeF=0.32; if(ph<caeF){ const u=ph/caeF; gomita({x,y:1300,s:0.34,t,seed:i+seed,expr:'risa',brazos:'frente',piernas:'flota',alto:BOMBA_A*0.8*(1-u*u),tilt:u*5,sq:0.2,npc_peso:0.3,sinSombra:true}); }
+    else { cabecita(x,1290,24,t,i+seed); if(ph<caeF+0.1) splashFx(t,t-(ph-caeF)*per,x,1300,0.7); } } }
+function raroBomba(t,alto,cayendo,mira,expr){
+  raro({x:430,y:1500,s:1.25,t,expr:expr,mira:mira?{x:0.95,y:-0.25}:undefined,brazos:cayendo?'frente':'arriba',manos:cayendo?{i:[-70,-80],d:[70,-80]}:undefined,piernas:'flota',disfraz:'salvavidas',alto,tilt:cayendo?Math.sin(t*9)*0.25:Math.sin(t*3)*0.06,sq:cayendo?0.18:0}); }
+function fondoHook(t){ multitudBomba(t,8,[60,780],0); aguaFrente(t,1300,'#5CC4FF','#B8E9FF',0.95); }
+function frenteHook(t,sc){ aguaFrente(t,1440); medidor(830,1430,t,0,'+0.0015 MM');
+  letrero('¡TODOS AL MAR!',440,400,1,'madera',{sinPalo:true,tam:84,t,t0:-1}); }
+function S1(t,sc){
+  fondoHook(t);
+  const cay=t<BOMBA_T, u=Math.min(1,t/BOMBA_T), mira=t>=at(10);
+  const alto=cay?BOMBA_A*(1-u*u):-70+Math.sin((t-BOMBA_T)*4)*18+Math.max(0,1-(t-BOMBA_T)*3)*-80;
+  raroBomba(t,alto,cay,mira,mira?'sospecha':(cay?'risa':'feliz'));
+  frenteHook(t,sc);
+  splashFx(t,BOMBA_T,430,1440,2.2); if(t>BOMBA_T) ondaChoque(t,BOMBA_T,430,1440);
+  chispas(t,at(10),830,800,1.2,'#FFFFFF');
 }
-function S1(t,sc){ hookFrame(t,sc,t>=at(10)); chispas(t,at(10),830,800,1.2,'#FFFFFF'); }
 // S2 · "¿Cómo que no? Somos 8,200 millones": Raro en la torre de salvavidas pita con el silbato; la playa se llena de gomitas en cascada y el panel cuenta hasta 8,200 MILLONES.
 //      Fondo mandarina cerros. Toma: pull (para que se vea la multitud).
 function S2(t,sc){
@@ -218,11 +227,16 @@ function S11(t,sc){
   aguaFrente(t,1390-lev*0.5,'#FF8A1F','#FFC97F',0.9);
   if(ola>0&&ola<0.15) splashFx(t,at(85),380,1300,1.3);
 }
-// S12 · "Y el mar ni nos necesita:" pattern interrupt — freeze con zoom a la cara de Raro buzo con cara de "¿en serio?". Fondo limón cerros. Toma: push cerrada.
+// S12 · "Y el mar ni nos necesita:" pattern interrupt — Raro buzo en la orilla, señalando a cámara con cara de "¿en serio?"; el mar sube SOLO, le moja los pies y Raro brinca. Fondo limón cerros. Toma: push media.
 function S12(t,sc){
-  raro({x:540,y:1440,s:1.25,t,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',disfraz:'buzo',sq:gelatina(t,sc.start+0.05),wob:wobble(t,sc.start+0.05)});
-  medidor(870,1420,t,0,null,0.8);
-  letrero('EL MAR, SOLITO',540,420,popIn(t,sc.start+0.1),'madera',{sinPalo:true,tam:72,t,t0:sc.start+0.1});
+  const sube=easeOut(prog(t,sc.start+0.1,sc.end-sc.start-0.3)), moja=t>=sc.start+(sc.end-sc.start)*0.6;
+  arena(t,1440,'#FFF1B8','#F2DD7A');
+  const b=brinco(t,sc.start+(sc.end-sc.start)*0.6,0.45,110);
+  raro({x:420,y:1440,s:1.1,t,expr:moja?'asombro':'sospecha',mira:{x:0,y:0},brazos:moja?'arriba':'senala',espejo:false,disfraz:'buzo',alto:moja?b.alto:0,sq:moja?b.sq:gelatina(t,sc.start+0.05),wob:moja?b.wob:wobble(t,sc.start+0.05)});
+  aguaFrente(t,lerp(1560,1435,sube),'#3AB6FF','#B8E9FF',0.9);
+  if(moja) splashFx(t,sc.start+(sc.end-sc.start)*0.6,420,1440,1.2);
+  medidor(850,1420,t,sube*30,null,0.75);
+  letrero('EL MAR, SOLITO',540,470,popIn(t,sc.start+0.1),'madera',{sinPalo:true,tam:72,t,t0:sc.start+0.1});
 }
 // S13 · "en 2024 subió solito casi 6 milímetros": calendario 2024; el medidor sube solo de 0 a 6 MM; mar vacío. Raro buzo señala desde la orilla. Fondo turquesa olas. Toma: paneo-izq.
 function S13(t,sc){
@@ -273,7 +287,7 @@ function S17(t,sc){
 //      Fondo violeta espacio. Toma: orbita.
 function S18(t,sc){
   tierra(560,1000,250,t);
-  const n=t<at(149)?1:Math.round(lerp(1,100,easeOut(prog(t,at(149),0.8))));
+  const n=Math.round(lerp(1,100,easeInOut(prog(t,sc.start+0.15,at(150)-sc.start-0.15))));
   const rings=Math.min(8,Math.ceil(n/12));
   for(let r=0;r<rings;r++){ ctx.save(); ctx.translate(560,1000); ctx.rotate(-0.35+r*0.13); for(let i=0;i<40;i++){ const a=i/40*Math.PI*2+t*0.8+r; const x=Math.cos(a)*(300+r*14), y=Math.sin(a)*(70+r*8);
     if(Math.sin(a)<0 && x*x/(300*300)+0<1 && Math.abs(x)<240) { /* detrás del planeta */ continue; } ctx.fillStyle=PAST[(i+r)%6]; blob(x,y,9); } ctx.restore(); }
@@ -333,10 +347,19 @@ function S24(t,sc){
     const p=pufCambio(t,sc.start+0.02);
     raro({x:430,y:1440,s:1.05,t,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',disfraz:p.despues?'salvavidas':'playero',spin:p.spin,sinLentes:true,sq:gelatina(t,sc.start+0.36)});
     nubePuf(t,sc.start+0.08,430,1280,1.3);
-    aguaFrente(t,1380); medidor(830,1430,t,0,'NIVEL: +0');
+    aguaFrente(t,1380); medidor(830,1430,t,0,'+0.0015 MM');
     letrero('¿TÚ TE METERÍAS?',440,400,popIn(t,sc.start+0.1),'madera',{sinPalo:true,tam:72,t,t0:sc.start+0.1});
-  } else hookFrame(t,sc,false);
+  } else { // "Porque si todos nos aventamos al mar…": Raro flota, y en el último ~0.6 s sale disparado hacia arriba hasta quedar igual que el cuadro 0
+    fondoHook(t);
+    const dt=durT()-t, sal=dt<BOMBA_T, u=Math.max(0,dt/BOMBA_T);
+    const alto=sal?BOMBA_A*(1-u*u):-70+Math.sin(t*4)*18;
+    raroBomba(t,alto,sal,false,sal?'risa':'feliz');
+    frenteHook(t,sc);
+    if(sal) splashFx(t,durT()-BOMBA_T,430,1440,1.6);
+  }
 }
+
+function durT(){ return (typeof TL!=="undefined"&&TL.duration)||71.2; }
 const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24];
 const CHIPS={};
 window.FONDOS={1:{pal:'cielo',tipo:'olas'},2:{pal:'mandarina',tipo:'cerros'},3:{pal:'turquesa',tipo:'interior'},4:{pal:'magenta',tipo:'cerros'},5:{pal:'violeta',tipo:'ciudad'},
@@ -345,7 +368,7 @@ window.FONDOS={1:{pal:'cielo',tipo:'olas'},2:{pal:'mandarina',tipo:'cerros'},3:{
   16:{pal:'magenta',tipo:'ciudad'},17:{pal:'limon',tipo:'olas'},18:{pal:'violeta',tipo:'espacio'},19:{pal:'mandarina',tipo:'cerros'},20:{pal:'turquesa',tipo:'olas'},
   21:{pal:'magenta',tipo:'cielo'},22:{pal:'limon',tipo:'olas'},23:{pal:'violeta',tipo:'cerros'},24:{pal:'cielo',tipo:'olas'}};
 window.TOMAS={1:{mov:'push'},2:{mov:'pull'},3:{mov:'paneo-izq'},4:{mov:'push'},5:{mov:'sube'},6:{mov:'pull'},7:{mov:'pull'},8:{mov:'paneo-der'},9:{mov:'push',z:1.1,foco:[400,1000]},
-  10:{mov:'baja'},11:{mov:'orbita'},12:{mov:'push',z:1.5,foco:[540,1080]},13:{mov:'paneo-izq'},14:{mov:'sube'},15:{mov:'pull'},16:{mov:'paneo-der'},17:{mov:'paneo-izq'},
+  10:{mov:'baja'},11:{mov:'orbita'},12:{mov:'push',z:1.12,foco:[480,1000]},13:{mov:'paneo-izq'},14:{mov:'sube'},15:{mov:'pull'},16:{mov:'paneo-der'},17:{mov:'paneo-izq'},
   18:{mov:'orbita'},19:{mov:'push'},20:{mov:'pull'},21:{mov:'push',z:1.08,foco:[540,1100]},22:{mov:'paneo-der'},23:{mov:'fija',z:1.15,foco:[540,1150]},24:{mov:'push'}};
 window.TRANS={3:'latigazo',5:'zoom',7:'bufanda',9:'latigazo',11:'zoom',13:'bufanda',15:'latigazo',16:'zoom',18:'bufanda',20:'latigazo',22:'bufanda',24:'zoom'};
 window.KEYWORDS=[10,15,22,27,39,52,60,71,77,85,96,102,108,118,121,132,144,150,156,166,176,184,190,198,201,208];
