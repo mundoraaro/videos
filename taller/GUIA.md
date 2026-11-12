@@ -103,6 +103,7 @@ Cada video se hace como si fuera a ser el más visto de la cuenta. Antes de rend
 - **Meta de retención:** que ≥70 % se quede pasados los 3 s (los flojos rondan 50–60 %). La decisión se toma en los primeros 2–3 s: dato más impactante en pantalla y en voz desde el cuadro 0, nunca "¿alguna vez te has preguntado…?".
 - **Micro-revelaciones:** 2–3 fases de consecuencias antes de la conclusión; no guardes la respuesta solo para el final.
 - **Títulos breves y directos**, que se lean de un vistazo.
+- **Para convertir en suscriptores (datos 12 nov):** 62 % de los suscriptores del mes vinieron de saltar-001. Cada video de la serie "¿Qué pasaría si TODOS…?" lleva en el título "(Parte N)" a partir de la Parte 2, menciona en la última frase de voz el siguiente "todos…" como adelanto (sin pedir que se suscriban de forma cringe; máximo una invitación corta tipo "la siguiente parte ya está en el perfil") y el caption termina con la pregunta + "Parte N+1 en el perfil" cuando exista.
 - **Prioridad de producción (Héctor, 11 nov 2026):** primero las ideas con `prioridad: "alta"` (serie "¿Qué pasaría si TODOS…?", sucesora de saltar-001). Regla de mezcla: **2 de cada 3 videos son "¿Qué pasaría si…?"** y el tercero es la fórmula 2 o 3 (bizarro en una frase o personaje insólito). La variedad de categorías sigue aplicando dentro de esa mezcla.
 
 ## 1. Guion

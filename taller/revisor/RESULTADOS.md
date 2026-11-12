@@ -77,6 +77,16 @@ Canal desde el inicio: 23,484 vistas · 167 h vistas · 57.01 % promedio reprodu
 Los videos más flojos de YouTube tienen 50–60 % en "se quedaron a mirar": la decisión se toma en los primeros 2–3 s.
 Cuando Héctor comparta datos nuevos de YouTube Studio, agrégalos aquí (Metricool no da YouTube por video).
 
+
+## YouTube Studio (Héctor, 12 nov 2026, 17:36)
+- Últimos 28 días: 408 h de reproducción, +118 suscriptores, público mensual 12.2 k (98.7 % nuevos, 1.3 % ocasionales).
+- Dispositivos: celular 45.3 %, **TV 44.8 %**.
+- saltar-001: **19,839 vistas, 80.2 % se quedaron a mirar, retención 0:59 (83.3 %), +73 suscriptores** (62 % de todos los suscriptores del mes). Sigue empujando: 7.7 k vistas en las últimas 48 h.
+- Últimas 48 h (17,228 vistas): saltar 7.7 k · chicxulub 1.7 k · nutrias 1.2 k · neptuno (Planetas 1) 1.2 k · torre (apilarnos) 1.0 k en horas.
+- Suscriptores por video: saltar 73; Planetas, Luna y emperador 6 cada uno. Conversión ≈ 0.4 % de las vistas en todos: los suscriptores dependen de tener videos que exploten, no de un video en particular.
+- Pico de suscriptores el 10 nov (~65 en un día, ola de saltar) y luego baja a ~10 al día.
+- Lectura: hacer secuelas directas de saltar (serie "¿Qué pasaría si TODOS…?") y encadenar videos (Parte 2, video relacionado, playlist) para convertir a la gente que llega por un video que pega.
+
 ## Lectura (qué separa a los ganadores) — corregida con YouTube
 - **"¿Qué pasaría si…?" es el formato número uno** en las dos redes (saltar 1º en YouTube y Facebook; luna 2º en YouTube).
 - **El estándar:** saltar-001 = 82.56 % reproducido y 72.49 % se quedaron a mirar. Meta para todo video: que se quede ≥70 %.
