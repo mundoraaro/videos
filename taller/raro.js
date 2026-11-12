@@ -127,6 +127,7 @@ const EXPR = {
   sospecha: {ojos:1,   cejas:[[8,-0.35],[-22,0.12]], boca:'linea', lid:0.5, mira:{x:0.8,y:0}},
   yavalio:  {ojos:0.95,cejas:[[4,0],[4,0]],          boca:'recta', lid:0.55, sudor:1},
   apenado:  {ojos:1.1, cejas:[[-6,0.35],[-6,0.35]],  boca:'temblorosa', rubor:1},
+  dormido:  {ojos:1,   cejas:[[10,0.1],[10,0.1]],     boca:'o', ojosCerrados:1, sueno:1},   // ojos cerrados ‿ ‿ (dormir, torpor)
 };
 
 function cara(o,base,sombra){
@@ -142,6 +143,7 @@ function cara(o,base,sombra){
     const ex=s*50+mira.x*9, ey=-290+mira.y*8;
     if(e.ojosCerrados){ // ^ ^ de risa
       ctx.strokeStyle=RARO.tinta; ctx.lineWidth=9; ctx.lineCap='round';
+      if(e.sueno){ ctx.beginPath(); ctx.moveTo(ex-20,ey-4); ctx.quadraticCurveTo(ex,ey+18,ex+20,ey-4); ctx.stroke(); continue; }
       ctx.beginPath(); ctx.moveTo(ex-18,ey+6); ctx.quadraticCurveTo(ex,ey-20,ex+18,ey+6); ctx.stroke(); continue;
     }
     const rx=20*k, ry=30*k*bl, lid=o.lid??e.lid??0;
@@ -657,7 +659,7 @@ function letrero(txt,x,y,k,tipo='madera',opts={}){
   if(typeof ocupa==='function') ocupa(-w/2,-h/2,w/2,h/2,2.5);
   ctx.textAlign='center'; ctx.textBaseline='middle';
   if(tipo==='madera'){
-    ctx.fillStyle='#7A4A22'; ctx.fillRect(-14,h/2-6,28,260);
+    if(!opts.sinPalo){ ctx.fillStyle='#7A4A22'; ctx.fillRect(-14,h/2-6,28,260); }
     ctx.fillStyle='#5E3716'; rr(-w/2+6,-h/2+8,w,h,18); ctx.fill();
     ctx.fillStyle='#B97A3E'; rr(-w/2,-h/2,w,h,18); ctx.fill();
     ctx.strokeStyle='#9C6230'; ctx.lineWidth=4; for(const yy of [-h*0.22,h*0.18]){ctx.beginPath();ctx.moveTo(-w/2+20,yy);ctx.bezierCurveTo(-w/6,yy-10,w/6,yy+10,w/2-20,yy);ctx.stroke();}
@@ -1132,4 +1134,49 @@ DISFRACES.mosquito = { // mameluco de mosquito: cuerpo gris lavanda a rayas, ala
   frente(o,B){ const t=o.t||0; ctx.strokeStyle='#5A5380'; ctx.lineWidth=9; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-222); ctx.quadraticCurveTo(10,-180,6+Math.sin(t*3)*6,-140); ctx.stroke();
     if(o.flor){ const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.strokeStyle='#3FAF5A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(0,10); ctx.lineTo(0,-110); ctx.stroke();
       ctx.translate(0,-130); ctx.rotate(t*0.6); ctx.fillStyle='#FF8FC7'; for(let i=0;i<6;i++){ ctx.save(); ctx.rotate(i/6*Math.PI*2); ctx.beginPath(); ctx.ellipse(0,-34,18,30,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } ctx.fillStyle='#FFD23F'; blob(0,0,18); ctx.restore(); } }
+};
+
+// ---------- colibrí (colibri-001, nov 2026) ----------
+// Mameluco de colibrí: plumaje verde esmeralda tornasol, babero rubí, alas que zumban (fantasmas de movimiento), cola en abanico,
+// capucha con copete y pico largo que sale de la boca. Opciones: o.aleteo (0 = alas plegadas, 1 = zumbando), o.picoDir (1 der, -1 izq),
+// o.picoAng (inclinación del pico), o.plumaje (color del traje para gomitas de otras especies), o.escarcha (0..1 hielo encima).
+DISFRACES.colibri = {
+  atras(o){ const t=o.t||0, f=o.aleteo??1, pl=o.plumaje||'#1FB36B', pd=o.picoDir??1;
+    // cola en abanico, del lado contrario al pico
+    ctx.save(); ctx.translate(-pd*110,-70); ctx.rotate(-pd*0.5+Math.sin(t*3)*0.06);
+    for(let i=-2;i<=2;i++){ ctx.save(); ctx.rotate(i*0.2); ctx.fillStyle=i%2?mix(pl,'#0B3D2A',0.45):mix(pl,'#0B3D2A',0.25);
+      ctx.beginPath(); ctx.ellipse(-pd*0,90,26,96,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    ctx.restore();
+    for(const s of [-1,1]){
+      ctx.save(); ctx.translate(s*112,-240);
+      const ala=(a,al)=>{ ctx.save(); ctx.rotate(a); ctx.globalAlpha=al; ctx.fillStyle='#9FF5D8'; ctx.beginPath(); ctx.ellipse(0,-120,52,138,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.65)'; ctx.beginPath(); ctx.ellipse(-8,-150,22,70,0,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle=mix(pl,'#0B3D2A',0.2); ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(0,-10); ctx.quadraticCurveTo(s*10,-120,0,-250); ctx.stroke(); ctx.restore(); };
+      if(f<=0.01){ ala(s*2.55,0.95); }
+      else { const ab=Math.sin(t*72+s*0.4); for(const a of [0.25,0.75,1.25]) ala(s*a,0.22*f); ala(s*(0.75+ab*0.5),0.9); }
+      ctx.restore(); }
+  },
+  cuerpo(o){ const pl=o.plumaje||'#1FB36B', t=o.t||0;
+    ctx.fillStyle=pl; ctx.fillRect(-200,-420,400,425);
+    ctx.fillStyle=mix(pl,'#FFFFFF',0.3); for(let i=0;i<5;i++){ ctx.globalAlpha=0.35+0.2*Math.sin(t*2+i); ctx.beginPath(); ctx.ellipse(-120+i*60,-330+((i*37)%50),34,16,-0.4,0,Math.PI*2); ctx.fill(); } ctx.globalAlpha=1;
+    ctx.fillStyle='#F2FFF7'; ctx.beginPath(); ctx.ellipse(0,-92,112,74,0,0,Math.PI*2); ctx.fill();
+    // babero rubí tornasol (debajo de la bufanda)
+    ctx.fillStyle='#FF2E63'; ctx.beginPath(); ctx.moveTo(-104,-188); ctx.quadraticCurveTo(0,-96,104,-188); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,210,225,0.7)'; ctx.beginPath(); ctx.ellipse(-30,-168,26,9,-0.3,0,Math.PI*2); ctx.fill();
+    // cara despejada: óvalo claro alrededor de ojos y boca para que se lea la expresión
+    ctx.fillStyle=RARO.base; ctx.beginPath(); ctx.ellipse(0,-262,124,92,0,0,Math.PI*2); ctx.fill();
+    if(o.escarcha){ ctx.fillStyle=`rgba(225,248,255,${0.55*o.escarcha})`; ctx.fillRect(-200,-420,400,425); }
+  },
+  cabeza(o){ const pl=o.plumaje||'#1FB36B', w=o.wob||0, t=o.t||0;
+    ctx.save(); ctx.translate(0,-372); ctx.rotate(w*0.05);
+    ctx.fillStyle=mix(pl,'#0B3D2A',0.2); for(let i=-1;i<=1;i++){ ctx.save(); ctx.translate(i*20,-16); ctx.rotate(i*0.4+Math.sin(t*5+i)*0.12+w*0.4); ctx.beginPath(); ctx.ellipse(0,-34,13,40,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    ctx.restore();
+    if(o.escarcha){ ctx.fillStyle=`rgba(240,252,255,${0.9*o.escarcha})`; for(let i=0;i<7;i++){ const x=-120+i*40; ctx.beginPath(); ctx.moveTo(x-14,-352); ctx.lineTo(x+14,-352); ctx.lineTo(x,-352+26+(i%3)*14); ctx.closePath(); ctx.fill(); } }
+  },
+  frente(o){ const pd=o.picoDir??1, a=(o.picoAng??0.08)*pd;
+    ctx.save(); ctx.translate(pd*20,-236); ctx.rotate(a);
+    ctx.fillStyle='#2A2238'; ctx.beginPath(); ctx.moveTo(0,-11); ctx.lineTo(pd*270,-2); ctx.lineTo(pd*272,1); ctx.lineTo(0,11); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.fillRect(pd>0?10:-120,-7,110,3);
+    ctx.restore();
+  }
 };
