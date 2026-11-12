@@ -100,6 +100,18 @@ def splash():  # chapuzón: ruido filtrado con caída + burbujitas (agregado con
     return x
 def gota():    # gotita que cae (blup)
     d = np.arange(int(.12 * SR)) / SR; return np.sin(2 * np.pi * np.cumsum(600 + 2200 * d / .12) / SR) * np.exp(-d * 35)
+def descarga():  # jalón de baño: remolino de agua (ruido filtrado que gira) + gorgoteo final (agregado con jalon-001)
+    n = int(1.1 * SR); d = np.arange(n) / SR
+    x = np.convolve(rng.standard_normal(n), np.ones(24) / 24, 'same') * (1 + 0.5 * np.sin(2 * np.pi * 7 * d)) * np.minimum(1, d / 0.05) * np.exp(-d * 2.2) * 1.6
+    for k in range(6):
+        dd = np.arange(int(.07 * SR)) / SR; i = int((0.45 + k * 0.09) * SR); f = 260 + 220 * rng.random()
+        x[i:i+len(dd)] += 0.45 * np.sin(2 * np.pi * np.cumsum(f * (1 + 2.5 * dd)) / SR) * np.exp(-dd * 40)
+    return x
+def grillos():  # grillos para la espera cómica (agregado con jalon-001)
+    n = int(1.4 * SR); d = np.arange(n) / SR; env = ((np.sin(2 * np.pi * 3.2 * d) > 0.6).astype(float)) * (0.5 + 0.5 * np.sin(2 * np.pi * 40 * d))
+    return np.sin(2 * np.pi * 4300 * d) * np.convolve(env, np.ones(200) / 200, 'same') * 0.6
+for c in cues.get('descarga', []): place(descarga(), when(c), 0.28)
+for c in cues.get('grillos', []): place(grillos(), when(c), 0.12)
 for c in cues.get('splash', []): place(splash(), when(c), 0.3)
 for c in cues.get('gota', []): place(gota(), when(c), 0.18)
 if cues.get('whoosh_escenas', True):

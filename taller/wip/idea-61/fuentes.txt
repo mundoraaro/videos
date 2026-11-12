@@ -1,7 +1,0 @@
-- INEGI, "Censo de Población y Vivienda 2020 — Ciudad de México": 9,209,944 habitantes.
-- DOF, NOM-002-CONAGUA-2021 "Aparatos y accesorios de uso sanitario": inodoro de 6 L, consumo promedio máximo de 6.0 litros por descarga. 9.2 M × 6 L ≈ 55 millones de litros.
-- Alberca olímpica 50 × 25 × 2 m = 2,500 m³ = 2.5 millones de litros → 55 / 2.5 ≈ 22 albercas.
-- Wikipedia, "Emisor Oriente Tunnel" (CONAGUA): capacidad de descarga 150 m³/s = 150,000 L/s → 55 millones / 150,000 ≈ 370 s ≈ 6 minutos.
-- The Globe and Mail, "Bathroom breaks could wait during gold-medal match" (2010): EPCOR (Edmonton) reportó consumo de agua muy bajo durante los periodos del partido Canadá–EE. UU. y un pico al terminar la ceremonia; "las subidas fueron demasiado cortas para dañar el sistema".
-- Wikipedia, "TV pickup": el mayor pico registrado en el Reino Unido fue el 4 de julio de 1990 (semifinal Inglaterra–Alemania Occidental, penales): 2,800 MW; la página equipara 3,000 MW a 1.2 millones de teteras → ≈1.1 millones.
-- López-Dóriga Digital, "Ciudad de México enfrenta grave reto en agua potable y alcantarillado" (4 nov 2019, datos de SACMEX): la red de agua potable de la CDMX recibe 32 mil litros por segundo → 55 millones / 32,000 ≈ 1,730 s ≈ 29 minutos.
