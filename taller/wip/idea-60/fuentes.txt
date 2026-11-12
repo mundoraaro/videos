@@ -1,0 +1,8 @@
+- U.S. Census Bureau, "World Population Day: July 11, 2026": la población mundial llega a unos 8,200 millones en julio de 2026.
+- SYFY Wire / Phil Plait (Bad Astronomy), "The Human Cube: The volume of humanity": volumen promedio de una persona ≈ 62,000 cm³ (62 kg, densidad ≈ agua) → 62 L ≈ 3 garrafones de 20 L; la humanidad entera ≈ medio km³ y cabría en un cubo de unos 770 m por lado. Con 8,200 millones × 0.062 m³ ≈ 0.51 km³.
+- NIST, "How deep are Earth's oceans?": volumen de los océanos ≈ 1,332 millones de km³.
+- NOAA Ocean Exploration, "How much of the ocean has been explored?": superficie del océano ≈ 360 millones de km². Subida = 0.51 km³ / 360 millones de km² ≈ 1.4 µm ≈ milésima y media de milímetro.
+- Proporción: 0.51 / 1,332 millones ≈ 3.8 × 10⁻¹⁰; alberca olímpica 50×25×2 m = 2,500 m³ = 2,500 millones de mL → ≈ 1 mL ≈ 20 gotas (gota estándar ≈ 0.05 mL).
+- The Physics Factbook (hypertextbook), "Diameter of a Human Hair": 17–181 µm, típico 60–80 µm → 70/1.4 ≈ 50 veces.
+- NASA JPL, "NASA Analysis Shows Unexpected Amount of Sea Level Rise in 2024": en 2024 el nivel del mar subió 0.59 cm (casi 6 mm). 1.4 µm al ritmo de 5.9 mm/año ≈ 2 horas.
+- Fila: 8,200 millones × 0.5 m (hombro con hombro) ≈ 4.1 millones de km; circunferencia de la Tierra en el ecuador ≈ 40,075 km (NASA) → ≈ 102 vueltas.
