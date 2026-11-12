@@ -15,7 +15,7 @@ Héctor regresó al diseño anterior porque "me empezó a funcionar bien": **per
   - Publicación: `caption-writer`, `hashtag-strategy`, `youtube-publishing-and-metadata`, `platform-specs-and-validation` (revisar formato antes de entregar).
 - Requisitos de cada video para poder monetizar (TikTok Recompensas, YouTube Shorts, Facebook): **62–72 s**, 1080×1920, 30 fps, sin marcas de agua de otras apps, **contenido original** (guion, narración y animación propios; cada video cambia disfraz, fondos, tomas y acciones), etiqueta de contenido generado con IA en TikTok (`isAigc: true`), música sin derechos de terceros, datos verificados con fuente, nada engañoso en el gancho.
 - **Meta de Héctor: siempre 2 días próximos completos programados** (todos los horarios de mañana y pasado mañana ocupados). La producción corre 6 veces al día y solo produce cuando falta para cubrir esa meta.
-- **Ritmo de publicación: 3 videos diarios** (lun–sáb 10:00 · 12:00 · 16:00; domingo 10:00 · 16:00 · 18:00, hora de Monterrey/CDMX), elegidos con los mejores horarios de Metricool por red.
+- **Ritmo de publicación: 3 videos diarios** (desde el 11 nov 2026, hora de Monterrey/CDMX): **lun–vie 12:00 · 18:00 · 20:30; sábado 11:00 · 17:00 · 20:00; domingo 9:00 · 13:00 · 19:00.** Basado en estudios de Buffer (7.1 M publicaciones de TikTok y 1.8 M de YouTube) y Metricool: TikTok y Shorts rinden más de 6 a 11 p.m.; el mediodía se conserva por Facebook. Se publica con Buffer (plan gratis, máx. 10 en espera por red). Ajustar cuando Héctor comparta "horas más activas" de TikTok Studio y YouTube Studio.
 
 ## Lo que Héctor pidió (reglas fijas)
 
