@@ -6,7 +6,7 @@
  * Movimiento:  gelatina(t,t0) brinco(t,t0,d,h) caida(t,t0,h,d) saleArriba(t,tFin,d) susto(t,t0) wobble(t,t0) popIn(t,t0,d)
  * Jugo:        nubePuf(t,t0,x,y,s) pufCambio(t,t0) chispas(t,t0,x,y,s,color) estrellitas(t,t0,x,y) flashColor(t,t0,color)
  * Mundo:       PALETAS, fondo(t,pal,tipo,cam), letrero(txt,x,y,k,tipo,opts), contador(t,t0,d,desde,hasta)
- * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / wombat / cientifico / faraon / mantis / estudiante / escolar / nutria (o un objeto {atras,cuerpo,cabeza,frente} propio)
+ * Disfraces:   DISFRACES.campesino / caballero / astronauta / pirata / cavernicola / piyama / abrigo / ingeniero / anciano / arbitro / cobrador / lobo / buzo / playero / salvavidas / wombat / cientifico / faraon / mantis / estudiante / escolar / nutria (o un objeto {atras,cuerpo,cabeza,frente} propio)
  *
  * Coordenadas locales de Raro (s=1): origen = entre los pies, en el suelo. Cuerpo de y=-40 a y=-376, medio ancho 150.
  * Ojos en y=-290 (x=±50), boca en y=-232, bufanda en y≈-200, hombros en (±138,-172). Cabeza (zona del sombrero) arriba de y=-330.
@@ -457,6 +457,22 @@ const DISFRACES = {
       ctx.fillStyle='rgba(255,255,255,0.5)'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*52-16,-302,14,6,-0.4,0,Math.PI*2); ctx.fill(); } }
       if(o.sinFlotador) return; ctx.save(); ctx.translate(0,-70+Math.sin(o.t*3)*4); ctx.lineWidth=50; for(let i=0;i<12;i++){ ctx.strokeStyle=i%2?'#FFFFFF':'#FF4D5E'; ctx.beginPath(); ctx.ellipse(0,0,178,44,0,i/12*Math.PI*2,(i+1)/12*Math.PI*2+0.02); ctx.stroke(); }
       ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=8; ctx.beginPath(); ctx.ellipse(0,-14,170,34,0,Math.PI*1.1,Math.PI*1.5); ctx.stroke(); ctx.restore(); }
+  },
+  salvavidas: { // salvavidas de playa: camiseta roja con cruz blanca, visera roja y silbato; o.silbato=true lo lleva a la boca; o.boya=true pone la boya naranja en la mano derecha
+    cuerpo(o){ ctx.fillStyle='#E8323C'; ctx.fillRect(-200,-210,400,190);
+      ctx.fillStyle='#FFFFFF'; rr(-58,-172,116,36,10); ctx.fill(); rr(-18,-212,36,116,10); ctx.fill();
+      ctx.fillStyle='#B81E2A'; ctx.fillRect(-200,-46,400,16); },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-350); ctx.rotate(-0.04+w*0.07);
+      ctx.fillStyle='#E8323C'; rr(-136,-30,272,40,20); ctx.fill();
+      ctx.fillStyle='#C41F2B'; ctx.beginPath(); ctx.ellipse(-70,6,118,26,-0.06,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.ellipse(-96,-2,46,8,-0.06,0,Math.PI*2); ctx.fill(); ctx.restore(); },
+    frente(o,B){
+      const sil=o.silbato; ctx.strokeStyle='#FFD23F'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(-40,-196); ctx.quadraticCurveTo(0,sil?-215:-140,sil?18:10,sil?-238:-136); ctx.stroke();
+      ctx.save(); ctx.translate(sil?26:14,sil?-238:-130); ctx.rotate(sil?-0.2:0.3); ctx.fillStyle='#FFB21E'; rr(-22,-14,52,28,12); ctx.fill(); ctx.fillStyle='#E07B00'; ctx.beginPath(); ctx.arc(-6,0,12,0,Math.PI*2); ctx.fill(); ctx.restore();
+      if(o.boya){ const h=B[1].h; ctx.save(); ctx.translate(h[0]+30,h[1]+20); ctx.rotate(0.25+Math.sin(o.t*4)*0.08+(o.wob||0)*0.3);
+        ctx.fillStyle='#FF7A1A'; rr(-34,-120,68,240,34); ctx.fill(); ctx.fillStyle='#FFFFFF'; ctx.fillRect(-34,-40,68,16); ctx.fillRect(-34,24,68,16);
+        ctx.fillStyle='rgba(255,255,255,0.45)'; rr(-22,-104,14,70,7); ctx.fill(); ctx.restore(); }
+    }
   },
   cavernicola: {
     cuerpo(o){ // piel de leopardo de un solo hombro
