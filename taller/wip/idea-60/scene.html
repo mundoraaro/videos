@@ -1,0 +1,354 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// mar-001 — "¡Si todos nos metemos al mar, ni se entera!". Serie "¿Qué pasaría si TODOS…?" (sucesora de saltar-001).
+// Raro salvavidas (DISFRACES.salvavidas) → buzo (escenas de agua) → playero (el viaje a la playa) → salvavidas (loop).
+// ---------- utilería propia de este video ----------
+const AGUA='#3AB6FF';
+// agua al frente (tapa la parte baja de los que están "dentro" del mar)
+function aguaFrente(t,y,c1='#2E9BEA',c2='#86D8FF',a=1){ ctx.save(); ctx.globalAlpha=a;
+  ctx.fillStyle=c1; ctx.beginPath(); ctx.moveTo(-200,2200); for(let x=-200;x<=1280;x+=20) ctx.lineTo(x,y+Math.sin(x*0.016+t*3)*16+Math.sin(x*0.005-t*1.3)*10); ctx.lineTo(1280,2200); ctx.fill();
+  ctx.fillStyle=c2; for(let x=-200;x<=1280;x+=90){ const yy=y+Math.sin(x*0.016+t*3)*16+Math.sin(x*0.005-t*1.3)*10; ctx.beginPath(); ctx.ellipse(x+30,yy+4,34,8,0,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); }
+function splashFx(t,t0,x,y,s=1){ const u=(t-t0)/0.5; if(u<0||u>1) return; ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.globalAlpha=1-u*0.8; ctx.fillStyle='#FFFFFF';
+  for(let i=0;i<9;i++){ const a=-Math.PI*(0.1+0.8*i/8), d=easeOut(u)*(90+rand(i)*80); const yy=Math.sin(a)*d+u*u*160; blob(Math.cos(a)*d,yy,14*(1-u)+6); }
+  ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=10*(1-u)+2; ctx.beginPath(); ctx.ellipse(0,0,60+u*140,(60+u*140)*0.25,0,0,Math.PI*2); ctx.stroke(); ctx.restore(); }
+// medidor del nivel del mar (poste con regla); v = desplazamiento de la aguja en px
+function medidor(x,y,t,v=0,txt='NIVEL: +0',k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k);
+  ctx.fillStyle='#1E1A2E'; rr(-40,-560,80,600,26); ctx.fill(); ctx.fillStyle='#FFF8E6'; rr(-30,-550,60,580,20); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++) ctx.fillRect(-30,-520+i*44,i%2?20:34,6);
+  ctx.fillStyle='#E8323C'; ctx.beginPath(); const ny=-280-v; ctx.moveTo(-36,ny); ctx.lineTo(-80,ny-24); ctx.lineTo(-80,ny+24); ctx.closePath(); ctx.fill(); ctx.fillRect(-36,ny-4,72,8);
+  ctx.restore(); ocupa(x-90*k,y-560*k,x+45*k,y+40*k,1.5);
+  if(txt) letrero(txt,x-50,y-640*k,k,'panel',{tam:50,t,t0:-1}); }
+function garrafon(x,y,s,k=1,t=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.rotate(Math.sin(t*2+x)*0.03);
+  ctx.fillStyle='rgba(120,200,255,0.75)'; rr(-70,-230,140,230,40); ctx.fill(); ctx.fillStyle='rgba(60,160,240,0.85)'; rr(-62,-170+Math.sin(t*3+x)*4,124,162,34); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.55)'; rr(-50,-210,20,150,10); ctx.fill(); ctx.fillStyle='rgba(120,200,255,0.9)'; rr(-30,-280,60,60,14); ctx.fill();
+  ctx.fillStyle='#2B6FD6'; rr(-36,-300,72,30,10); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.6)'; for(const yy of [-120,-60]) ctx.fillRect(-70,yy,140,6);
+  ctx.restore(); ocupa(x-70*s*k,y-300*s*k,x+70*s*k,y,1.5); }
+// cubo de gente (isométrico, con caritas de colores)
+function cuboGente(x,y,L,k=1,t=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k);
+  const h=L*0.5, cols=['#FF9EBB','#86F2E2','#FFE36B','#B9A8F5','#FFB27A','#9BE7A0'];
+  const cara=(pts,c1)=>{ ctx.fillStyle=c1; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.fill(); };
+  const A=[0,-L-h], B=[L*0.87,-L-h*0], Cc=[0,-L+h], D=[-L*0.87,-L];
+  cara([[0,-2*L+0],[L*0.87,-1.5*L],[0,-L],[-L*0.87,-1.5*L]],'#FFFFFF'); // tapa
+  cara([[-L*0.87,-1.5*L],[0,-L],[0,0],[-L*0.87,-0.5*L]],'#E9E3F7');    // izquierda
+  cara([[0,-L],[L*0.87,-1.5*L],[L*0.87,-0.5*L],[0,0]],'#D4CCEA');      // derecha
+  // caritas (puntos de colores con ojitos) en las tres caras
+  const n=7; for(let i=0;i<n;i++) for(let j=0;j<n;j++){ const u=(i+0.5)/n, v=(j+0.5)/n, c=cols[(i*3+j*5)%6], r=L*0.045;
+    const P=[[ -L*0.87*(1-u), -1.5*L+(0.5*L)*u + L*v - 0.0 ],[ L*0.87*u, -L-0.5*L*u+L*v ],[ -L*0.87+L*0.87*u+L*0.87*v*0 , 0 ]];
+    for(const [px,py] of [[-L*0.87+L*0.87*u, -1.5*L+0.5*L*u+L*v],[L*0.87*u, -L-0.5*L*u+L*v],[(u-v)*L*0.87, -1.5*L+(u+v)*0.5*L]]){
+      ctx.fillStyle=c; blob(px,py,r); ctx.fillStyle='#1E1A2E'; blob(px-r*0.35,py-r*0.15,r*0.18); blob(px+r*0.35,py-r*0.15,r*0.18); } }
+  ctx.restore(); ocupa(x-L*0.87*k,y-2*L*k,x+L*0.87*k,y,2); }
+function alberca(t,y0){ // alberca olímpica en perspectiva con carriles
+  ctx.save(); ctx.fillStyle='#FFF4DC'; ctx.beginPath(); ctx.moveTo(60,y0); ctx.lineTo(1020,y0); ctx.lineTo(1180,y0+620); ctx.lineTo(-100,y0+620); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#2EA8F0'; ctx.beginPath(); ctx.moveTo(110,y0+30); ctx.lineTo(970,y0+30); ctx.lineTo(1100,y0+600); ctx.lineTo(-20,y0+600); ctx.closePath(); ctx.fill();
+  for(let i=1;i<8;i++){ const xa=110+i*(860/8), xb=-20+i*(1120/8); ctx.strokeStyle=i%2?'#FFD23F':'#FF5FA2'; ctx.lineWidth=8; ctx.setLineDash([22,16]); ctx.beginPath(); ctx.moveTo(xa,y0+30); ctx.lineTo(xb,y0+600); ctx.stroke(); }
+  ctx.setLineDash([]); ctx.fillStyle='rgba(255,255,255,0.35)'; for(let i=0;i<8;i++){ const yy=y0+80+i*66; ctx.beginPath(); ctx.ellipse(540+Math.sin(t*2+i)*200,yy,120,8,0,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); }
+function gotero(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(0.15);
+  ctx.fillStyle='#FF5FA2'; rr(-36,-260,72,90,30); ctx.fill(); ctx.fillStyle='rgba(230,248,255,0.85)'; rr(-24,-180,48,170,14); ctx.fill(); ctx.fillStyle=AGUA; rr(-18,-110,36,96,10); ctx.fill();
+  ctx.fillStyle='rgba(230,248,255,0.85)'; ctx.beginPath(); ctx.moveTo(-14,-12); ctx.lineTo(14,-12); ctx.lineTo(3,40); ctx.lineTo(-3,40); ctx.fill(); ctx.restore(); }
+function gotaF(x,y,r){ ctx.fillStyle=AGUA; ctx.beginPath(); ctx.moveTo(x,y-r*1.6); ctx.quadraticCurveTo(x+r,y-r*0.2,x,y+r); ctx.quadraticCurveTo(x-r,y-r*0.2,x,y-r*1.6); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.7)'; blob(x-r*0.3,y-r*0.2,r*0.25); }
+function regla(x,y,w,t,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.fillStyle='#1E1A2E'; rr(-w/2-8,-8,w+16,156,24); ctx.fill(); ctx.fillStyle='#FFD23F'; rr(-w/2,0,w,140,18); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<=10;i++){ const xx=-w/2+30+i*(w-60)/10; ctx.fillRect(xx-3,0,6,i%5?40:70); }
+  ctx.font=fuente(34); ctx.textAlign='center'; ctx.fillText('0',-w/2+30,110); ctx.fillText('1 MM',w/2-30,110); ctx.restore(); ocupa(x-w/2*k,y,x+w/2*k,y+150*k,1.5); }
+function lupa(x,y,r,a,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(k,k);
+  ctx.fillStyle='#7A3A12'; rr(-24,r,48,r*1.4,24); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(0,0,r+22); ctx.fillStyle='rgba(200,240,255,0.35)'; blob(0,0,r);
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(-r*0.4,-r*0.4,r*0.25,r*0.1,-0.7,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+function reloj(x,y,r,t,vel,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k);
+  ctx.fillStyle='#1E1A2E'; blob(6,8,r+14); ctx.fillStyle='#FFD23F'; blob(0,0,r+14); ctx.fillStyle='#FFF8E6'; blob(0,0,r);
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; blob(Math.cos(a)*r*0.82,Math.sin(a)*r*0.82,i%3?5:10); }
+  ctx.strokeStyle='#1E1A2E'; ctx.lineCap='round'; ctx.lineWidth=12; const a=-Math.PI/2+t*vel; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*r*0.7,Math.sin(a)*r*0.7); ctx.stroke();
+  ctx.lineWidth=16; const b=-Math.PI/2+t*vel/12; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(b)*r*0.45,Math.sin(b)*r*0.45); ctx.stroke(); blob(0,0,14);
+  ctx.restore(); ocupa(x-r-14,y-r-14,x+r+14,y+r+14,2.5); }
+function bocadillo(x,y,txt,k,tam=48,col='#FFFFFF',tinta='#1E1A2E',cola=null){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.font=fuente(tam);
+  const w=ctx.measureText(txt).width+tam*1.1, h=tam*1.7;
+  if(cola){ ctx.fillStyle=tinta; ctx.beginPath(); ctx.moveTo(cola[0]-28,h/2-6); ctx.lineTo(cola[0]+28,h/2-6); ctx.lineTo(cola[1],h/2+60); ctx.fill(); }
+  ctx.fillStyle=tinta; rr(-w/2+5,-h/2+7,w,h,h/2); ctx.fill(); ctx.fillStyle=col; rr(-w/2,-h/2,w,h,h/2); ctx.fill();
+  if(cola){ ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(cola[0]-18,h/2-10); ctx.lineTo(cola[0]+18,h/2-10); ctx.lineTo(cola[1]*0.92,h/2+44); ctx.fill(); }
+  ctx.fillStyle=tinta; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,0,3); ctx.restore(); ocupa(x-w/2,y-h/2,x+w/2,y+h/2,2.5); }
+function calendario(x,y,s,txt,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.rotate(-0.06);
+  ctx.fillStyle='#1E1A2E'; rr(-150,-170,300,330,30); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-140,-160,280,310,24); ctx.fill(); ctx.fillStyle='#E23D5B'; rr(-140,-160,280,80,24); ctx.fill(); ctx.fillRect(-140,-110,280,30);
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(44); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('AÑO',0,-118); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(96); ctx.fillText(txt,0,40);
+  ctx.restore(); ocupa(x-150*s*k,y-170*s*k,x+150*s*k,y+160*s*k,2.5); }
+function sombrilla(x,y,s,c1,c2,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(Math.sin(t*1.5+x)*0.04);
+  ctx.fillStyle='#FFFFFF'; ctx.fillRect(-6,-300,12,300); for(let i=0;i<6;i++){ ctx.fillStyle=i%2?c1:c2; ctx.beginPath(); ctx.moveTo(0,-300); ctx.arc(0,-300,170,Math.PI+i*Math.PI/6,Math.PI+(i+1)*Math.PI/6); ctx.closePath(); ctx.fill(); }
+  ctx.restore(); }
+function arena(t,y,c='#FFE3A3',c2='#F5CF7E'){ ctx.fillStyle=c; ctx.fillRect(-200,y,1480,900); ctx.fillStyle=c2; for(let i=0;i<12;i++) blob(((rand(i)*1400)%1400)-160,y+50+rand(i+3)*360,8+rand(i+5)*16); }
+function tierra(x,y,r,t){ ctx.save(); ctx.translate(x,y); ctx.fillStyle='rgba(134,216,255,0.25)'; blob(0,0,r*1.12);
+  ctx.fillStyle='#2E9BEA'; blob(0,0,r); ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip(); ctx.fillStyle='#3FC46E';
+  const sh=(t*40)%(r*4); for(const [cx,cy,cr] of [[-0.4,-0.3,0.35],[0.3,0.2,0.4],[-0.1,0.55,0.22],[0.55,-0.5,0.2]]) for(const o of [0,-r*4]){ blob(cx*r+sh+o-r*2+r*2,cy*r,cr*r); blob(cx*r+sh+o-r*2+r*2+r*0.25,cy*r+r*0.12,cr*r*0.8); }
+  ctx.restore(); ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-r*0.4,-r*0.45,r*0.28,r*0.12,-0.6,0,Math.PI*2); ctx.fill(); ctx.restore(); ocupa(x-r,y-r,x+r,y+r,2); }
+// multitud de gomitas que saltan al agua (fase propia cada una)
+function multitudSalta(t,y,n,s,xs,seed=0){ for(let i=0;i<n;i++){ const ph=((t*1.3+rand(i+seed)*1.0)%1), x=xs[0]+(xs[1]-xs[0])*(i/(n-1))+Math.sin(i*7)*30;
+  const alto=Math.sin(ph*Math.PI)*(160+rand(i+seed+3)*120); gomita({x,y,s,t,seed:i+seed,expr:ph<0.5?'feliz':'risa',brazos:'arriba',piernas:'flota',alto,tilt:Math.sin(i)*0.2,npc_peso:0.4,sinSombra:true});
+  if(ph<0.08) splashFx(t,t-ph/1.3,x,y,0.6*s/0.4); } }
+const PAST=['#FF9EBB','#86F2E2','#FFE36B','#B9A8F5','#FFB27A','#9BE7A0'];
+function cabecita(x,y,r,t,i){ // cabeza de gomita asomando del agua
+  const yy=y+Math.sin(t*3+i)*8; ctx.fillStyle=PAST[i%6]; blob(x,yy,r); ctx.fillStyle='rgba(255,255,255,0.5)'; blob(x-r*0.4,yy-r*0.45,r*0.18);
+  ctx.fillStyle='#1E1A2E'; blob(x-r*0.32,yy-r*0.1,r*0.12); blob(x+r*0.32,yy-r*0.1,r*0.12); ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=r*0.08; ctx.beginPath(); ctx.arc(x,yy+r*0.15,r*0.22,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); }
+
+// ---------- escenas ----------
+// S1 · cuadro 0 = gancho: Raro salvavidas YA saltando al mar junto con una multitud de gomitas; letrero "¡TODOS AL MAR!" desde el cuadro 0;
+//      a la derecha el medidor del nivel del mar no se mueve; al oír "entera" Raro lo voltea a ver con ojos de "¿neta?". Fondo cielo olas. Toma: push.
+function hookFrame(t,sc,mira){
+  multitudSalta(t,1290,9,0.36,[50,760],0);
+  multitudSalta(t,1500,3,0.55,[110,720],11);
+  const ph=(t*1.6)%1, alto=Math.sin(ph*Math.PI)*280;
+  if(ph<0.06) splashFx(t,t-ph/1.6,420,1500,1.4);
+  raro({x:420,y:1500,s:1.25,t,expr:mira?'sospecha':'feliz',mira:mira?{x:0.9,y:-0.2}:undefined,brazos:'arriba',piernas:'flota',disfraz:'salvavidas',alto,tilt:-0.08+Math.sin(t*3)*0.05,sq:ph<0.12?0.25*(1-ph/0.12):0});
+  aguaFrente(t,1440);
+  medidor(830,1430,t,0,'NIVEL: +0');
+  letrero('¡TODOS AL MAR!',440,400,1,'madera',{sinPalo:true,tam:84,t,t0:-1});
+}
+function S1(t,sc){ hookFrame(t,sc,t>=at(10)); chispas(t,at(10),830,800,1.2,'#FFFFFF'); }
+// S2 · "¿Cómo que no? Somos 8,200 millones": Raro en la torre de salvavidas pita con el silbato; la playa se llena de gomitas en cascada y el panel cuenta hasta 8,200 MILLONES.
+//      Fondo mandarina cerros. Toma: pull (para que se vea la multitud).
+function S2(t,sc){
+  cascada(t,sc.start+0.15,24,(x,y,k,i)=>gomita({x,y:y,s:0.3*k,t,seed:i,expr:'feliz',brazos:i%3?'arriba':'saluda',alto:Math.abs(Math.sin(t*6+i))*20,npc_peso:0.3}),{x0:120,y0:1150,cols:8,dx:120,dy:110,cada:0.045});
+  // torre de salvavidas
+  ctx.fillStyle='#B97A3E'; ctx.fillRect(700,1060,18,380); ctx.fillRect(900,1060,18,380); ctx.fillStyle='#9C6230'; rr(680,1040,260,40,14); ctx.fill();
+  ctx.fillStyle='#E8323C'; rr(690,760,240,24,12); ctx.fill();
+  const pita=t>=at(11)&&t<at(14);
+  raro({x:810,y:1045,s:0.72,t,expr:pita?'sospecha':'asombro',mira:pita?{x:-0.2,y:0.1}:undefined,brazos:pita?'jarras':'arriba',disfraz:'salvavidas',silbato:pita,sq:gelatina(t,at(14)),wob:wobble(t,at(14))});
+  ocupa(680,740,940,1080,2);
+  const v=contador(t,sc.start+0.1,Math.max(0.3,at(16)-sc.start-0.1),0,8200,'');
+  letrero(v+' MILLONES',540,420,popIn(t,sc.start+0.05),'panel',{tam:70,t,t0:at(15)});
+  chispas(t,at(16),540,420,1.3,'#FFD23F');
+}
+// S3 · "Cada quien ocupa como tres garrafones de agua": Raro carga un garrafón sobre la cabeza y a su lado brincan otros dos al decir "tres". Letrero "TÚ ≈ 62 LITROS".
+//      Fondo turquesa interior. Toma: paneo-izq.
+function S3(t,sc){
+  const k1=popIn(t,at(21)), k2=popIn(t,at(21)+0.14), k3=popIn(t,at(21)+0.28);
+  garrafon(690,1440,1.15,k2,t); garrafon(880,1440,1.15,k3,t);
+  const b=brinco(t,at(22),0.45,120);
+  raro({x:350,y:1440,s:1.05,t,expr:t>=at(22)?'orgullo':'asombro',brazos:'carga',disfraz:'salvavidas',alto:b.alto,sq:b.sq,wob:b.wob});
+  garrafon(350,1440-b.alto-420*1.05+40,0.9,Math.max(k1,t>=sc.start+0.1?1:0),t);
+  letrero('TÚ ≈ 62 LITROS',540,420,popIn(t,sc.start+0.05),'madera',{sinPalo:true,tam:76,t,t0:sc.start});
+  chispas(t,at(21),690,1100,1); chispas(t,at(21)+0.28,880,1100,1);
+}
+// S4 · "Juntos, como medio kilómetro cúbico de gente": las gomitas caen y se acomodan en un cubo gigante de caritas; Raro señala asombrado.
+//      Fondo magenta cerros. Toma: push.
+function S4(t,sc){
+  const u=easeOut(prog(t,sc.start,at(27)-sc.start+0.1));
+  for(let i=0;i<10;i++){ const ph=prog(t,sc.start+i*0.06,0.5); if(ph>=1) continue; gomita({x:520+Math.sin(i*2.3)*300,y:lerp(200,1200,easeIn(ph)),s:0.28,t,seed:i,expr:'risa',brazos:'arriba',sinSombra:true,npc_peso:0.2}); }
+  cuboGente(620,1420,300*u,popIn(t,sc.start+0.1),t);
+  raro({x:230,y:1440,s:0.95,t,expr:t>=at(27)?'asombro':'feliz',brazos:'senala',disfraz:'salvavidas',sq:gelatina(t,at(27)),wob:wobble(t,at(27))});
+  letrero('½ KM³ DE GENTE',540,420,popIn(t,at(27)),'panel',{tam:72,t,t0:at(27)});
+  if(t>at(31)) ondaChoque(t,at(31),620,1420);
+}
+// S5 · "Apachurrados en un cubo, mediríamos menos de 800 metros por lado": el cubo junto a los edificios; Raro arriba del cubo, aplastado por la multitud;
+//      aparece la cota "800 M" en un lado del cubo. Fondo violeta ciudad. Toma: sube.
+function S5(t,sc){
+  cuboGente(540,1440,330,1,t);
+  const ap=t>=at(32)&&t<at(36);
+  raro({x:540,y:1440-660+10,s:0.62,t,expr:ap?'yavalio':(t>=at(39)?'asombro':'feliz'),brazos:ap?'cara':'senala',disfraz:'salvavidas',sq:ap?0.45:gelatina(t,at(36)),wob:wobble(t,at(36))});
+  // cota a lo largo del lado izquierdo
+  const k=easeOut(prog(t,at(39),0.35)); if(k>0){ ctx.save(); ctx.strokeStyle='#FFD23F'; ctx.lineWidth=12; ctx.lineCap='round';
+    const x0=540-330*0.87-30, y0=1440-165-330-30, x1=540-30, y1=1440-30; ctx.beginPath(); ctx.moveTo(x0+18,y0+30+(1-k)*0); ctx.lineTo(lerp(x0+18,x1-60,k)-0,lerp(y0+30,y1-120,k)); ctx.stroke(); ctx.restore(); }
+  letrero('MENOS DE 800 M',540,420,popIn(t,at(37)),'madera',{sinPalo:true,tam:76,t,t0:at(37)});
+  chispas(t,at(39),540,420,1.2,'#FFD23F');
+}
+// S6 · "Suena a muchísimo… hasta que ves el mar": Raro orgulloso en el cubo (en la playa); al decir "mar" sube una pared de agua gigante detrás y Raro se aterra.
+//      Fondo limón cielo. Toma: pull.
+function S6(t,sc){
+  const sube=easeOut(prog(t,at(47),0.5));
+  ctx.fillStyle='#1C79D2'; ctx.beginPath(); ctx.moveTo(-200,2200); for(let x=-200;x<=1280;x+=20) ctx.lineTo(x,lerp(1500,420,sube)+Math.sin(x*0.01+t*2)*30); ctx.lineTo(1280,2200); ctx.fill();
+  ctx.fillStyle='#3AB6FF'; ctx.beginPath(); ctx.moveTo(-200,2200); for(let x=-200;x<=1280;x+=20) ctx.lineTo(x,lerp(1560,560,sube)+Math.sin(x*0.013-t*2.4)*24); ctx.lineTo(1280,2200); ctx.fill();
+  arena(t,1440);
+  cuboGente(330,1440,140,1,t);
+  const ve=t>=at(47);
+  raro({x:700,y:1440,s:1.0,t,expr:ve?'terror':'orgullo',brazos:ve?'arriba':'jarras',disfraz:'salvavidas',sq:gelatina(t,at(47)),wob:wobble(t,at(47)),mira:ve?{x:-0.3,y:-0.6}:undefined});
+  if(!ve) letrero('¡MUCHÍSIMO!',540,420,popIn(t,sc.start+0.05),'madera',{sinPalo:true,tam:80,t,t0:sc.start});
+  lineasVelocidad(t,at(49),540,900);
+}
+// S7 · "más de 1,300 millones de kilómetros cúbicos": ¡puf! Raro buzo bajo el agua; el cubo de la humanidad baja como una motita en medio del océano; contador 1,300 MILLONES DE KM³.
+//      Fondo cielo mar (bajo el agua). Toma: pull muy abierta.
+function S7(t,sc){
+  const p=pufCambio(t,sc.start+0.02);
+  const y=lerp(700,1150,prog(t,sc.start,sc.end-sc.start));
+  cuboGente(420,y,26,1,t); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(420,y-26,62+Math.sin(t*6)*6,0,Math.PI*2); ctx.stroke();
+  for(let i=0;i<8;i++){ const ph=((t*0.6+rand(i))%1); ctx.fillStyle='rgba(255,255,255,0.6)'; blob(700+rand(i+2)*200,1500-ph*900,8+rand(i)*10); }
+  raro({x:760,y:1380,s:0.9,t,expr:t>=at(52)?'asombro':'feliz',brazos:'senala',espejo:true,piernas:'flota',disfraz:p.despues?'buzo':'salvavidas',spin:p.spin,alto:Math.sin(t*2)*30+60,tilt:Math.sin(t*1.4)*0.1});
+  nubePuf(t,sc.start+0.08,760,1220,1.3);
+  const v=t<at(52)?'0':contador(t,at(52),Math.max(0.3,at(53)-at(52)),0,1300,'');
+  letrero(v+' MILLONES DE KM³',540,420,popIn(t,sc.start+0.1),'panel',{tam:58,t,t0:at(52)});
+}
+// S8 · "Es como echarle 20 gotitas a una alberca olímpica": Raro buzo en el borde de una alberca olímpica con un gotero gigante; caen gotitas y un contador llega a 20.
+//      Fondo turquesa interior. Toma: paneo-der.
+function S8(t,sc){
+  alberca(t,1010);
+  const n=Math.min(20,Math.floor(Math.max(0,(t-at(59))/0.11)));
+  for(let i=0;i<4;i++){ const ph=((t-at(59))*2.6+i/4)%1; if(t<at(59)) break; gotaF(640+Math.sin(i)*6,lerp(820,1180,ph*ph),16); }
+  gotero(660,740,1.2,t);
+  raro({x:330,y:1300,s:0.95,t,expr:'feliz',brazos:'frente',manos:{d:[260,-520]},disfraz:'buzo',sq:gelatina(t,sc.start+0.1)});
+  ocupa(560,520,760,840,2);
+  letrero('GOTAS: '+n,540,420,popIn(t,sc.start+0.05),'panel',{tam:68,t,t0:at(60)});
+  if(t>at(64)) bocadillo(800,1560-260,'ALBERCA OLÍMPICA',popIn(t,at(64)),40,'#FFFFFF');
+}
+// S9 · "¿Y cuánto sube? Como una milésima y media de milímetro": regla de 1 mm gigante; Raro buzo con lupa enorme busca la rayita roja casi invisible; letrero 0.0015 MM.
+//      Fondo magenta interior. Toma: push a la lupa.
+function S9(t,sc){
+  regla(540,1000,820,t,popIn(t,sc.start+0.02));
+  const k=popIn(t,at(71)); if(k>0){ ctx.fillStyle='#E8323C'; ctx.fillRect(160+0,960,3,200); }
+  const lx=lerp(700,190,easeInOut(prog(t,sc.start+0.2,at(71)-sc.start-0.2)));
+  lupa(lx,1060,110,-0.5,1);
+  raro({x:lx+260,y:1440,s:0.9,t,expr:t>=at(71)?'asombro':'sospecha',brazos:'frente',disfraz:'buzo',sq:gelatina(t,at(71)),wob:wobble(t,at(71))});
+  letrero(t<at(69)?'¿CUÁNTO SUBE?':'0.0015 MM',540,420,popIn(t,sc.start+0.05),'panel',{tam:76,t,t0:at(71)});
+  chispas(t,at(71),165,960,0.9,'#FFFFFF');
+}
+// S10 · "Unas 50 veces más delgado que un cabello": un cabello gigante como poste café al lado de una rayita roja finísima; Raro abrazado al cabello, sin poder creerlo.
+//      Fondo violeta cielo. Toma: baja.
+function S10(t,sc){
+  ctx.save(); ctx.fillStyle='#5A3A22'; ctx.beginPath(); ctx.moveTo(470,300); ctx.quadraticCurveTo(440+Math.sin(t*2)*20,900,480,1500); ctx.lineTo(620,1500); ctx.quadraticCurveTo(580+Math.sin(t*2)*20,900,610,300); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.fillRect(500,300,22,1200); ctx.restore(); ocupa(440,560,620,1500,1.2);
+  const k=popIn(t,at(77)); if(k>0){ ctx.fillStyle='#E8323C'; ctx.fillRect(820,620,3*k,820); ctx.fillStyle='#FFFFFF'; ctx.font=fuente(40); ctx.textAlign='center'; ctx.fillText('NIVEL',822,600); }
+  raro({x:330,y:1440,s:0.9,t,expr:t>=at(80)?'asombro':'feliz',brazos:'frente',manos:{d:[150,-260]},disfraz:'buzo',espejo:false,sq:gelatina(t,at(80)),wob:wobble(t,at(80))});
+  letrero('50 VECES MÁS DELGADO',540,420,popIn(t,at(77)),'pergamino',{tam:54,t,t0:at(77)});
+  chispas(t,at(83),540,800,1.2,'#FFD23F');
+}
+// S11 · "Cualquier olita lo mueve más que eso": Raro buzo flotando; una olita lo avienta para arriba y el medidor brinca como loco. Fondo mandarina olas. Toma: orbita.
+function S11(t,sc){
+  const ola=prog(t,at(85),0.9), lev=Math.sin(ola*Math.PI)*260;
+  medidor(820,1420,t,Math.sin(t*9)*40+lev*0.4,'OLA');
+  raro({x:380,y:1440,s:1.0,t,expr:ola>0&&ola<1?'risa':'feliz',brazos:'arriba',piernas:'flota',disfraz:'buzo',alto:lev+Math.sin(t*3)*20,tilt:Math.sin(t*2)*0.2});
+  aguaFrente(t,1390-lev*0.5,'#FF8A1F','#FFC97F',0.9);
+  if(ola>0&&ola<0.15) splashFx(t,at(85),380,1300,1.3);
+}
+// S12 · "Y el mar ni nos necesita:" pattern interrupt — freeze con zoom a la cara de Raro buzo con cara de "¿en serio?". Fondo limón cerros. Toma: push cerrada.
+function S12(t,sc){
+  raro({x:540,y:1440,s:1.25,t,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',disfraz:'buzo',sq:gelatina(t,sc.start+0.05),wob:wobble(t,sc.start+0.05)});
+  medidor(870,1420,t,0,null,0.8);
+  letrero('EL MAR, SOLITO',540,420,popIn(t,sc.start+0.1),'madera',{sinPalo:true,tam:72,t,t0:sc.start+0.1});
+}
+// S13 · "en 2024 subió solito casi 6 milímetros": calendario 2024; el medidor sube solo de 0 a 6 MM; mar vacío. Raro buzo señala desde la orilla. Fondo turquesa olas. Toma: paneo-izq.
+function S13(t,sc){
+  calendario(250,820,0.9,'2024',popIn(t,at(98)));
+  const mm=t<at(102)?0:lerp(0,6,easeOut(prog(t,at(102),0.5)));
+  medidor(820,1420,t,mm*25,'+'+mm.toFixed(0)+' MM');
+  raro({x:380,y:1440,s:0.95,t,expr:'asombro',brazos:'senala',disfraz:'buzo',sq:gelatina(t,at(102)),wob:wobble(t,at(102))});
+  aguaFrente(t,1420,'#0B8E89','#86F2E2',0.9);
+  chispas(t,at(102),780,800,1.2,'#FFFFFF');
+}
+// S14 · "O sea, lo que subimos todos juntos…": vista bajo el agua de toda la humanidad pataleando (piernitas de gomitas); la aguja apenas tiembla. Fondo violeta mar. Toma: sube.
+function S14(t,sc){
+  for(let r=0;r<2;r++) for(let i=0;i<7;i++){ const x=80+i*150+r*70, y=640+r*160; const c=PAST[(i+r)%6];
+    ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(x,y-70,58,78,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.4)'; blob(x-22,y-110,12); ctx.fillStyle=c; for(const s of [-1,1]){ ctx.strokeStyle=c; ctx.lineWidth=22; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x+s*20,y-20); ctx.lineTo(x+s*30+Math.sin(t*10+i+s)*22,y+70); ctx.stroke(); } }
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.fillRect(-200,560,1480,8);
+  raro({x:540,y:1420,s:0.95,t,expr:'risa',brazos:'arriba',piernas:'flota',disfraz:'buzo',alto:Math.sin(t*2.5)*40+80,tilt:Math.sin(t*1.7)*0.12});
+  letrero('+0.0015 MM',540,420,popIn(t,at(108)),'panel',{tam:70,t,t0:at(108)});
+}
+// S15 · "él lo sube en un par de horas. Sin nadie adentro.": reloj gigante que gira 2 horas; mar vacío; Raro buzo solito en la orilla, encogido de hombros. Fondo mandarina olas. Toma: pull.
+function S15(t,sc){
+  reloj(540,760,150,t,10,popIn(t,sc.start+0.05));
+  letrero('2 HORAS',540,420,popIn(t,at(116)),'madera',{sinPalo:true,tam:80,t,t0:at(116)});
+  const solo=t>=at(119);
+  raro({x:solo?760:330,y:1440,s:0.85,t,expr:solo?'yavalio':'asombro',brazos:solo?'idle':'senala',disfraz:'buzo',sq:gelatina(t,at(119)),wob:wobble(t,at(119))});
+  aguaFrente(t,1430,'#D25A08','#FFC97F',0.85);
+}
+// S16 · "Pero el problema de verdad no es el mar. Es llegar a la playa.": ¡puf! Raro playero con flotador y maleta en medio de la ciudad, corriendo hacia el letrero "PLAYA →".
+//      Fondo magenta ciudad. Toma: paneo-der.
+function S16(t,sc){
+  const p=pufCambio(t,sc.start+0.02), corre=t>=at(131);
+  raro({x:corre?lerp(420,640,prog(t,at(131),1.2)):420,y:1440,s:1.0,t,expr:corre?'feliz':'sospecha',mira:corre?undefined:{x:0,y:0},brazos:corre?'corre':'jarras',piernas:corre?'corre':'quieto',disfraz:p.despues?'playero':'buzo',spin:p.spin,alto:corre?Math.abs(Math.sin(t*16))*20:0,sinLentes:true});
+  nubePuf(t,sc.start+0.08,420,1280,1.3);
+  // poste con señal
+  ctx.fillStyle='#4A4A6A'; ctx.fillRect(842,820,18,620); ocupa(700,800,940,1440,1);
+  letrero('PLAYA →',780,820,popIn(t,at(135)-0.2),'madera',{tam:54,t,t0:at(135)});
+  letrero('¿CÓMO LLEGAMOS?',540,420,popIn(t,at(131)),'panel',{tam:64,t,t0:at(131)});
+}
+// S17 · "Si nos formamos en la orilla, hombro con hombro,": fila infinita de gomitas a lo largo de la orilla, Raro playero apretado en medio. Fondo limón olas. Toma: paneo-izq.
+function S17(t,sc){
+  arena(t,1440);
+  const off=(t*220)%120;
+  const off2=(t*260)%170;
+  for(let i=-2;i<9;i++){ const x=i*170-off2; if(Math.abs(x-540)<150) continue; gomita({x,y:1440,s:0.6,t,seed:i+20,expr:i%2?'feliz':'risa',brazos:'idle',npc_peso:0.3,tilt:Math.sin(t*6+i)*0.05}); }
+  raro({x:540,y:1440,s:0.72,t,expr:t>=at(142)?'apenado':'feliz',brazos:'idle',disfraz:'playero',sinLentes:true,sq:-0.12,sinFlotador:true});
+  letrero('HOMBRO CON HOMBRO',540,420,popIn(t,at(142)),'pergamino',{tam:58,t,t0:at(142)});
+}
+// S18 · "la fila le daría como 100 vueltas a la Tierra": la Tierra en el espacio y anillos de gente que la envuelven; contador × 100 VUELTAS. Raro playero flotando asombrado.
+//      Fondo violeta espacio. Toma: orbita.
+function S18(t,sc){
+  tierra(560,1000,250,t);
+  const n=t<at(149)?1:Math.round(lerp(1,100,easeOut(prog(t,at(149),0.8))));
+  const rings=Math.min(8,Math.ceil(n/12));
+  for(let r=0;r<rings;r++){ ctx.save(); ctx.translate(560,1000); ctx.rotate(-0.35+r*0.13); for(let i=0;i<40;i++){ const a=i/40*Math.PI*2+t*0.8+r; const x=Math.cos(a)*(300+r*14), y=Math.sin(a)*(70+r*8);
+    if(Math.sin(a)<0 && x*x/(300*300)+0<1 && Math.abs(x)<240) { /* detrás del planeta */ continue; } ctx.fillStyle=PAST[(i+r)%6]; blob(x,y,9); } ctx.restore(); }
+  raro({x:230,y:1500,s:0.72,t,expr:t>=at(150)?'asombro':'feliz',brazos:'arriba',piernas:'flota',disfraz:'playero',sinLentes:true,alto:Math.sin(t*2)*30+60,tilt:0.15});
+  letrero('× '+n+(n===1?' VUELTA':' VUELTAS'),540,420,popIn(t,sc.start+0.05),'panel',{tam:76,t,t0:at(150)});
+  chispas(t,at(150),560,1000,1.6,'#FFD23F');
+}
+// S19 · "Ni Acapulco en Semana Santa. Y eso, nomás para mojarnos los pies.": playa repleta de sombrillas y gomitas; Raro apretujado; al final el agua apenas le moja los pies.
+//      Fondo mandarina cerros. Toma: push.
+function S19(t,sc){
+  arena(t,1150,'#FFE3A3','#F5CF7E');
+  for(let i=0;i<5;i++) sombrilla(110+i*215,1160,0.7,i%2?'#FF5FA2':'#3AB6FF','#FFFFFF',t);
+  for(let r=0;r<2;r++) for(let i=0;i<8;i++){ const x=70+i*135+r*60; if(Math.abs(x-540)<170) continue; gomita({x,y:1220+r*120,s:0.3,t,seed:i+r*8,expr:i%2?'feliz':'risa',brazos:'idle',npc_peso:0.3,alto:Math.abs(Math.sin(t*5+i))*10}); }
+  const pies=t>=at(164);
+  raro({x:540,y:1440,s:0.82,t,expr:pies?'yavalio':'apenado',brazos:'cara',disfraz:'playero',sinLentes:true,sinFlotador:true,sq:-0.25+gelatina(t,at(164))});
+  if(pies){ ctx.fillStyle='rgba(58,182,255,0.85)'; const w=easeOut(prog(t,at(164),0.4)); ctx.beginPath(); ctx.ellipse(540,1450,260*w,36*w,0,0,Math.PI*2); ctx.fill(); }
+  letrero(pies?'SOLO LOS PIES':'ACAPULCO EN SEMANA SANTA',540,420,popIn(t,pies?at(164):sc.start+0.05),'madera',{sinPalo:true,tam:pies?72:54,t,t0:pies?at(164):sc.start});
+}
+// S20 · "Y cuando por fin estemos todos adentro, mojados y felices…": mar lleno de cabecitas de gomitas meciéndose; Raro playero con flotador, feliz. Fondo turquesa olas. Toma: pull.
+function S20(t,sc){
+  for(let r=0;r<3;r++) for(let i=0;i<9;i++){ const x=40+i*125+(r%2)*60; if(r===2&&Math.abs(x-540)<160) continue; cabecita(x,1050+r*130,34+r*10,t,i+r*9); }
+  const fel=t>=at(174);
+  raro({x:540,y:1500,s:0.9,t,expr:fel?'risa':'feliz',brazos:'arriba',piernas:'flota',disfraz:'playero',sinLentes:true,alto:Math.sin(t*3)*20});
+  aguaFrente(t,1430,'#0B8E89','#86F2E2',0.9);
+  if(fel) chispas(t,at(174),540,1000,1.2,'#FFFFFF');
+}
+// S21 · "alguien va a decir: “Ya me quiero salir”.": una gomita levanta la mano con el bocadillo "¡YA ME QUIERO SALIR!"; Raro voltea con cara de "ya valió".
+//      Fondo magenta cielo. Toma: push.
+function S21(t,sc){
+  for(let i=0;i<7;i++){ const x=80+i*150; if(i===4) continue; cabecita(x,1380,40,t,i+3); }
+  const dice=t>=at(180);
+  gomita({x:700,y:1490,s:0.72,t,seed:4,expr:dice?'llanto':'neutral',brazos:dice?'saluda':'idle',alto:dice?brinco(t,at(180),0.4,80).alto:0});
+  raro({x:300,y:1500,s:0.8,t,expr:dice?'yavalio':'feliz',mira:dice?{x:0.9,y:0}:undefined,brazos:'idle',disfraz:'playero',sinLentes:true});
+  aguaFrente(t,1420,'#A9196F','#FF9BDD',0.9);
+  bocadillo(560,860,'¡YA ME QUIERO SALIR!',popIn(t,at(180)),58,'#FFFFFF','#1E1A2E',[120,160]);
+}
+// S22 · "Y al salir, el mar baja otra vez esa milésima.": la multitud sale del agua caminando; el medidor baja una rayita; letrero −0.0015 MM. Fondo limón olas. Toma: paneo-der.
+function S22(t,sc){
+  const sal=prog(t,sc.start,sc.end-sc.start);
+  for(let i=0;i<6;i++) gomita({x:120+i*110+sal*260,y:1440,s:0.36,t,seed:i+30,expr:'feliz',brazos:'idle',piernas:'camina',npc_peso:0.3});
+  raro({x:420+sal*200,y:1440,s:0.7,t,expr:'yavalio',brazos:'idle',piernas:'camina',disfraz:'playero',sinLentes:true});
+  aguaFrente(t,1440,'#DE9F00','#FFF38A',0.8);
+  medidor(860,1420,t,-lerp(0,30,easeOut(prog(t,at(190),0.5))),null,0.8);
+  letrero('−0.0015 MM',540,420,popIn(t,at(190)),'panel',{tam:76,t,t0:at(190)});
+}
+// S23 · "Tanto viaje… para nada.": Raro playero cae de cara en la arena, aplastado y llorando; el flotador rueda. Fondo violeta cerros. Toma: fija con zoom.
+function S23(t,sc){
+  const c=caida(t,sc.start,900,0.3), fin=t>=at(198);
+  raro({x:540,y:1440,s:1.05,t,expr:fin?'llanto':'yavalio',brazos:fin?'cara':'arriba',disfraz:'playero',sinLentes:true,sinFlotador:true,alto:c.alto,sq:c.sq+(fin?0.35:0),wob:c.wob});
+  letrero('PARA NADA',540,420,popIn(t,at(198)),'piedra',{tam:80,t,t0:at(198)});
+  ondaChoque(t,sc.start+0.3,540,1440);
+}
+// S24 · "¿Tú te meterías? Porque si todos nos metemos al mar…": ¡puf! de vuelta a salvavidas, mira a cámara y pregunta; en "Porque" vuelve a saltar con la multitud
+//      y termina igualito al cuadro 0 (loop). Fondo cielo olas (el mismo del S1). Toma: la del S1.
+function S24(t,sc){
+  if(t<at(202)){
+    const p=pufCambio(t,sc.start+0.02);
+    raro({x:430,y:1440,s:1.05,t,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',disfraz:p.despues?'salvavidas':'playero',spin:p.spin,sinLentes:true,sq:gelatina(t,sc.start+0.36)});
+    nubePuf(t,sc.start+0.08,430,1280,1.3);
+    aguaFrente(t,1380); medidor(830,1430,t,0,'NIVEL: +0');
+    letrero('¿TÚ TE METERÍAS?',440,400,popIn(t,sc.start+0.1),'madera',{sinPalo:true,tam:72,t,t0:sc.start+0.1});
+  } else hookFrame(t,sc,false);
+}
+const SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24];
+const CHIPS={};
+window.FONDOS={1:{pal:'cielo',tipo:'olas'},2:{pal:'mandarina',tipo:'cerros'},3:{pal:'turquesa',tipo:'interior'},4:{pal:'magenta',tipo:'cerros'},5:{pal:'violeta',tipo:'ciudad'},
+  6:{pal:'limon',tipo:'cielo'},7:{pal:'cielo',tipo:'mar'},8:{pal:'turquesa',tipo:'interior',pp:false},9:{pal:'magenta',tipo:'interior'},10:{pal:'violeta',tipo:'cielo'},
+  11:{pal:'mandarina',tipo:'olas'},12:{pal:'limon',tipo:'cerros'},13:{pal:'turquesa',tipo:'olas'},14:{pal:'violeta',tipo:'mar'},15:{pal:'mandarina',tipo:'olas'},
+  16:{pal:'magenta',tipo:'ciudad'},17:{pal:'limon',tipo:'olas'},18:{pal:'violeta',tipo:'espacio'},19:{pal:'mandarina',tipo:'cerros'},20:{pal:'turquesa',tipo:'olas'},
+  21:{pal:'magenta',tipo:'cielo'},22:{pal:'limon',tipo:'olas'},23:{pal:'violeta',tipo:'cerros'},24:{pal:'cielo',tipo:'olas'}};
+window.TOMAS={1:{mov:'push'},2:{mov:'pull'},3:{mov:'paneo-izq'},4:{mov:'push'},5:{mov:'sube'},6:{mov:'pull'},7:{mov:'pull'},8:{mov:'paneo-der'},9:{mov:'push',z:1.1,foco:[400,1000]},
+  10:{mov:'baja'},11:{mov:'orbita'},12:{mov:'push',z:1.5,foco:[540,1080]},13:{mov:'paneo-izq'},14:{mov:'sube'},15:{mov:'pull'},16:{mov:'paneo-der'},17:{mov:'paneo-izq'},
+  18:{mov:'orbita'},19:{mov:'push'},20:{mov:'pull'},21:{mov:'push',z:1.08,foco:[540,1100]},22:{mov:'paneo-der'},23:{mov:'fija',z:1.15,foco:[540,1150]},24:{mov:'push'}};
+window.TRANS={3:'latigazo',5:'zoom',7:'bufanda',9:'latigazo',11:'zoom',13:'bufanda',15:'latigazo',16:'zoom',18:'bufanda',20:'latigazo',22:'bufanda',24:'zoom'};
+window.KEYWORDS=[10,15,22,27,39,52,60,71,77,85,96,102,108,118,121,132,144,150,156,166,176,184,190,198,201,208];
+window.SHAKES=[10,49,71,150,198];
+window.FLASHES=[[10,'#FFFFFF'],[52,'#BFF4FF'],[150,'#FFFFFF']];
+</script></body></html>
