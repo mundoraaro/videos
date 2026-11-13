@@ -1,0 +1,8 @@
+- IPS / Joseph Chamie, "Planet Earth's Increasing Population of 8 Billion" (mar 2026), cita a la ONU: población mundial 2026 = 8,300 millones.
+- INEGI Censo 2020 (vía Wikipedia, "List of Mexican states by population density"): CDMX 9,209,944 hab. en 1,494.3 km² = 6,163 hab/km²; Chihuahua 247,412.6 km²; México 1,960,646.7 km². (Sonora ~179,355 km², Coahuila ~151,595 km², INEGI.)
+- Cálculo: 8.3e9 / 6,163 = 1.35 millones de km² = 68.7 % de México (≈ dos terceras partes). Sobran ~614,000 km² > Chihuahua + Sonora + Coahuila (~578,000 km²).
+- PSA (Philippine Statistics Authority), "2020 CPH results — City of Manila": 1,846,513 hab.; densidad oficial 73,920 hab/km² (24.98 km²). Lista de ciudades por densidad (Wikipedia/Wikiwand): Manila 43,064 hab/km², 3.er lugar mundial ("de las más llenas del mundo"; no se dice "la más").
+- Cálculo: 8.3e9 / 43,064 = 192,700 km² < Chihuahua 247,413 km² (sobran ~55,000 km²).
+- Geography Realm, "Quick Geography Facts About Planet Earth": tierra firme ≈ 148.4 millones de km². México = 1.32 % → afuera queda el 98.7 % ("casi el 99 %").
+- FAO, "Land statistics 2001–2023": tierra agrícola mundial 4,800 millones de ha (48 millones de km², más de un tercio de la tierra firme) → 48 M / 1.96 M ≈ 24.5 Méxicos.
+- (v2) Iowa Farm Bureau, "A Closer Look at the 2025 World Corn Trade": EE. UU. es el mayor productor de maíz (le siguen China y Brasil) y el mayor exportador; Brasil, 2.º exportador 2024/25. México es el mayor importador de maíz del mundo y casi todo su maíz importado viene de EE. UU.
