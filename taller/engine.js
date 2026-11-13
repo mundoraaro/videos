@@ -157,7 +157,7 @@ function captions(t){
   ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
   ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i);
     const k=t<W[i].s?0:(kw?popIn(t,W[i].s,0.22):back((t-W[i].s)/0.16));
-    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(0.6,1,k)*(kw?1:1); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k)*(kw?1:1); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
       ctx.font=fuente(sz);
       ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);            // sombra
       ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);       // contorno grueso
