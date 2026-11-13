@@ -121,15 +121,15 @@ function marcha(t,y,s,n,x0,dx,vel=1,o={}){ for(let i=0;i<n;i++){ const x=((x0+i*
 // Raro viajero corre con maleta frente al mapa que se llena de gente; letrero ¡TODOS A MÉXICO!; multitud marchando.
 function escenaMudanza(t,sc,fin){
   const lt=t-sc.start;
-  mapa(t,500,820,820,{lleno:0.52+0.2*Math.min(1,lt/3)});
+  mapa(t,520,960,740,{lleno:0.52+0.2*Math.min(1,lt/3)});
   // fila de gomitas con maletas empujándose detrás de Raro
   for(let i=0;i<7;i++){ const x=((i*150-t*90)%1050+1050)%1050+20, emp=Math.sin(t*9+i*1.7);
     gomita({x,y:1300,s:0.36,t,seed:i+2,expr:emp>0.3?'yavalio':'risa',brazos:i%2?'arriba':'frente',piernas:'corre',sq:-0.12*Math.max(0,emp),tilt:0.12*emp,alto:Math.abs(Math.sin(t*12+i))*16,npc_peso:0.3}); }
-  const c=fin?{alto:0,sq:0,wob:0}:caida(t,-0.12,520,0.45);
-  const x=fin?300+Math.sin(t*3)*20:lerp(170,300,clamp((t+0.12)/0.45))+(t>0.33?Math.sin(t*3)*20:0);
+  const c=fin?{alto:0,sq:0,wob:0}:caida(t,-0.12,420,0.45);
+  const x=fin?300+Math.sin(t*3)*20:lerp(230,300,clamp((t+0.12)/0.45))+(t>0.33?Math.sin(t*3)*20:0);
   raro({x,y:SUELO,s:1.12,t,expr:fin&&t>=at(188)?'asombro':(t>=at(6)&&!fin?'risa':'feliz'),disfraz:VIAJERO,maleta:true,piernas:'corre',brazos:'corre',manos:{d:[150,-120]},alto:c.alto+(c.alto>0?0:Math.abs(Math.sin(t*14))*22),sq:c.sq,wob:c.wob,tilt:0.08});
   if(!fin) ondaChoque(t,0.33,300,SUELO);
-  L('¡TODOS A MÉXICO!',540,480,1,'madera',{tam:84,sinPalo:true,t,t0:-1});
+  letrero('¡TODOS A MÉXICO!',540,400,1,'madera',{tam:84,sinPalo:true,t,t0:-1});
   if(!fin) chispas(t,at(6),760,820,1.3,'#D7FF3D');
 }
 function S1(t,sc){ escenaMudanza(t,sc,false); }
@@ -336,7 +336,7 @@ function S25(t,sc){
   campo(139,700,'EE. UU.'); campo(142,330,'BRASIL');
   const b=brinco(t,at(139),0.4,120), sq2=gelatina(t,at(142));
   raro({x:540,y:SUELO,s:0.95,t,expr:t>=at(142)?'asombro':(t>=at(139)?'sospecha':'feliz'),ojos:t>=at(142)?1.8:1,disfraz:'campesino',brazos:'carga',alto:b.alto,sq:b.sq+sq2,wob:b.wob});
-  tortilla(540,SUELO-470*0.95-b.alto-30,80,Math.sin(t*4)*0.2);
+  tortilla(540,SUELO-490*0.95-b.alto-50,80,Math.sin(t*4)*0.2);
   L('TUS TORTILLAS',540,480,popIn(t,at(134)),'pergamino',{tam:66,t,t0:at(134)});
 }
 // S25b: sin nadie que los siembre — campo vacío, pasa una rodadora; Raro solo, se encoge de hombros
@@ -354,10 +354,10 @@ function S26(t,sc){
   ctx.fillStyle='#B388FF'; rr(580,820,300,520,20); ctx.fill(); ctx.fillStyle='#7A4A22'; rr(655,1040,150,300,16); ctx.fill(); ctx.fillStyle='#FFD23F'; blob(780,1190,12);
   const u=easeOut(prog(t,sc.start,at(150)-sc.start)), cx=lerp(-500,260,u);
   const top=camion(cx,1450,0.7,t,{brinca:u<1?0.6:0});
-  const v=easeInOut(prog(t,at(153),0.35)), tx=lerp(cx-100,700,v), ty=lerp(top-60,SUELO-250,v)-Math.sin(v*Math.PI)*260;
+  const v=easeInOut(prog(t,at(153),0.35)), tx=lerp(cx-100,700,v), ty=lerp(top-60,SUELO-110,v)-Math.sin(v*Math.PI)*260;
   const atrapa=v>=1, g=gelatina(t,at(153)+0.35,0.7);
-  raro({x:700,y:SUELO,s:0.85,t,expr:atrapa?'risa':(t>=at(152)?'asombro':'sospecha'),ojos:t>=at(152)&&!atrapa?1.8:1,disfraz:'campesino',brazos:atrapa?'carga':'frente',sq:g,tilt:Math.sin(t*3)*0.04,rubor:atrapa?1:0});
-  tortilla(tx,ty,atrapa?110:120,atrapa?0.1:v*9);
+  raro({x:700,y:SUELO,s:0.85,t,expr:atrapa?'risa':(t>=at(152)?'asombro':'sospecha'),ojos:t>=at(152)&&!atrapa?1.8:1,disfraz:'campesino',brazos:'frente',sq:g,tilt:Math.sin(t*3)*0.04,rubor:atrapa?1:0});
+  tortilla(tx,ty,atrapa?92:110,atrapa?0.1:v*9);
   chispas(t,at(153)+0.35,700,SUELO-300,1.2,'#FFD23F');
   L('HASTA TU PUERTA',540,480,popIn(t,at(152)),'madera',{tam:70,t,t0:at(152)});
 }
