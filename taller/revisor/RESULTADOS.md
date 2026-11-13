@@ -4,6 +4,27 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 13 nov 2026 (9:50)
+**TikTok sin cambios:** Metricool devuelve exactamente las mismas vistas que el corte del 12 nov para los 20 videos y no aparece ninguno publicado después del 11 nov (emús, chicxulub, nutrias y torre no salen en TikTok: sin dato; revisar si se publicaron ahí). TKPO13/15 siguen vacíos.
+**Facebook:** 4 Reels nuevos y el del hoyo negro despegó.
+
+| Video | Formato | Publicado (CDMX) | Vistas FB | Seg. vistos FB | Cambio vs 12 nov |
+|---|---|---|---|---|---|
+| saltar-001 | quepasaria | 9 nov 12:00 | **1,114** | 9 | +1 |
+| neptuno-001 (Planetas 1) | serie | 9 nov 18:00 | 969 | 10 | +2 |
+| hoyo negro (NASA, 12.8 s) | quepasaria | 11 nov 10:00 | **756** | 8 | **+536** |
+| chicxulub (cenotes) | dato | 11 nov 20:00 | 293 | **12** | nuevo |
+| emús (guerra de los emús) | historia | 11 nov 18:40 | 224 | 6 | nuevo |
+| torre-001 (apilarnos hasta la Luna) | quepasaria | 12 nov 12:02 | 86 | 5 | nuevo (horas) |
+| nutrias-001 | dato | 12 nov 10:01 | 0 | 0 | nuevo (sin vistas aún) |
+| urano / mercurio | serie | 10 nov | 248 / 203 | 9 / 13 | sin cambio |
+
+Resto de Reels de FB sin cambio frente al 12 nov.
+
+YouTube (canal): suscriptores 115 (11 nov) → **118 (12 nov)**; Metricool sigue sin dar vistas diarias después del 9 nov (sin dato).
+
+Lectura rápida (solo números): en Facebook el hoyo negro ("¿qué pasaría si…?" con dato de la NASA) ya es el 3º más visto en 2 días; chicxulub tiene el mejor tiempo visto de los nuevos (12 s). nutrias-001 lleva 0 vistas en FB a casi un día de publicado: posible falla de distribución, igual que cleopatra-001.
+
 ## Corte del 12 nov 2026 (8:50)
 **Novedad: TikTok ya devuelve vistas por video (TKPO07)** y es, por mucho, la red más grande. TikTok sigue sin dar % visto completo ni tiempo promedio (TKPO13/14/15 vacíos: sin dato). Facebook suma 3 Reels nuevos; los anteriores casi sin cambio.
 
