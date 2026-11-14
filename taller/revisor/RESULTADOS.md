@@ -4,6 +4,29 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 14 nov 2026 (8:55)
+**TikTok sin cambios por segundo día:** Metricool devuelve exactamente las mismas vistas que el 12 nov para los 20 videos y no aparece ninguno publicado después del 11 nov (sin dato de los nuevos en TikTok). TKPO13/15 siguen vacíos.
+**Facebook:** 3 Reels nuevos; mosquitos despegó.
+
+| Video (por caption) | Formato | Publicado (CDMX) | Vistas FB | Seg. vistos FB | Cambio vs 13 nov |
+|---|---|---|---|---|---|
+| saltar-001 | quepasaria | 9 nov 12:00 | **1,114** | 9 | 0 |
+| neptuno-001 (Planetas 1) | serie | 9 nov 18:00 | 969 | 10 | 0 |
+| mosquitos ("Si borraras a todos los mosquitos…") | quepasaria | 12 nov 16:01 | **809** | **12** | nuevo |
+| hoyo negro (NASA, 12.8 s) | quepasaria | 11 nov 10:06 | 762 | 8 | +6 |
+| torre-001 (apilarnos hasta la Luna) | quepasaria | 12 nov 12:01 | 372 | **12** | +286 |
+| chicxulub (cenotes) | dato | 11 nov 20:00 | 295 | 12 | +2 |
+| emús | historia | 11 nov 18:40 | 226 | 6 | +2 |
+| computadora del Apolo ("4 KB… tu selfie pesa 3 MB") | dato | 13 nov 12:03 | 219 | 7 | nuevo (horas) |
+| hielo ("el mar sube 70 metros y Cancún queda bajo el agua") | quepasaria | 13 nov 10:03 | 217 | **12** | nuevo (horas) |
+| nutrias-001 | dato | 12 nov 10:01 | 0 | 0 | sigue en 0 |
+
+Resto de Reels de FB sin cambio frente al 13 nov.
+
+YouTube (canal): suscriptores 118 (12 nov) → **127 (13 nov)**. Nuevo dato: vistas diarias del 10 nov = **16,261** (ola de saltar). Sin dato de vistas del 11 al 13 nov.
+
+Lectura rápida (solo números): los tres "¿qué pasaría si…?" recientes (mosquitos, torre, hielo) tienen 12 s vistos en FB, por encima del promedio de la cuenta (≈7–9 s); mosquitos ya es el 3º más visto de FB en 2 días. nutrias-001 sigue en 0 vistas en FB a 2 días: falla de distribución confirmada (como cleopatra-001). TikTok lleva 2 cortes sin actualizarse en Metricool: revisar la conexión de TikTok o si se está publicando ahí.
+
 ## Corte del 13 nov 2026 (9:50)
 **TikTok sin cambios:** Metricool devuelve exactamente las mismas vistas que el corte del 12 nov para los 20 videos y no aparece ninguno publicado después del 11 nov (emús, chicxulub, nutrias y torre no salen en TikTok: sin dato; revisar si se publicaron ahí). TKPO13/15 siguen vacíos.
 **Facebook:** 4 Reels nuevos y el del hoyo negro despegó.
