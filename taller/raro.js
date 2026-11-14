@@ -137,7 +137,7 @@ function cara(o,base,sombra){
   ctx.save(); ctx.translate(tiem,0);
   // cachetes inflados (expr 'sopla' u o.cachetes): bultos del color de la piel que se salen un poco de la silueta
   const cach=o.cachetes??e.cachetes??0;
-  if(cach>0){ for(const sd of [-1,1]){ const cx=sd*(96+22*cach), cy=-238, r=38+26*cach;
+  if(cach>0){ for(const sd of [-1,1]){ const cx=sd*(90+20*cach), cy=-240, r=36+24*cach;
     ctx.fillStyle=sombra||'#D9D4E8'; ctx.beginPath(); ctx.ellipse(cx+sd*4,cy+6,r,r*0.92,0,0,Math.PI*2); ctx.fill();
     ctx.fillStyle=o.color||base; ctx.beginPath(); ctx.ellipse(cx,cy,r,r*0.9,0,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.ellipse(cx-sd*10,cy-r*0.45,r*0.32,r*0.16,-0.3*sd,0,Math.PI*2); ctx.fill(); } }
