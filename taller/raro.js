@@ -128,12 +128,19 @@ const EXPR = {
   yavalio:  {ojos:0.95,cejas:[[4,0],[4,0]],          boca:'recta', lid:0.55, sudor:1},
   apenado:  {ojos:1.1, cejas:[[-6,0.35],[-6,0.35]],  boca:'temblorosa', rubor:1},
   dormido:  {ojos:1,   cejas:[[10,0.1],[10,0.1]],     boca:'o', ojosCerrados:1, sueno:1},   // ojos cerrados ‿ ‿ (dormir, torpor)
+  sopla:    {ojos:0.9, cejas:[[-4,0.2],[-4,0.2]],    boca:'sopla', lid:0.35, rubor:1, cachetes:1}, // cachetes inflados soplando (soplar-001); o.cachetes (0..1) controla cuánto se inflan
 };
 
 function cara(o,base,sombra){
   const t=o.t, e=EXPR[o.expr||'neutral']||EXPR.neutral, k=o.ojos??e.ojos, mira=o.mira||e.mira||{x:0,y:0};
   const tiem=e.tiembla? Math.sin(t*60)*3 : 0;
   ctx.save(); ctx.translate(tiem,0);
+  // cachetes inflados (expr 'sopla' u o.cachetes): bultos del color de la piel que se salen un poco de la silueta
+  const cach=o.cachetes??e.cachetes??0;
+  if(cach>0){ for(const sd of [-1,1]){ const cx=sd*(96+22*cach), cy=-238, r=38+26*cach;
+    ctx.fillStyle=sombra||'#D9D4E8'; ctx.beginPath(); ctx.ellipse(cx+sd*4,cy+6,r,r*0.92,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=o.color||base; ctx.beginPath(); ctx.ellipse(cx,cy,r,r*0.9,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.ellipse(cx-sd*10,cy-r*0.45,r*0.32,r*0.16,-0.3*sd,0,Math.PI*2); ctx.fill(); } }
   // rubor
   const rub=o.rubor??e.rubor??0;
   if(rub>0){ ctx.save(); ctx.globalAlpha=0.75*rub; ctx.fillStyle=RARO.rubor; for(const s of [-1,1]){ctx.beginPath();ctx.ellipse(s*92,-246,26,15,0,0,Math.PI*2);ctx.fill();} ctx.restore(); }
@@ -170,6 +177,7 @@ function cara(o,base,sombra){
     case 'sonrisa': ctx.strokeStyle=RARO.tinta; ctx.lineWidth=7; ctx.beginPath(); ctx.arc(0,by-10,16,0.2*Math.PI,0.8*Math.PI); ctx.stroke(); break;
     case 'grande': ctx.fillStyle=oscuro; ctx.beginPath(); ctx.moveTo(-28,by-8); ctx.quadraticCurveTo(0,by+38,28,by-8); ctx.closePath(); ctx.fill();
       ctx.fillStyle=RARO.lengua; ctx.beginPath(); ctx.ellipse(0,by+12,11,6,0,0,Math.PI*2); ctx.fill(); break;
+    case 'sopla': { ctx.fillStyle=oscuro; ctx.beginPath(); ctx.ellipse(0,by+2,9,11,0,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#E98AA8'; ctx.lineWidth=6; ctx.beginPath(); ctx.ellipse(0,by+2,14,16,0,0,Math.PI*2); ctx.stroke(); break; }
     case 'o': { const r=13+Math.sin(t*8)*1.5; ctx.fillStyle=oscuro; ctx.beginPath(); ctx.ellipse(0,by,r,r*1.35,0,0,Math.PI*2); ctx.fill(); break; }
     case 'grito': { ctx.fillStyle=oscuro; ctx.beginPath(); ctx.moveTo(-30,by-14);
       for(let x=-30;x<=30;x+=10) ctx.lineTo(x,by-14+Math.sin(x*0.3+t*40)*3); ctx.quadraticCurveTo(34,by+44,0,by+46); ctx.quadraticCurveTo(-34,by+44,-30,by-14); ctx.fill();
