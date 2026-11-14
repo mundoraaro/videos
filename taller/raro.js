@@ -1226,3 +1226,76 @@ DISFRACES.colibri = {
     ctx.restore();
   }
 };
+
+// =====================================================================
+// TARDÍGRADO / OSITO DE AGUA (tardigrado-001, nov 2026)
+// Disfraz: mameluco durazno con segmentos, 2 pares extra de patitas con garras a los lados (con brazos y piernas de Raro = 8 patitas),
+// capucha con trompita de tubo y dos puntitos. o.bolita (0..1) encoge las patitas extra (modo "barrilito" seco).
+DISFRACES.tardigrado = {
+  atras(o){ const t=o.t||0, k=1-(o.bolita||0), w=o.wob||0;
+    if(k<=0.02) return;
+    for(const s of [-1,1]) for(const [y,ph] of [[-118,0],[-196,1.7]]){
+      const a=Math.sin(t*7+ph+s)*0.25+w*0.6;
+      ctx.save(); ctx.translate(s*138,y); ctx.rotate(s*(0.25+a*0.4)); ctx.scale(k,k);
+      ctx.fillStyle='#E9A27F'; rr(-6,-30,s>0?86:-86,60,30); ctx.fill();
+      ctx.fillStyle='#FFC9A8'; ctx.beginPath(); ctx.ellipse(s*44,-2,46,26,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#5B3A2E'; ctx.lineWidth=6; ctx.lineCap='round';
+      for(let c=-1;c<=1;c++){ ctx.beginPath(); ctx.moveTo(s*84,-2+c*14); ctx.quadraticCurveTo(s*104,c*16,s*100,12+c*16); ctx.stroke(); }
+      ctx.restore(); }
+  },
+  cuerpo(o){
+    ctx.fillStyle='#FFC9A8'; ctx.fillRect(-200,-420,400,425);
+    ctx.strokeStyle='#EFA584'; ctx.lineWidth=10; ctx.lineCap='round';
+    for(const y of [-150,-100,-56]){ ctx.beginPath(); ctx.moveTo(-170,y-14); ctx.quadraticCurveTo(0,y+18,170,y-14); ctx.stroke(); }
+    ctx.fillStyle='#FFDCC6'; for(let i=0;i<6;i++){ ctx.beginPath(); ctx.ellipse(-110+i*44,-128+((i%2)*44),10,7,0,0,Math.PI*2); ctx.fill(); }
+    // cara despejada
+    ctx.fillStyle=RARO.base; ctx.beginPath(); ctx.ellipse(0,-262,120,90,0,0,Math.PI*2); ctx.fill();
+  },
+  cabeza(o){ const t=o.t||0, w=o.wob||0;
+    ctx.save(); ctx.translate(0,-356); ctx.rotate(w*0.05);
+    ctx.fillStyle='#FFC9A8'; ctx.beginPath(); ctx.ellipse(0,0,150,42,0,Math.PI,0); ctx.lineTo(150,6); ctx.quadraticCurveTo(0,30,-150,6); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#EFA584'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(-130,0); ctx.quadraticCurveTo(0,20,130,0); ctx.stroke();
+    // trompita de tubo que se menea
+    ctx.save(); ctx.translate(0,-36); ctx.rotate(Math.sin(t*4)*0.12+w*0.5);
+    ctx.fillStyle='#E9A27F'; rr(-22,-58,44,62,18); ctx.fill(); ctx.fillStyle='#FFC9A8'; ctx.beginPath(); ctx.ellipse(0,-58,26,12,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#7A3E2E'; ctx.beginPath(); ctx.ellipse(0,-58,12,6,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#3A2230'; for(const s of [-1,1]){ ctx.beginPath(); ctx.arc(s*54,-18,7,0,Math.PI*2); ctx.fill(); }
+    ctx.restore();
+  }
+};
+
+// Osito de agua NPC (vista de lado, mira a la derecha). o: {x,y(suelo),s,t,color,dormido,lentes,feliz,flota,dir(-1 mira a la izq),gris,alpha}
+function osito(o){ const t=o.t||0, s=o.s||1, c=o.gris? '#C9C3D6' : (o.color||'#FFB8A0'), cs=mix(c,'#7A3E5E',0.25), dir=o.dir||1;
+  if(typeof ocupa==='function') ocupa(o.x-170*s,o.y-190*s,o.x+190*s,o.y,o.peso??1.2);
+  ctx.save(); ctx.translate(o.x,o.y-(o.alto||0)); ctx.scale(s*dir,s); ctx.rotate(o.tilt||0); if(o.alpha!=null) ctx.globalAlpha=o.alpha;
+  const br=1+0.025*Math.sin(t*3+(o.seed||0));
+  // patitas (4 pares, se ven 4 de este lado + 4 atrás más oscuras)
+  for(const capa of [0,1]) for(let i=0;i<4;i++){ const lx=-120+i*76+(capa?18:0), ph=Math.sin(t*(o.camina?12:3)+i*1.4+capa*2)*(o.camina?16:5);
+    ctx.fillStyle=capa? c : cs; ctx.save(); ctx.translate(lx+ph*0.4,-38); rr(-20,0,40,44+Math.max(0,ph*0.3),18); ctx.fill();
+    ctx.strokeStyle='#4A2A2E'; ctx.lineWidth=5; ctx.lineCap='round'; for(const g of [-9,0,9]){ ctx.beginPath(); ctx.moveTo(g,40); ctx.lineTo(g+4,54); ctx.stroke(); } ctx.restore(); }
+  // cuerpo segmentado
+  ctx.save(); ctx.scale(1,br);
+  ctx.fillStyle=cs; ctx.beginPath(); ctx.ellipse(6,-96,178,88,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,-102,172,82,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle=cs; ctx.lineWidth=7; for(const x of [-90,-30,30,90]){ ctx.beginPath(); ctx.moveTo(x,-176); ctx.quadraticCurveTo(x+16,-102,x,-30); ctx.stroke(); }
+  ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.ellipse(-50,-156,60,16,-0.15,0,Math.PI*2); ctx.fill();
+  // cabeza y trompita
+  ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(150,-108,62,56,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=cs; rr(196,-126,40,30,12); ctx.fill(); ctx.fillStyle='#7A3E2E'; ctx.beginPath(); ctx.ellipse(236,-111,7,11,0,0,Math.PI*2); ctx.fill();
+  // ojo
+  if(o.lentes){ ctx.fillStyle='#1E1A2E'; rr(132,-142,58,30,12); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.fillRect(140,-136,14,5); }
+  else if(o.dormido||o.gris){ ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=6; ctx.lineCap='round'; ctx.beginPath(); ctx.arc(162,-128,11,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); }
+  else { const bl=parpadeo(t+(o.seed||0),5); ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(162,-128,11,14*bl+1,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(165,-133,4,0,Math.PI*2); ctx.fill(); }
+  if(!o.gris){ ctx.fillStyle='rgba(255,120,150,0.55)'; ctx.beginPath(); ctx.ellipse(176,-96,14,8,0,0,Math.PI*2); ctx.fill(); }
+  if(o.feliz){ ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(196,-92,10,0.1*Math.PI,0.9*Math.PI); ctx.stroke(); }
+  ctx.restore(); ctx.restore(); }
+// Osito seco ("barrilito", tun): bolita arrugada con las patas guardadas
+function barrilito(x,y,s,t,o={}){ const c=o.color||'#E8B48E', cs=mix(c,'#6A3E2E',0.3);
+  if(typeof ocupa==='function') ocupa(x-90*s,y-120*s,x+90*s,y,o.peso??0.8);
+  ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(o.rot||0);
+  ctx.fillStyle=cs; ctx.beginPath(); ctx.ellipse(4,-56,88,60,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,-60,84,56,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle=cs; ctx.lineWidth=5; for(const yy of [-92,-70,-48,-28]){ ctx.beginPath(); ctx.moveTo(-70,yy); for(let xx=-70;xx<=70;xx+=14) ctx.lineTo(xx,yy+((xx/14)%2?4:-3)); ctx.stroke(); }
+  ctx.strokeStyle='#3A2230'; ctx.lineWidth=5; ctx.lineCap='round'; ctx.beginPath(); ctx.arc(50,-74,8,0.15*Math.PI,0.85*Math.PI); ctx.stroke();
+  if(o.zzz){ ctx.fillStyle='#FFFFFF'; ctx.font=fuente(36); ctx.textAlign='center'; for(let i=0;i<2;i++){ const u=((t*0.6+i*0.5)%1); ctx.globalAlpha=1-u; ctx.fillText('z',70+u*40,-130-u*80); } ctx.globalAlpha=1; }
+  ctx.restore(); }
