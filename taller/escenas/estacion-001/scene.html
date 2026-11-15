@@ -99,8 +99,8 @@ let SOL_VENTANA=0;
 function solV(t){ let n=1; for(let i=0;i<SC.length;i++) if(t>=SC[i].start) n=i+1; return n===13?0.5+0.5*Math.sin(t*9):(n===15?0.5+0.5*Math.sin(t*14):0); }
 function zzz(t,x,y,i=0){ ctx.save(); ctx.fillStyle='#FFFFFF'; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8; ctx.font=fuente(54); ctx.textAlign='center'; for(let k=0;k<3;k++){ const u=((t*0.8+k/3+i*0.3)%1); ctx.globalAlpha=1-u; ctx.strokeText('z',x+u*50+k*14,y-u*110); ctx.fillText('z',x+u*50+k*14,y-u*110); } ctx.restore(); }
 EXTRA_FONDOS.estacion=function(t,P,px){ // módulo de la estación: tubo con paneles, ventana redonda con la Tierra, pasamanos y cables
-  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.25); ctx.fillRect(-300,-300,1680,2520);
-  ctx.fillStyle=mix(P.claro,P.medio,0.35); for(let r=0;r<5;r++) for(let i=-1;i<6;i++){ rr(-60+i*230+px(0.2)%230+(r%2)*115,240+r*250,200,210,30); ctx.fill(); }
+  ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
+  ctx.fillStyle=mix(P.claro,P.medio,0.55); for(let r=0;r<5;r++) for(let i=-1;i<6;i++){ rr(-60+i*230+px(0.2)%230+(r%2)*115,240+r*250,200,210,30); ctx.fill(); }
   ctx.fillStyle=P.medio; ctx.beginPath(); ctx.ellipse(540+px(0.3),-40,1100,330,0,0,PI2); ctx.fill(); ctx.beginPath(); ctx.ellipse(540+px(0.3),1960,1100,330,0,0,PI2); ctx.fill();
   ventanaTierra(780+px(0.35),760,150,t,solV(t));
   ctx.strokeStyle=P.oscuro; ctx.lineWidth=22; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-100,1180+px(0.1)*0); ctx.lineTo(1180,1180); ctx.stroke();
@@ -110,7 +110,7 @@ EXTRA_FONDOS.estacion=function(t,P,px){ // módulo de la estación: tubo con pan
   ctx.strokeStyle=mix(P.oscuro,'#1E1A2E',0.15); ctx.lineWidth=14; ctx.beginPath(); ctx.moveTo(-80,140); ctx.bezierCurveTo(300+px(0.8),260+Math.sin(t)*10,700+px(0.8),120,1200,240); ctx.stroke();
 };
 EXTRA_FONDOS.modulo=function(t,P,px){ // laboratorio: casilleros, escotilla redonda al fondo, luces que parpadean
-  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.2); ctx.fillRect(-300,-300,1680,2520);
+  ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
   ctx.fillStyle=P.medio; blob(540+px(0.2),820,300); ctx.fillStyle=mix(P.claro,'#FFFFFF',0.35); blob(540+px(0.2),820,230); ctx.fillStyle=mix(P.claro,P.medio,0.25); blob(540+px(0.2),820,150);
   for(const sx of [-1,1]){ for(let r=0;r<6;r++){ const x=540+sx*460+px(0.45), y=260+r*200; ctx.fillStyle=mix(P.medio,P.oscuro,r%2?0.2:0); rr(x-170,y,340,180,26); ctx.fill();
     ctx.fillStyle=mix(P.claro,'#FFFFFF',0.3); rr(x-140,y+30,120,26,10); ctx.fill(); ctx.fillStyle=['#D7FF3D','#FF4D6D','#4CC9F0'][(r+(sx>0))%3]; ctx.globalAlpha=0.5+0.5*Math.sin(t*5+r+sx); blob(x+110,y+44,12); ctx.globalAlpha=1; } }
@@ -219,13 +219,14 @@ function flota(o,ang=0){ const s=o.s??1; ctx.save(); ctx.translate(o.x,o.y); ctx
 // ====================== escenas ======================
 // Storyboard S1/S26 (loop): módulo violeta con ventana a la Tierra; Raro tripulante flotando de lado, bebe con popote lima de una burbuja de agua
 // gigante que flota; letrero PIPÍ = AGUA visible desde el cuadro 0. Toma push. En S26 la burbuja vuelve a aparecer (loop exacto).
-function escenaGancho(t,sc,fin){ const fy=Math.sin(t*2.2)*18, ang=-0.35+Math.sin(t*1.6)*0.06;
-  const bx=760, by=1010+Math.sin(t*1.7+1)*22;
+function escenaGancho(t,sc,fin){ const fy=Math.sin(t*3.2)*34, ang=-0.35+Math.sin(t*2.6)*0.16;
+  const bx=760+Math.sin(t*2.1)*26, by=1010+Math.sin(t*2.7+1)*34;
   burbuja(bx,by,125,t);
   flota({x:370,y:1150+fy,s:1.2,t,disfraz:TRIP,expr:'feliz',mira:{x:0.8,y:-0.4},brazos:'frente',tilt:0},ang);
   popote(450,1090+fy,bx-95,by+20);
   L('PIPÍ = AGUA',540,420,1,'panel',{tam:100,t,t0:-1});
-  for(let i=0;i<5;i++){ burbuja(160+i*180,1350+Math.sin(t*2+i)*30,14+rand(i)*10,t+i); }
+  for(let i=0;i<9;i++){ burbuja(((t*260+i*150)%1260)-90,1260+rand(i)*360+Math.sin(t*3+i)*40,16+rand(i)*14,t+i); }
+  for(let i=0;i<3;i++){ tortilla(((t*340+i*420+300)%1400)-160,560+i*120+Math.sin(t*2+i)*30,40,t*2,i); }
 }
 function S1(t,sc){ escenaGancho(t,sc,false); }
 function S26(t,sc){ escenaGancho(t,sc,true); }
@@ -420,15 +421,15 @@ window.SCENES=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S1
 window.CHIPS={};
 const OR={pp:false};
 window.FONDOS={1:{pal:'violeta',tipo:'estacion'},2:{pal:'magenta',tipo:'modulo'},3:{pal:'turquesa',tipo:'estacion'},4:{pal:'violeta',tipo:'orbita',...OR},5:{pal:'limon',tipo:'estacion'},
-  6:{pal:'cielo',tipo:'modulo'},7:{pal:'mandarina',tipo:'estacion'},8:{pal:'magenta',tipo:'modulo'},9:{pal:'turquesa',tipo:'estacion'},10:{pal:'violeta',tipo:'modulo'},
-  11:{pal:'limon',tipo:'estacion'},12:{pal:'mandarina',tipo:'cocina'},13:{pal:'cielo',tipo:'estacion'},14:{pal:'violeta',tipo:'orbita',...OR},15:{pal:'magenta',tipo:'estacion'},
-  16:{pal:'mandarina',tipo:'orbita',...OR},17:{pal:'turquesa',tipo:'cielo'},18:{pal:'magenta',tipo:'modulo'},19:{pal:'limon',tipo:'estacion'},20:{pal:'cielo',tipo:'modulo'},
+  6:{pal:'cielo',tipo:'modulo'},7:{pal:'mandarina',tipo:'estacion'},8:{pal:'cielo',tipo:'modulo'},9:{pal:'turquesa',tipo:'estacion'},10:{pal:'violeta',tipo:'modulo'},
+  11:{pal:'limon',tipo:'estacion'},12:{pal:'mandarina',tipo:'cocina'},13:{pal:'violeta',tipo:'estacion'},14:{pal:'magenta',tipo:'orbita',...OR},15:{pal:'turquesa',tipo:'estacion'},
+  16:{pal:'mandarina',tipo:'orbita',...OR},17:{pal:'turquesa',tipo:'cielo'},18:{pal:'cielo',tipo:'modulo'},19:{pal:'limon',tipo:'estacion'},20:{pal:'cielo',tipo:'modulo'},
   21:{pal:'violeta',tipo:'casa'},22:{pal:'magenta',tipo:'cerros'},23:{pal:'turquesa',tipo:'ciudad'},24:{pal:'limon',tipo:'cerros'},25:{pal:'mandarina',tipo:'casa'},26:{pal:'violeta',tipo:'estacion'}};
 window.TOMAS={1:{mov:'push'},2:{mov:'push',z:1.3,foco:[440,880]},3:{mov:'pull'},4:{mov:'orbita'},5:{mov:'push'},6:{mov:'pull'},7:{mov:'push',z:1.25,foco:[480,980]},8:{mov:'paneo-der'},
   9:{mov:'push',z:1.4,foco:[500,1020]},10:{mov:'pull'},11:{mov:'sube'},12:{mov:'paneo-der'},13:{mov:'push',z:1.3,foco:[420,1060]},14:{mov:'orbita'},15:{mov:'pull'},16:{mov:'paneo-izq'},
   17:{mov:'push'},18:{mov:'push',z:1.55,foco:[470,1120]},19:{mov:'sube'},20:{mov:'pull'},21:{mov:'baja'},22:{mov:'push'},23:{mov:'pull'},24:{mov:'push',z:1.3,foco:[450,1080]},25:{mov:'push'},26:{mov:'push'}};
-window.TRANS={3:'bufanda',4:'latigazo',5:'zoom',6:'bufanda',8:'latigazo',10:'bufanda',11:'latigazo',12:'bufanda',14:'zoom',15:'latigazo',16:'bufanda',17:'latigazo',19:'zoom',21:'bufanda',22:'latigazo',23:'bufanda',25:'latigazo',26:'bufanda'};
+window.TRANS={5:'zoom',9:'latigazo',12:'zoom',14:'bufanda',17:'zoom',19:'latigazo',22:'zoom',26:'bufanda'};
 window.KEYWORDS=[6,12,21,30,35,47,56,62,72,80,91,93,104,106,112,120,123,130,136,142,144,150,156,165,168,175,181];
-window.SHAKES=[6,35,56,91,112,130,153,175];
+window.SHAKES=[4,6,9,35,56,91,112,130,153,175];
 window.FLASHES=[[35,'#BFF4FF'],[130,'#FFFFFF']];
 </script></body></html>
