@@ -223,9 +223,10 @@ function escenaGancho(t,sc,tl,fin){ solGrande(800,520,120,t);
   if(t<llov+0.05) gotaVapor(t,ph,GX);
   if(fin || t<llov){ ctx.save(); ctx.translate(GX+Math.sin(t*2)*14,NUBE_Y); ctx.scale(1.25,1.25); ctx.fillStyle='#FFFFFF'; nube(0,0,0.9); ctx.fillStyle='#1E1A2E'; for(const s of [-1,1]) blob(s*22,18,7); ctx.restore(); ocupa(GX-140,NUBE_Y-90,GX+140,NUBE_Y+80,2); }
   else nubecita(t,llov,GX,NUBE_Y,true);
-  const flinch=ph>0.55&&ph<0.8; const pun=Math.abs(Math.sin(t*5))*18;
+  const flinch=ph>0.55&&ph<0.8; const pun=Math.abs(Math.sin(t*7))*42;
+  for(let i=0;i<3;i++){ const u=((t*1.1+i/3)%1); ctx.save(); ctx.globalAlpha=0.55*(1-u); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=7; ctx.beginPath(); for(let x=0;x<=130;x+=10) ctx.lineTo(560+i*150+x-(i==2?0:0), SUELO-180-u*300+Math.sin(x*0.12+t*9)*12); ctx.stroke(); ctx.restore(); }
   const exp= t>=llov+0.1 ? 'yavalio' : (flinch?'terror':'asombro');
-  raroParaguas({x:GX,y:SUELO,s:1.0,t,expr:exp,piernas:'quieto',alto:t<llov?pun:0,sq:t<llov?(flinch?0.08:0):gelatina(t,llov,0.4),tilt:t<llov?Math.sin(t*3)*0.05:0,mira:{x:0,y:-1},brazos:'arriba'},{ang:0.6,s:0.85});
+  raroParaguas({x:GX,y:SUELO,s:1.0,t,expr:exp,piernas:'quieto',alto:t<llov?pun:0,sq:t<llov?(flinch?0.08:0):gelatina(t,llov,0.4),tilt:t<llov?Math.sin(t*7)*0.07:0,mira:{x:0,y:-1},brazos:'arriba'},{ang:0.6,s:0.85,viento:0.7});
   L('NUNCA LLUEVE',540,420,1,'madera',{tam:100,t,t0:-1});
 }
 function S1(t,sc){ escenaGancho(t,sc,0,false); }
@@ -444,6 +445,6 @@ window.TOMAS={1:{mov:'push'},2:{mov:'push'},3:{mov:'pull'},4:{mov:'push'},5:{mov
   21:{mov:'push'},22:{mov:'push'},23:{mov:'fija'},24:{mov:'pull'},25:{mov:'push'},26:{mov:'orbita'},27:{mov:'push',z:1.2,foco:[500,1150]},28:{mov:'push'}};
 window.TRANS={4:'bufanda',6:'latigazo',9:'zoom',11:'latigazo',13:'bufanda',16:'latigazo',18:'zoom',20:'bufanda',22:'zoom',24:'latigazo',25:'bufanda',27:'latigazo',28:'bufanda'};
 window.KEYWORDS=[5,10,23,28,35,48,55,58,62,64,73,78,86,96,105,108,115,120,123,127,135,137,149,155,161,167,172,184,187,191];
-window.SHAKES=[5,17,46,96,115,159,161,165,172];
+window.SHAKES=[2,4,5,17,46,96,115,159,161,165,172];
 window.FLASHES=[[92,'#FFFFFF'],[115,'#BFF4FF']];
 </script></body></html>
