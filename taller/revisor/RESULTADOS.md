@@ -4,6 +4,30 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 15 nov 2026 (9:50)
+**Nuevo: Buffer ya devuelve métricas por publicación** (vistas y tiempo promedio en TikTok, vistas en YouTube). TikTok en Buffer actualizado al 15 nov 05:11 (CDMX); YouTube al 14 nov 17:03 (por eso jalón y méxico salen en 0 en YT: sin dato aún). Facebook por Metricool (en Buffer FB da 0 impresiones: no usar). Metricool TikTok no se consultó hoy porque llevaba 2 cortes congelado; Buffer lo sustituye.
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,949** | 23.0 | **167** | 2,235 | 998 | 12 |
+| mexico-001-v2 | quepasaria | 14 nov 20:00 | 3,118 | 23.2 | 126 | sin dato | sin dato | sin dato |
+| jalon-001-v2 | quepasaria | 14 nov 17:00 | 3,117 | 25.0 | 83 | sin dato | sin dato | sin dato |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,949 | 26.1 | 91 | 1,258 | 374 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,839 | **27.4** | 94 | 1,616 | 378 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,749 | 26.2 | 71 | 1,396 | **4,473** | 11 |
+| mar-001-v2 | quepasaria | 14 nov 11:00 | 2,554 | 25.1 | 91 | 1,213 | 230 | 4 |
+| colibri-001-v2 | quepasaria | 13 nov 18:00 | 803 | 20.0 | 15 | 987 | 253 | 5 |
+| chicxulub-001 | dato | 11 nov 20:00 | 484 | 24.8 | 19 | **2,718** | 297 | 12 |
+| emus-001 | historia | 11 nov 18:40 | 210 | 14.7 | 10 | 1,204 | 228 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 133 | 35.7 | 2 | 1,539 | 3 | 14 |
+| gritar-001-v2 | quepasaria | 15 nov 09:00 | 0 (recién) | — | 0 | 0 | sin dato | sin dato |
+
+Lectura rápida (solo números):
+- **hielo-001-v2 explotó en Facebook: 4,473 vistas** (de 217 el 14 nov), 4 veces el récord anterior de FB (saltar 1,114).
+- En TikTok los "¿qué pasaría si…?" con multitud o el planeta entero (mosquitos, méxico, jalón, torre, hielo, mar) se agrupan en 2,500–3,900 vistas; colibrí (personal "si fueras…", animal) se quedó en 803, y los dato/historia en tercera persona (emús, nutrias, chicxulub) en 133–484.
+- En YouTube chicxulub es el más visto del lote (2,718) aunque en TikTok flojeó: las redes no siempre coinciden.
+- nutrias-001 sigue con 3 vistas en FB (falla de distribución en FB confirmada) pero 1,539 en YouTube.
+
 ## Corte del 14 nov 2026 (8:55)
 **TikTok sin cambios por segundo día:** Metricool devuelve exactamente las mismas vistas que el 12 nov para los 20 videos y no aparece ninguno publicado después del 11 nov (sin dato de los nuevos en TikTok). TKPO13/15 siguen vacíos.
 **Facebook:** 3 Reels nuevos; mosquitos despegó.
