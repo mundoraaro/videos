@@ -166,9 +166,10 @@ const BOX='boxeador';
 // Gancho S1/S30 (loop): balanza gigante en la arena de pesaje; platillo izquierdo con la multitud de gomitas y Raro boxeador encima;
 // platillo derecho con tres vacas que lo hunden; letrero ¡TODOS A LA BÁSCULA! desde el cuadro 0. Toma push. Raro asustado, brazos arriba.
 function escenaGancho(t,sc,fin){ const w=fin? wobble(t,sc.start+0.1,0.06) : wobble(t,-0.2,0.05); const base=fin? lerp(0.08,0.2,easeOut(prog(t,sc.start,dur(sc)*0.8))) : 0.2;
-  const ang=base+w+Math.sin(t*3)*0.012;
-  balanza(t,{ang, izq:(px,py)=>{ multitud(px,py,240,3,t,0.1); raro({x:px,y:py-80,s:0.6,t,disfraz:BOX,expr:'terror',brazos:'arriba',sq:gelatina(t,fin?sc.start+0.3:0.05,0.4),wob:wobble(t,0.05,0.7)}); },
-    der:(px,py)=>{ vaca({x:px-56,y:py,s:0.38,t,expr:'orgullo',brazos:'jarras',seed:1}); vaca({x:px+56,y:py,s:0.38,t,expr:'feliz',brazos:'jarras',seed:2}); vaca({x:px,y:py+6,s:0.48,t,expr:'risa',brazos:'arriba',seed:3}); }});
+  const ang=base+w+Math.sin(t*6)*0.06; const hop=Math.abs(Math.sin(t*7))*46;
+  balanza(t,{ang, izq:(px,py)=>{ multitud(px,py,240,3,t,0.1); raro({x:px,y:py-80,s:0.6,t,disfraz:BOX,expr:'terror',brazos:'arriba',alto:hop,sq:Math.sin(t*14)*0.12,wob:Math.sin(t*7)*0.5}); },
+    der:(px,py)=>{ vaca({x:px-56,y:py,s:0.38,t,expr:'orgullo',brazos:'jarras',seed:1,sq:Math.sin(t*9)*0.1}); vaca({x:px+56,y:py,s:0.38,t,expr:'feliz',brazos:'jarras',seed:2,sq:Math.sin(t*9+1)*0.1}); vaca({x:px,y:py+6,s:0.48,t,expr:'risa',brazos:'arriba',seed:3,sq:Math.sin(t*9+2)*0.1}); }});
+  confeti(t,-2,34);
   L('¡TODOS A LA BÁSCULA!',540,420,1,'panel',{tam:84,t,t0:-1});
   if(!fin && t>=at(6)) chispas(t,at(6),820,1000,1.0,'#FFFFFF');
 }
@@ -379,8 +380,8 @@ window.FONDOS={1:{pal:'magenta',tipo:'pesaje'},2:{pal:'limon',tipo:'cerros'},3:{
 window.TOMAS={1:{mov:'sube'},2:{mov:'push'},3:{mov:'pull'},4:{mov:'push',z:1.15,foco:[540,1150]},5:{mov:'orbita'},6:{mov:'push',z:1.2,foco:[480,1100]},7:{mov:'baja'},8:{mov:'sube'},
   9:{mov:'baja'},10:{mov:'sube'},11:{mov:'paneo-izq'},12:{mov:'pull'},13:{mov:'baja'},14:{mov:'push'},15:{mov:'paneo-der'},16:{mov:'push'},17:{mov:'sube'},18:{mov:'push',z:1.1,foco:[540,1100]},
   19:{mov:'pull'},20:{mov:'sube'},21:{mov:'push'},22:{mov:'baja'},23:{mov:'pull'},24:{mov:'sube'},25:{mov:'push',z:1.05,foco:[540,1150]},26:{mov:'push'},27:{mov:'baja'},28:{mov:'push'},29:{mov:'push',z:1.15,foco:[480,1150]},30:{mov:'sube'}};
-window.TRANS={3:'bufanda',5:'latigazo',7:'zoom',9:'latigazo',11:'bufanda',13:'zoom',15:'latigazo',18:'zoom',19:'bufanda',21:'latigazo',23:'zoom',25:'zoom',26:'bufanda',28:'latigazo',30:'bufanda'};
+window.TRANS={2:'zoom',3:'bufanda',5:'latigazo',7:'zoom',9:'latigazo',11:'bufanda',13:'zoom',15:'latigazo',18:'zoom',19:'bufanda',21:'latigazo',23:'zoom',25:'zoom',26:'bufanda',28:'latigazo',30:'bufanda'};
 window.KEYWORDS=[6,10,13,16,22,28,33,37,45,56,63,66,71,76,83,88,90,104,112,118,121,128,134,140,147,149,159,167,169,173,181];
-window.SHAKES=[10,45,76,90,112,119,120,121,140,169];
-window.FLASHES=[[45,'#FFFFFF'],[112,'#FFFFFF'],[169,'#FFFFFF']];
+window.SHAKES=[1,3,6,10,45,76,90,112,119,120,121,140,169];
+window.FLASHES=[[6,'#FFF3A6'],[45,'#FFFFFF'],[112,'#FFFFFF'],[169,'#FFFFFF']];
 </script></body></html>
