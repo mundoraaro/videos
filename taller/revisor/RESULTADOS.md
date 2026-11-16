@@ -30,7 +30,7 @@ Lectura rápida (solo números):
 - La única historia de la semana (emús) es la más floja en TikTok (212 vistas, 14.8 s promedio, la mitad que los "todos").
 
 ### Revisión semanal (lunes 16 nov): aprobados del 10 al 15 nov contra el promedio
-Promedio TikTok de los 13 videos de la tabla con dato completo (sin láser ni soplar): ≈2,300 vistas; YouTube ≈1,630.
+Promedio de los 12 videos de la tabla con dato completo (sin láser ni soplar): TikTok ≈2,200 vistas; YouTube ≈1,680.
 - **Arriba del promedio en TikTok:** mosquitos, gritar, méxico, jalón, apolo, torre, hielo, mar (todos "¿qué pasaría si…?" salvo apolo, dato con comparación cotidiana "tu selfie pesa 3 MB").
 - **Abajo:** colibrí ("si fueras…" animal), chicxulub (3D), emús (historia), nutrias (animal tierno). En YouTube, chicxulub (3,219) y nutrias (1,649) sí quedan arriba del promedio: las redes no coinciden.
 - Conclusión con números: el piso de la serie "todos" se sostiene (~2.6–3.4 K en TikTok, ~1.2–1.5 K en YouTube); ninguno se acerca todavía a saltar (17 K TikTok, 20 K YouTube).
