@@ -1411,3 +1411,51 @@ function carta(x,y,s,t,k=1,abierta=0){ if(k<=0) return; ctx.save(); ctx.translat
   ctx.save(); ctx.translate(0,-150-abierta*170); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.moveTo(-70,40); ctx.lineTo(-70,-20); ctx.lineTo(-35,10); ctx.lineTo(0,-40); ctx.lineTo(35,10); ctx.lineTo(70,-20); ctx.lineTo(70,40); ctx.closePath(); ctx.fill();
   ctx.fillStyle='#E23D5B'; blob(0,18,10); ctx.fillStyle='#4CC9F0'; blob(-40,24,8); blob(40,24,8); ctx.restore();
   ctx.restore(); if(typeof ocupa==='function') ocupa(x-150*s,y-220*s,x+150*s,y+100*s,1.5); }
+
+// ---------- agregados con bascula-001 (nov 2026): boxeador, albañil y animales de granja/salvajes como disfraces de gomita ----------
+DISFRACES.boxeador = { // short rojo con franja dorada, cinta roja en la frente y guantes rojos; o.cinturon=true pone el cinturón de campeón
+  cuerpo(o){ ctx.fillStyle='#E23D5B'; ctx.fillRect(-200,-125,400,100); ctx.fillStyle='#FFFFFF'; ctx.fillRect(-200,-132,400,22);
+    ctx.fillStyle='#FFD23F'; for(const s of [-1,1]) ctx.fillRect(s*118-9,-110,18,85);
+    if(o.cinturon){ ctx.fillStyle='#E0A800'; ctx.fillRect(-200,-150,400,50); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(0,-125,70,46,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFF3A6'; ctx.beginPath(); ctx.ellipse(0,-125,40,26,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#E23D5B'; blob(0,-125,12); } },
+  cabeza(o){ const t=o.t||0, w=o.wob||0; ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(-146,-338); ctx.quadraticCurveTo(0,-372,146,-338); ctx.lineTo(146,-312); ctx.quadraticCurveTo(0,-346,-146,-312); ctx.closePath(); ctx.fill();
+    for(const k of [0,1]){ ctx.save(); ctx.translate(140,-326); ctx.rotate(0.2+k*0.5+Math.sin(t*9+k)*0.18+w*0.4); ctx.beginPath(); ctx.moveTo(0,-8); ctx.quadraticCurveTo(50,-14,96,4+Math.sin(t*11+k)*8); ctx.lineTo(90,18); ctx.quadraticCurveTo(46,4,0,10); ctx.fill(); ctx.restore(); } },
+  frente(o,B){ for(const k of [-1,1]){ const h=B[k].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.fillStyle='#FFFFFF'; rr(-30,22,60,30,10); ctx.fill();
+    ctx.fillStyle='#B81E3E'; blob(4,4,50); ctx.fillStyle='#E23D5B'; blob(0,0,48); ctx.fillStyle='#FF7A90'; ctx.beginPath(); ctx.ellipse(-16,-18,16,9,-0.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#C42A48'; ctx.beginPath(); ctx.ellipse(k*30,10,16,24,k*0.4,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
+};
+DISFRACES.albanil = { // chaleco naranja con franjas reflejantes y casco amarillo de obra
+  cuerpo(o){ ctx.fillStyle='#FF7A1A'; ctx.fillRect(-200,-205,400,180); ctx.fillStyle='#FAF7F2'; ctx.beginPath(); ctx.moveTo(-60,-210); ctx.lineTo(0,-120); ctx.lineTo(60,-210); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#E8F27A'; ctx.fillRect(-200,-110,400,22); ctx.fillRect(-200,-62,400,22); ctx.fillStyle='#CC5A0A'; ctx.fillRect(-4,-120,8,100); },
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-350); ctx.rotate(-0.05+w*0.07); ctx.fillStyle='#E0A800'; ctx.beginPath(); ctx.ellipse(0,6,168,26,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(0,0,132,104,0,Math.PI,0); ctx.fill(); ctx.fillStyle='#E0A800'; rr(-16,-104,32,100,12); ctx.fill();
+    ctx.fillStyle='#FFF3A6'; ctx.beginPath(); ctx.ellipse(-60,-58,26,12,-0.6,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+};
+const DISFRAZ_VACA = { // vaca de gomita: manchas, cuernos, orejas, hocico rosa y campana
+  cuerpo(o){ ctx.fillStyle='#4B3D6B'; for(const [x,y,r] of [[-90,-150,48],[70,-90,40],[110,-180,30],[-30,-70,26]]){ ctx.beginPath(); ctx.ellipse(x,y,r*1.2,r,0.4,0,Math.PI*2); ctx.fill(); } },
+  cabeza(o){ const t=o.t||0; ctx.fillStyle='#FFF1C9'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*84,-364); ctx.rotate(s*0.5); ctx.beginPath(); ctx.moveTo(-14,0); ctx.quadraticCurveTo(s*10,-60,s*40,-70); ctx.quadraticCurveTo(s*4,-40,14,0); ctx.fill(); ctx.restore(); }
+    ctx.fillStyle='#B9A2EE'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*150,-322); ctx.rotate(s*(0.5+Math.sin(t*5+s)*0.12)); ctx.beginPath(); ctx.ellipse(s*30,0,44,20,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    ctx.fillStyle='#4B3D6B'; ctx.beginPath(); ctx.ellipse(-56,-340,34,22,0.3,0,Math.PI*2); ctx.fill(); },
+  frente(o){ const t=o.t||0; ctx.fillStyle='#FFB3C7'; ctx.beginPath(); ctx.ellipse(0,-222,74,44,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#D9607F'; for(const s of [-1,1]){ ctx.beginPath(); ctx.ellipse(s*24,-222,10,14,0,0,Math.PI*2); ctx.fill(); }
+    ctx.save(); ctx.translate(0,-170); ctx.rotate(Math.sin(t*6)*0.2); ctx.fillStyle='#E0A800'; ctx.beginPath(); ctx.moveTo(-26,0); ctx.lineTo(26,0); ctx.lineTo(34,46); ctx.lineTo(-34,46); ctx.closePath(); ctx.fill(); ctx.fillStyle='#8A6400'; blob(0,50,9); ctx.restore(); }
+};
+function vaca(o){ return gomita({color:'#D9C2FF', expr:'feliz', ...o, disfraz:DISFRAZ_VACA}); }
+const DISFRAZ_BORREGO = { // borrego: lana esponjada alrededor del cuerpo y copete de lana
+  atras(o){ const t=o.t||0; ctx.fillStyle='#FFF1C9'; for(let i=0;i<14;i++){ const a=i/14*Math.PI*2; blob(Math.cos(a)*150, -210+Math.sin(a)*160+Math.sin(t*4+i)*3, 58); } },
+  cabeza(o){ const t=o.t||0; ctx.fillStyle='#FFF1C9'; for(let i=0;i<5;i++) blob(-80+i*40,-372+Math.sin(t*5+i)*4-(i%2)*14,40);
+    ctx.fillStyle='#E8B98A'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*150,-300); ctx.rotate(s*0.7); ctx.beginPath(); ctx.ellipse(s*24,0,36,16,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
+};
+function borrego(o){ return gomita({color:'#FFD9B8', expr:'feliz', ...o, disfraz:DISFRAZ_BORREGO}); }
+const DISFRAZ_ELEFANTE = { // elefante: orejotas, trompa que se mueve y colmillos
+  atras(o){ const t=o.t||0; ctx.fillStyle='#8FCBF0'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*130,-270); ctx.rotate(s*Math.sin(t*4)*0.12); ctx.beginPath(); ctx.ellipse(s*60,0,110,130,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } },
+  frente(o){ const t=o.t||0, sw=Math.sin(t*3)*30; ctx.strokeStyle='#A8DAF7'; ctx.lineWidth=58; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-240); ctx.quadraticCurveTo(10+sw*0.3,-140,40+sw,-90); ctx.stroke();
+    ctx.fillStyle='#FFF6DC'; for(const s of [-1,1]){ ctx.beginPath(); ctx.moveTo(s*40,-210); ctx.quadraticCurveTo(s*70,-160,s*50,-140); ctx.lineTo(s*36,-200); ctx.fill(); } }
+};
+function elefante(o){ return gomita({color:'#B8E6FF', expr:'feliz', ...o, disfraz:DISFRAZ_ELEFANTE}); }
+const DISFRAZ_VENADO = { // venado: astas ramificadas, orejas y nariz negra
+  cabeza(o){ const t=o.t||0, w=o.wob||0; ctx.strokeStyle='#A8754F'; ctx.lineWidth=14; ctx.lineCap='round';
+    for(const s of [-1,1]){ ctx.save(); ctx.translate(s*56,-366); ctx.rotate(s*(0.25+w*0.2)); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(s*20,-110); ctx.moveTo(s*8,-40); ctx.lineTo(s*50,-70); ctx.moveTo(s*16,-80); ctx.lineTo(s*56,-120); ctx.moveTo(s*14,-70); ctx.lineTo(-s*16,-110); ctx.stroke(); ctx.restore(); }
+    ctx.fillStyle='#E8A982'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*140,-316); ctx.rotate(s*(0.6+Math.sin(t*6+s)*0.1)); ctx.beginPath(); ctx.ellipse(s*28,0,40,18,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } },
+  frente(o){ ctx.fillStyle='#3B2A40'; ctx.beginPath(); ctx.ellipse(0,-236,22,15,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFF1E0'; for(const [x,y] of [[-90,-150],[80,-120],[40,-180],[-50,-90]]) blob(x,y,12); }
+};
+function venado(o){ return gomita({color:'#FFC9A8', expr:'feliz', ...o, disfraz:DISFRAZ_VENADO}); }
