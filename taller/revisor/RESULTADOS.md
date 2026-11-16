@@ -4,6 +4,37 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 16 nov 2026 (9:50)
+Fuentes: Buffer por publicación (TikTok actualizado al 15 nov 14:40 CDMX; YouTube al 15 nov 16:39) y Metricool para Facebook (FBRE). Buffer todavía no refleja láser (TikTok 355, de horas) ni soplar (0 en TikTok y YouTube): sin dato; la captura de TikTok Studio de Héctor de hoy dice láser 3.4 K y soplar 3.1 K.
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,955** | 23.0 | **167** | 2,517 | 1,004 | 12 |
+| gritar-001-v2 | quepasaria (todos) | 15 nov 09:00 | 3,393 | **28.7** | 82 | 1,280 | 516 | 16 |
+| mexico-001-v2 | quepasaria (todos) | 14 nov 20:00 | 3,274 | 23.5 | 130 | 1,243 | 317 | 10 |
+| jalon-001-v2 | quepasaria (todos) | 14 nov 17:00 | 3,174 | 25.0 | 86 | 1,211 | 699 | **18** |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,955 | 26.2 | 92 | 1,559 | 375 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,843 | 27.4 | 94 | 1,941 | 378 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,759 | 26.2 | 72 | 1,883 | **4,500** | 11 |
+| mar-001-v2 | quepasaria (todos) | 14 nov 11:00 | 2,572 | 25.1 | 92 | 1,455 | 234 | 5 |
+| colibri-001-v2 | quepasaria (si fueras) | 13 nov 18:00 | 812 | 20.4 | 17 | 1,024 | 254 | 5 |
+| chicxulub-001 | dato | 11 nov 20:00 | 487 | 24.9 | 19 | **3,219** | 298 | 12 |
+| emus-001 | historia | 11 nov 18:40 | 212 | 14.8 | 10 | 1,219 | 228 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 136 | 36.0 | 2 | 1,649 | 3 | 14 |
+| laser-001-v2 | quepasaria (todos) | 15 nov 13:00 | 355 (horas) | 25.1 | 11 | 1,012 | 263 | 12 |
+| soplar-001-v2 | quepasaria (todos) | 15 nov 19:00 | sin dato | — | — | sin dato | sin dato | sin dato |
+
+Lectura rápida (solo números):
+- En Facebook, jalón (18 s) y gritar (16 s) tienen el mejor tiempo visto de la cuenta; hielo sigue arriba en vistas (4,500).
+- gritar-001-v2 tiene el mejor tiempo promedio en TikTok de los "todos" (28.7 s) y ya 3.4 K vistas en un día.
+- La única historia de la semana (emús) es la más floja en TikTok (212 vistas, 14.8 s promedio, la mitad que los "todos").
+
+### Revisión semanal (lunes 16 nov): aprobados del 10 al 15 nov contra el promedio
+Promedio TikTok de los 13 videos de la tabla con dato completo (sin láser ni soplar): ≈2,300 vistas; YouTube ≈1,630.
+- **Arriba del promedio en TikTok:** mosquitos, gritar, méxico, jalón, apolo, torre, hielo, mar (todos "¿qué pasaría si…?" salvo apolo, dato con comparación cotidiana "tu selfie pesa 3 MB").
+- **Abajo:** colibrí ("si fueras…" animal), chicxulub (3D), emús (historia), nutrias (animal tierno). En YouTube, chicxulub (3,219) y nutrias (1,649) sí quedan arriba del promedio: las redes no coinciden.
+- Conclusión con números: el piso de la serie "todos" se sostiene (~2.6–3.4 K en TikTok, ~1.2–1.5 K en YouTube); ninguno se acerca todavía a saltar (17 K TikTok, 20 K YouTube).
+
 ## Corte del 15 nov 2026 (9:50)
 **Nuevo: Buffer ya devuelve métricas por publicación** (vistas y tiempo promedio en TikTok, vistas en YouTube). TikTok en Buffer actualizado al 15 nov 05:11 (CDMX); YouTube al 14 nov 17:03 (por eso jalón y méxico salen en 0 en YT: sin dato aún). Facebook por Metricool (en Buffer FB da 0 impresiones: no usar). Metricool TikTok no se consultó hoy porque llevaba 2 cortes congelado; Buffer lo sustituye.
 
@@ -178,3 +209,4 @@ Cuando Héctor comparta datos nuevos de YouTube Studio, agrégalos aquí (Metric
 - **Micro-revelaciones:** 2–3 fases intermedias de consecuencias antes de la conclusión (saltar: "la Tierra ni se entera" → "cabemos en una CDMX" → "temblor de magnitud 2" → "180 años para volver a casa").
 - **Títulos breves y directos** que se leen de un vistazo.
 - Referencias mexicanas concretas y pregunta final fácil ("¿Tú saltarías?").
+- **Historia en tercera persona sigue siendo lo más flojo en TikTok** (emús 212, emperador 865, yamaguchi 593 contra ~3 K de la serie "todos"). A un video de historia se le exige el mismo gancho visual que a saltar: el conflicto completo en el cuadro 0.
