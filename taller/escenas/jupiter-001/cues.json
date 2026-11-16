@@ -1,0 +1,11 @@
+{"puf": [67, 149, {"t": 60.03}],
+ "boing": [{"t": 61.0}],
+ "pop": [3, 11, 14, 24, 31, 38, 42, 52, 57, 68, 76, 82, 91, 95, 103, 108, 111, 122, 124, 138, 142, 160, 162, 171, 183],
+ "thud": [12, 53, 63],
+ "chispa": [33, 139, 152, 171],
+ "blip": [109, 111, 112],
+ "click": [43, 46],
+ "grillos": [115],
+ "splash": [132],
+ "musica": [{"t": 0, "estilo": "espacio"}, {"w": 18, "estilo": "aventura"}, {"w": 97, "estilo": "misterio"}, {"w": 116, "estilo": "aventura"}, {"w": 144, "estilo": "espacio"}, {"w": 156, "estilo": "jugueton"}, {"w": 180, "estilo": "espacio"}],
+ "corte": [12, 70, 115, 155, 160]}
