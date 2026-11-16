@@ -155,6 +155,21 @@ Cuando Héctor comparta datos nuevos de YouTube Studio, agrégalos aquí (Metric
 - Pico de suscriptores el 10 nov (~65 en un día, ola de saltar) y luego baja a ~10 al día.
 - Lectura: hacer secuelas directas de saltar (serie "¿Qué pasaría si TODOS…?") y encadenar videos (Parte 2, video relacionado, playlist) para convertir a la gente que llega por un video que pega.
 
+
+## Corte 16 nov 2026 (capturas de Héctor: TikTok Studio y YouTube Studio)
+**TikTok (28 días):** 82.3 K vistas · 3.3 K me gusta · 70 comentarios · 98 compartidos · 205 seguidores (+194) · 51.2 K espectadores (99 % nuevos). Últimos 7 días: 68 K vistas (+374 %), 2.6 K me gusta.
+- Por video: saltar 17.1 K · neptuno 12 K · wombat 4.9 K · sol 4.2 K · urano 4.2 K · mercurio 3.9 K · mosquitos 3.9 K · serie "todos": gritar 3.5 K, láser 3.4 K, México 3.3 K, jalarle 3.2 K, soplar 3.1 K, mar 2.6 K · apolo 3.0 K · apilarnos 2.8 K · hielo 2.8 K · colibrí 813 · emperador 865 · chicxulub (3D) 489 · camarón 316 · rana 288 · hongo 236 · emús 213 · hoyo negro 165 · nutrias 139.
+- Público: seguidores 81 % hombres (espectadores 69 %). Hora de mayor actividad de seguidores: 1 p.m. (sube desde las 9 a.m., alta toda la tarde).
+**YouTube (28 días):** 71.5 K vistas · 613 h · +143 suscriptores · 70.7 % se quedaron a mirar.
+- Top: saltar 20.4 K · chicxulub 3.2 K · mosquitos 2.6 K · hielo 2.1 K · apilarnos 2.0 K. Serie "todos" ≈ 1.5 K cada uno en sus primeras 48 h.
+- Público: TV 48.6 % · celular 42 %; edad 25–34 35 %, 35–44 28 %; 54 % hombres; México 27 %, Argentina 9.5 %, Colombia 6.9 %. Horario de mayor actividad: 12:00–17:00, más amplio sábado y domingo.
+**Lectura:**
+- La serie "¿Qué pasaría si TODOS…?" subió el piso: cada video ~3 K en TikTok (antes ~200–900) y ~1.5 K en YouTube en 48 h. Todavía ninguno igual a saltar: seguir buscando el gancho que lo rompa.
+- La serie de planetas pega fuerte en TikTok (neptuno 12 K, urano 4.2 K, mercurio 3.9 K): continuarla.
+- Los más flojos son datos de animales tiernos sin conflicto (nutrias, rana, camarón, hongo) e historia (emús); el 3D (chicxulub) flojo en TikTok.
+- El público real está activo de mediodía a la tarde, no de noche: horario ajustado el 16 nov.
+- Monetización TikTok: 82 K vistas en 28 días (meta 100 K/30 días, ya cerca); seguidores 205 de 10 K (lo lejano).
+
 ## Lectura (qué separa a los ganadores) — corregida con YouTube
 - **"¿Qué pasaría si…?" es el formato número uno** en las dos redes (saltar 1º en YouTube y Facebook; luna 2º en YouTube).
 - **El estándar:** saltar-001 = 82.56 % reproducido y 72.49 % se quedaron a mirar. Meta para todo video: que se quede ≥70 %.
