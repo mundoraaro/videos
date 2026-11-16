@@ -1,0 +1,308 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// cerdo-001-v2 — La guerra del cerdo (isla San Juan, 1859). Fórmula: anomalía histórica en 2ª persona ("casi empiezas una guerra por un cerdo").
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras (v2: nunca una palabra vacía sola en pantalla) ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      // no cerrar un bloque con una palabra corta sin puntuación: pasa al siguiente
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  // un bloque de una sola palabra corta se une con el siguiente (o con el anterior)
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+// Igual que captions() del motor, pero las 2 primeras palabras de cada bloque aparecen juntas.
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) return; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda')?320:215, izq=215;
+  const ex=(o.disfraz==='tardigrado'&&!(o.bolita>0.5))?255:0; let x0=-Math.max(izq,ex)*s, x1=Math.max(der,ex)*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-470*s],[o.x+x1,o.y-alto-470*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería ----------
+let CUR=1;
+// Letrero en coordenadas de PANTALLA, compensando el zoom de la toma (soplar-001-v2).
+function L(txt,x,y,k,tipo='madera',opts={}){ const TM=(window.TOMAS||{})[CUR]||{}, Z=Math.max(1,TM.z||1), F=TM.foco||[540,960];
+  let tam=(opts.tam||72)/Z; ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=680/Z;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } const sw=w*Z; x=clamp(x,180+sw/2,900-sw/2); y=clamp(y,390,520);
+  const X=F[0]+(x-540)/Z, Y=F[1]+(y-960)/Z;
+  letrero(txt,X,Y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',X-w/2,Y-tam*0.85,X+w/2,Y+tam*0.85); }
+
+// ====================== cerdo-001: La guerra del cerdo (isla San Juan, 1859) ======================
+// Disfraces de Raro: granjero → soldado azul → granjero → anciano (12 años) → granjero (loop).
+// Azul = EE. UU. (soldadoAzul), rojo = británicos (casacaRoja, almirante, comerciante 'rico').
+const RA=o=>raro({t:o.t,...o});
+// costa con barco al fondo y huerto de papas (S1 y S25: mismo encuadre para el loop)
+function costa(t){ const P=PAL_ACTUAL, G=SUELO;
+  ctx.fillStyle=P.claro; nube(200,330,1.0); nube(860,560,0.8);
+  ctx.fillStyle=mix(P.medio,'#3AB6FF',0.35); ctx.fillRect(-100,1010,1300,320);
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=8; ctx.lineCap='round';
+  for(let i=0;i<7;i++){ const x=((i*190+t*40)%1300)-120, y=1060+(i%3)*60; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+30,y-14,x+60,y); ctx.stroke(); }
+  barco(735,1120,0.8,t,{dir:-1,canones:1+0.3*Math.abs(Math.sin(t*3)),seed:1});
+  gomita({t,x:700,y:1060,s:0.26,color:'#FFC9A8',disfraz:'casacaRoja',expr:'enojado',brazos:'senala',espejo:true,sinSombra:true,seed:7});
+  ctx.fillStyle=mix(P.oscuro,P.medio,0.35); ctx.beginPath(); ctx.moveTo(-100,1240); ctx.quadraticCurveTo(540,1150,1200,1260); ctx.lineTo(1200,2000); ctx.lineTo(-100,2000); ctx.fill();
+  ctx.fillStyle=mix(P.oscuro,'#000000',0.12); for(let r=0;r<3;r++){ ctx.beginPath(); ctx.ellipse(540,1330+r*150,700,26,0,0,Math.PI*2); ctx.fill(); }
+  for(let i=0;i<5;i++) matita(80+i*230,1290,0.7,t); for(let i=0;i<4;i++) matita(170+i*250,1560,0.9,t);
+}
+function hoja2(t){ ctx.save(); ctx.globalAlpha=0.85; ctx.fillStyle='#2F8C4A'; for(const [x,y,a] of [[-30,1830,0.5],[1110,1800,-0.6]]){ ctx.save(); ctx.translate(x,y+Math.sin(t*2)*8); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0,0,110,260,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } ctx.restore(); }
+function frenteGuerra(t){ // v2: cuadro 0 = el conflicto completo. Izq: soldados azules con cañones; der: buque británico con cañones; centro: Raro granjero abrazando al cerdo con la papa
+  const P=PAL_ACTUAL;
+  ctx.fillStyle=P.claro; nube(200,640,0.9); nube(880,600,0.7);
+  ctx.fillStyle=mix(P.medio,'#3AB6FF',0.35); ctx.fillRect(-100,1010,1300,320);
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=8; ctx.lineCap='round';
+  for(let i=0;i<7;i++){ const x=((i*190+t*40)%1300)-120, y=1060+(i%3)*60; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+30,y-14,x+60,y); ctx.stroke(); }
+  // buque británico apuntando a la izquierda, cañones asomando y bandera
+  const rec=Math.abs(Math.sin(t*3));
+  barco(800,1180,0.78,t,{dir:-1,canones:1+0.4*rec,seed:1}); banderaRoja(838,780,0.55,t);
+  for(let i=0;i<2;i++) gomita({t,x:700+i*150,y:1125,s:0.22,color:'#FFC9A8',disfraz:'casacaRoja',expr:'enojado',brazos:'senala',espejo:true,sinSombra:true,seed:7+i});
+  // costa
+  ctx.fillStyle=mix(P.oscuro,P.medio,0.35); ctx.beginPath(); ctx.moveTo(-100,1240); ctx.quadraticCurveTo(540,1150,1200,1260); ctx.lineTo(1200,2000); ctx.lineTo(-100,2000); ctx.fill();
+  ctx.fillStyle=mix(P.oscuro,'#000000',0.12); for(let r=0;r<3;r++){ ctx.beginPath(); ctx.ellipse(540,1330+r*150,700,26,0,0,Math.PI*2); ctx.fill(); }
+  // fila de soldados azules con bandera y dos cañones apuntando a la derecha
+  banderaEU(40,930,0.62,t); ctx.fillStyle='#7A4A22'; ctx.fillRect(32,920,10,330);
+  for(let i=0;i<4;i++) gomita({t,x:70+i*82,y:1300+(i%2)*14,s:0.34,color:'#B8E6FF',disfraz:'soldadoAzul',expr:'enojado',brazos:'senala',seed:20+i,tilt:Math.sin(t*6+i)*0.04});
+  for(let i=0;i<2;i++) canon(110+i*165,1450,0.8,0.12+0.03*Math.sin(t*4+i),t);
+  for(let i=0;i<5;i++) matita(560+i*120,1560,0.75,t);
+  // Raro en medio, abrazando al cerdo que sigue masticando la papa
+  const tiembla=Math.sin(t*38)*5;
+  RA({t,x:645+tiembla,y:SUELO,s:1.05,expr:'terror',brazos:'carga',manos:{i:[-120,-235],d:[120,-235]},disfraz:'granjero',tilt:Math.sin(t*9)*0.04,viento:0.4});
+  cerdo({t,x:645+tiembla,y:SUELO-85,s:0.5,mastica:true,papa:true,expr:'feliz',sinSombra:true,seed:2});
+  hoja2(t);
+}
+function gancho(t,u){ frenteGuerra(t); L('¿GUERRA POR',540,395,1,'madera',{tam:104,t,t0:-1}); L('UN CERDO?',540,520,1,'madera',{tam:116,t,t0:-1}); }
+const L0=(t,i,txt,tipo='madera',o={})=>{ const k=popIn(t,at(i)); if(k>0) L(txt,o.x||540,o.y||430,k,tipo,{tam:o.tam||80,t,t0:at(i),...o}); };
+
+function S1(t,sc){ gancho(t,t-sc.start); lineasVelocidad(t,at(3),600,1150); chispas(t,at(6),600,1150,1.2); }
+function S2(t,sc){ // cae en la isla San Juan, 1859
+  const c=caida(t,sc.start), P=PAL_ACTUAL; isla(540,1440,1.25,t);
+  ctx.fillStyle='#B97A3E'; rr(700,1180,170,130,10); ctx.fill(); ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(680,1190); ctx.lineTo(785,1100); ctx.lineTo(890,1190); ctx.fill(); ctx.fillStyle='#5E3716'; rr(765,1240,40,70,6); ctx.fill();
+  // v2: el cerdo ya se come tus papas y Raro patalea furioso; la fecha es solo un letrero pequeño
+  for(let i=0;i<3;i++){ matita(180+i*90,1420,0.6,t); if(t<at(10+i*2)) papa(180+i*90,1428,0.42,1,0.3*i); }
+  cerdo({t,x:250,y:1440,s:0.5,expr:'risa',mastica:true,papa:true,seed:3});
+  for(const i of [10,12,14]) chispas(t,at(i),250,1240,0.7,'#FFE3A3');
+  const pat=Math.abs(Math.sin(t*12));
+  RA({t,x:640,y:1400,s:0.9,expr:'enojado',brazos:t<at(9)?'jarras':'senala',espejo:true,disfraz:'granjero',pala:t>=at(13),sq:c.sq+gelatina(t,at(10),0.3)+pat*0.06*(t>sc.start+0.4),alto:c.alto+(t>sc.start+0.4?pat*24:0),wob:c.wob,tilt:Math.sin(t*12)*0.05});
+  L('ISLA SAN JUAN · 1859',540,390,1,'pergamino',{tam:46,t,t0:sc.start});
+  L0(t,10,'¡MIS PAPAS!','madera',{tam:84,y:520});
+  chispas(t,at(10),620,1060,1);
+}
+function S3(t,sc){ // el cerdo del vecino se come tus papas
+  const ids=[18,20,23,25]; let quedan=4; for(const i of ids) if(t>=at(i)) quedan--;
+  for(let i=0;i<4;i++){ const x=170+i*130, gone=t>=at(ids[i]); matita(x,1410,0.8,t,1); if(!gone) papa(x,1420,0.55,1,0.2*i); }
+  const px=lerp(240,560,easeInOut(prog(t,sc.start,sc.end-sc.start)));
+  cerdo({t,x:px,y:SUELO,s:0.62,expr:'risa',mastica:true,papa:true,piernas:'camina',seed:4});
+  for(const i of ids) chispas(t,at(i),px,1260,0.8,'#FFE3A3');
+  RA({t,x:735,y:SUELO,s:0.85,expr:t>=at(25)?'llanto':'asombro',brazos:t>=at(25)?'cara':'senala',espejo:true,disfraz:'granjero',sq:gelatina(t,at(25),0.4)});
+  L(`PAPAS: ${quedan}`,540,430,1,'madera',{tam:84,t,t0:at(ids[Math.max(0,3-quedan)])});
+}
+function S4(t,sc){ // enojado... le disparas (sin violencia gráfica: "¡PUM!" fuera de cuadro)
+  const pum=at(30);
+  RA({t,x:360,y:SUELO,s:1.0,expr:t<pum?'enojado':'asombro',brazos:'frente',disfraz:'granjero',sq:t>=pum?gelatina(t,pum,0.6):0,wob:wobble(t,pum,1),tilt:t>=pum?-0.12*Math.exp(-4*(t-pum)):0});
+  // mosquete en las manos
+  ctx.save(); ctx.translate(360,SUELO-130); ctx.rotate(-0.08-(t>=pum?0.25*Math.exp(-5*(t-pum)):0)); ctx.fillStyle='#7A4A22'; rr(-60,-18,150,36,14); ctx.fill(); ctx.fillStyle='#3B3654'; rr(80,-10,330,20,8); ctx.fill(); ctx.restore();
+  if(t>=pum){ const k=popIn(t,pum,0.25); ctx.save(); ctx.translate(760,SUELO-190); ctx.scale(k*0.85,k*0.85); ctx.fillStyle='#FFFFFF'; for(let i=0;i<9;i++){ const a=i/9*Math.PI*2; blob(Math.cos(a)*80,Math.sin(a)*60,50); } ctx.fillStyle='#FFE45C'; blob(0,0,70);
+    ctx.restore(); L('¡PUM!',700,450,k,'pergamino',{tam:110,t,t0:pum}); lineasVelocidad(t,pum,760,1250); }
+  else L0(t,28,'¡GRRR!','madera',{x:400});
+}
+function S5(t,sc){ // el cerdo era británico (sube con aureola y sombrero de copa)
+  const up=easeOut(prog(t,sc.start,sc.end-sc.start));
+  cerdo({t,x:640+Math.sin(t*2)*30,y:1300-up*170,s:0.7,angel:true,copa:t>=at(39),expr:'orgullo',piernas:'flota',sinSombra:true,seed:5});
+  const b5=brinco(t,at(39),0.5,200);
+  RA({t,x:300,y:SUELO,s:0.95,expr:t>=at(39)?'terror':(t>=at(32)?'yavalio':'sospecha'),ojos:t>=at(39)?1.8:1,brazos:t>=at(39)?'cara':'idle',disfraz:'granjero',mira:{x:1,y:-1},sq:b5.sq+gelatina(t,at(39)+0.5,0.4),alto:b5.alto});
+  lineasVelocidad(t,at(39),300,1100);
+  if(t>=at(37)) L0(t,37,'CERDO BRITÁNICO','pergamino'); else L0(t,31,'¿EL PROBLEMA?','madera');
+  chispas(t,at(39),640,900,1.1,'#FFE45C');
+}
+function S6(t,sc){ // EE. UU. e Inglaterra jalan la isla: "¡es mía!"
+  const jal=Math.sin(t*5)*30*prog(t,at(41),0.4);
+  ctx.save(); ctx.translate(jal,0); isla(490,1380,0.62,t); RA({t,x:490,y:1350,s:0.55,expr:'terror',brazos:'arriba',disfraz:'granjero',tilt:Math.sin(t*5)*0.15}); ctx.restore();
+  ctx.strokeStyle='#C99B62'; ctx.lineWidth=12; ctx.beginPath(); ctx.moveTo(230,1300); ctx.lineTo(270+jal,1330); ctx.moveTo(760,1300); ctx.lineTo(720+jal,1330); ctx.stroke();
+  const kA=popIn(t,at(41)), kB=popIn(t,at(44));
+  if(kA>0) gomita({t,x:195,y:1440,s:0.55*kA,color:'#B8E6FF',disfraz:'soldadoAzul',expr:'enojado',brazos:'frente',tilt:-0.15,seed:1});
+  if(kB>0) gomita({t,x:810,y:1440,s:0.58*kB,color:'#FFC9A8',disfraz:'casacaRoja',expr:'enojado',brazos:'frente',tilt:0.15,espejo:true,seed:2});
+  if(t>=at(48)) L0(t,48,'¡ES MÍA! ¡NO, MÍA!','madera',{tam:70}); else { if(kA>0) banderaEU(130,560-kA*40,1,t); if(kB>0) banderaRoja(730,520,1,t); }
+}
+function S7(t,sc){ // ofreces 10 dólares, te piden 100
+  const pide=at(60);
+  RA({t,x:300,y:SUELO,s:0.85,expr:t>=pide?'asombro':'feliz',brazos:'frente',disfraz:'granjero',sq:gelatina(t,pide,0.45)});
+  billete(300,SUELO-110,0.75,'$10',popIn(t,at(56)),Math.sin(t*4)*0.1);
+  gomita({t,x:735,y:SUELO,s:0.85,color:'#FFE3A3',disfraz:'rico',expr:t>=at(57)?'orgullo':'sospecha',brazos:t>=pide?'senala':'jarras',espejo:true,seed:3});
+  if(t>=pide){ L0(t,60,'ÉL: $100','pergamino',{tam:90}); billete(735,SUELO-560,0.9,'$100',popIn(t,pide),-0.2); }
+  else L0(t,56,'TÚ: $10','madera',{tam:90});
+}
+function S8(t,sc){ // dices que no... y te quieren arrestar
+  const ame=at(66), no=t<ame;
+  RA({t,x:no?440:330,y:SUELO,s:0.9,expr:no?'orgullo':'terror',brazos:no?'jarras':'arriba',piernas:no?'quieto':'corre',disfraz:'granjero',tilt:no?Math.sin(t*12)*0.12:-0.1,alto:no?0:Math.abs(Math.sin(t*15))*20});
+  for(let i=0;i<2;i++){ const k=easeOut(prog(t,ame+i*0.15,0.5)); if(k<=0) continue; gomita({t,x:lerp(1200,640+i*170,k),y:SUELO-i*10,s:0.75,color:i?'#FFB8D2':'#FFC9A8',disfraz:'casacaRoja',esposas:i===0,expr:'enojado',brazos:i===0?'carga':'senala',espejo:true,piernas:k<1?'corre':'quieto',seed:6+i}); }
+  if(no) L0(t,61,'¡NO PAGO!','madera'); else L0(t,69,'¡AL BOTE!','pergamino',{tam:90});
+}
+function S9(t,sc){ // pattern interrupt: mira a cámara; ya es un pleito entre dos países
+  RA({t,x:540,y:SUELO,s:1.0,expr:t>=at(75)?'yavalio':'sospecha',mira:{x:0,y:0},brazos:t>=at(77)?'jarras':'idle',disfraz:'granjero',sq:gelatina(t,at(75),0.4)});
+  const kA=popIn(t,at(79)); if(kA>0){ banderaEU(150,1000,1.2*kA,t); banderaRoja(730,1000,1.2*kA,t); }
+  L0(t,77,'PLEITO ENTRE PAÍSES','pergamino',{tam:70}); chispas(t,at(79),540,1000,1.3);
+}
+function S10(t,sc){ // EE. UU. manda soldados (puf a soldado azul)
+  const p=pufCambio(t,at(83));
+  cascada(t,at(81),6,(x,y,k,i)=>gomita({t,x,y,s:0.42*k,color:'#B8E6FF',disfraz:'soldadoAzul',expr:'orgullo',piernas:'camina',seed:i}),{x0:150,y0:1230,cols:6,dx:150,dy:0,cada:0.08});
+  RA({t,x:540,y:SUELO,s:0.9,expr:'orgullo',brazos:p.despues?'saluda':'idle',disfraz:p.despues?'soldadoAzul':'granjero',bandera:false,spin:p.spin,sq:gelatina(t,at(83)+0.34,0.4)});
+  nubePuf(t,at(83)+0.08,540,SUELO-150,1.2); L0(t,84,'¡SOLDADOS!','madera');
+}
+function S11(t,sc){ // Inglaterra manda barcos
+  for(let i=0;i<2;i++){ const k=easeOut(prog(t,at(85)+i*0.25,0.7)); barco(lerp(1300,560+i*260,k),1150+i*60,0.55+i*0.08,t,{dir:-1,seed:i}); }
+  RA({t,x:300,y:SUELO,s:0.85,expr:'terror',brazos:'cara',disfraz:'soldadoAzul',sq:gelatina(t,at(87),0.5),wob:wobble(t,at(87))});
+  L0(t,87,'¡BARCOS!','pergamino');
+}
+function S12(t,sc){ // 461 soldados con 14 cañones
+  cascada(t,at(88),18,(x,y,k,i)=>gomita({t,x,y,s:0.3*k,color:'#B8E6FF',disfraz:'soldadoAzul',expr:'orgullo',seed:i}),{x0:110,y0:1080,cols:9,dx:105,dy:90,cada:0.04});
+  cascada(t,at(92),7,(x,y,k,i)=>canon(x,y,0.5*k,0.3,t),{x0:130,y0:1290,cols:7,dx:135,dy:0,cada:0.06});
+  RA({t,x:720,y:SUELO,s:0.8,expr:'orgullo',brazos:'jarras',disfraz:'soldadoAzul',sq:gelatina(t,at(92),0.35)});
+  if(t>=at(92)) L(`${contador(t,at(92),0.22,0,14)} CAÑONES`,540,430,1,'madera',{tam:84,t,t0:at(92)});
+  else L(`${contador(t,at(88),0.3,0,461)} SOLDADOS`,540,430,popIn(t,at(88)),'madera',{tam:84,t,t0:at(88)});
+}
+function S13(t,sc){ // contra 5 buques, 167 cañones y más de 2,000 hombres
+  cascada(t,at(95),5,(x,y,k,i)=>barco(x,y,0.36*k,t,{dir:-1,canones:t>=at(100)?1:0,seed:i}),{x0:160,y0:1130,cols:5,dx:190,dy:0,cada:0.12});
+  RA({t,x:300,y:SUELO,s:0.8,expr:t>=at(105)?'terror':'asombro',brazos:t>=at(105)?'arriba':'cara',disfraz:'soldadoAzul',alto:brinco(t,at(105)).alto,sq:brinco(t,at(105)).sq});
+  if(t>=at(105)) cascada(t,at(105),10,(x,y,k,i)=>gomita({t,x,y,s:0.26*k,color:'#FFC9A8',disfraz:'casacaRoja',expr:'enojado',seed:i}),{x0:560,y0:1300,cols:5,dx:85,dy:110,cada:0.04});
+  if(t>=at(105)) L(`+${contador(t,at(105),0.22,0,2000)} HOMBRES`,540,430,1,'pergamino',{tam:84,t,t0:at(105)});
+  else if(t>=at(100)) L(`${contador(t,at(100),0.3,0,167)} CAÑONES`,540,430,1,'pergamino',{tam:84,t,t0:at(100)});
+  else L0(t,95,'5 BUQUES DE GUERRA','pergamino',{tam:72});
+}
+function S14(t,sc){ // todo por tus papas (freeze + papa gigante)
+  const p=pufCambio(t,sc.start+0.02);
+  RA({t,x:540,y:SUELO,s:1.0,expr:'yavalio',mira:{x:0,y:0},brazos:'carga',manos:{i:[-80,-500],d:[80,-500]},disfraz:p.despues?'granjero':'soldadoAzul',spin:p.spin,sq:gelatina(t,sc.start+0.36,0.4)});
+  papa(540,SUELO-560,1.0,popIn(t,at(110)),Math.sin(t*3)*0.1); nubePuf(t,sc.start+0.08,540,SUELO-150,1.1);
+  chispas(t,at(110),540,950,1.4,'#FFE3A3'); L0(t,108,'TODO POR UNAS PAPAS','madera',{tam:70});
+}
+function S15(t,sc){ // el almirante británico dijo que no
+  barco(560,1290,1.0,t,{dir:1,seed:3});
+  gomita({t,x:640,y:1250,s:0.62,color:'#FFC9A8',disfraz:'almirante',expr:t>=at(117)?'sospecha':'orgullo',brazos:t>=at(117)?'senala':'jarras',espejo:true,tilt:t>=at(117)?Math.sin(t*14)*0.1:0,seed:4});
+  RA({t,x:310,y:SUELO,s:0.75,expr:'asombro',brazos:'idle',disfraz:'granjero',mira:{x:1,y:-1}});
+  L0(t,113,'EL ALMIRANTE','pergamino');
+}
+function S16(t,sc){ // "no voy a meter a dos naciones en una guerra por un cerdo"
+  gomita({t,x:680,y:SUELO,s:0.85,color:'#FFC9A8',disfraz:'almirante',expr:'sospecha',brazos:'senala',espejo:true,tilt:Math.sin(t*10)*0.08,seed:4});
+  cerdo({t,x:300+Math.sin(t*2)*20,y:1100+Math.sin(t*3)*20,s:0.45,angel:true,copa:true,expr:'feliz',piernas:'flota',sinSombra:true,seed:5});
+  RA({t,x:300,y:SUELO,s:0.7,expr:t>=at(132)?'feliz':'asombro',brazos:t>=at(132)?'arriba':'cara',disfraz:'granjero',sq:gelatina(t,at(132),0.4)});
+  L0(t,126,'¡POR UN CERDO, NO!','pergamino',{tam:84});
+}
+function S17(t,sc){ // no se disparó ni una bala: el cañón se desinfla y la bala cae
+  const k=prog(t,at(136),0.5); canon(620,1400,1.4,0.35-0.55*easeOut(k),t);
+  const u=prog(t,at(137),0.5), bx=lerp(830,880,u), by=lerp(1250,1400,u*u); ctx.fillStyle='#2E2A40'; blob(bx,by-(t>=at(139)?Math.abs(Math.sin((t-at(139))*12))*30*Math.exp(-4*(t-at(139))):0),34);
+  RA({t,x:280,y:SUELO,s:0.85,expr:t>=at(139)?'risa':'asombro',brazos:t>=at(139)?'arriba':'cara',disfraz:'granjero',sq:gelatina(t,at(139),0.4)});
+  L0(t,138,'0 BALAS','madera',{tam:96}); chispas(t,at(139),860,1390,1);
+}
+function calendario(x,y,s,k,t,t0,hasta,d,txt){ if(k<=0) return; ocupa(x-120*s,y-150*s,x+120*s,y+140*s,1.1); chk('obj',x-120*s,y-160*s,x+120*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-120,-140,240,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-120,-140,240,70,22); ctx.fill(); ctx.fillRect(-120,-100,240,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-110,-60,220,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,t0,d,0,hasta),0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore(); }
+function tienda(x,y,s,c){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(-150,0); ctx.lineTo(0,-220); ctx.lineTo(150,0); ctx.fill(); ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.moveTo(-40,0); ctx.lineTo(0,-120); ctx.lineTo(40,0); ctx.fill(); ctx.restore(); }
+function S18(t,sc){ // los dos ejércitos se quedaron 12 años (Raro envejece)
+  tienda(170,1260,0.9,'#3E6FC4'); tienda(910,1260,0.9,'#D8283B'); banderaEU(160,980,0.7,t); banderaRoja(860,980,0.7,t);
+  const p=pufCambio(t,at(146));
+  RA({t,x:540,y:SUELO,s:0.85,expr:p.despues?'yavalio':'sospecha',brazos:'idle',disfraz:p.despues?'anciano':'granjero',spin:p.spin,sq:gelatina(t,at(146)+0.34,0.4)});
+  nubePuf(t,at(146)+0.08,540,SUELO-150,1.1);
+  calendario(540,450,0.9,popIn(t,at(145)-0.12),t,at(145)-0.12,12,0.3,'AÑOS');
+}
+function papelPicado(t){ const cs=['#FF5FA2','#FFD23F','#4CC9F0','#D7FF3D','#B388FF']; for(let r=0;r<2;r++){ ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-20,250+r*120); ctx.quadraticCurveTo(540,330+r*120,1100,250+r*120); ctx.stroke();
+  for(let i=0;i<9;i++){ const u=(i+0.5)/9, x=lerp(-20,1100,u), y=250+r*120+Math.sin(u*Math.PI)*80; ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*4+i)*0.1); ctx.fillStyle=cs[(i+r)%5]; ctx.fillRect(-40,0,80,90); ctx.restore(); } } }
+function S19(t,sc){ // festejaban juntos sus fiestas
+  papelPicado(t);
+  for(let i=0;i<2;i++) gomita({t,x:i?820:240,y:SUELO,s:0.7,color:i?'#FFC9A8':'#B8E6FF',disfraz:i?'casacaRoja':'soldadoAzul',expr:'risa',brazos:'arriba',alto:Math.abs(Math.sin(t*9+i*1.5))*50,espejo:!!i,seed:i});
+  const p=pufCambio(t,sc.start+0.02);
+  RA({t,x:540,y:SUELO,s:0.8,expr:'risa',brazos:'saluda',disfraz:p.despues?'granjero':'anciano',spin:p.spin,alto:Math.abs(Math.sin(t*9+0.7))*40});
+  nubePuf(t,sc.start+0.08,540,SUELO-140,1); L0(t,149,'¡FIESTA!','madera',{tam:90}); chispas(t,at(149),540,900,1.3);
+}
+function S20(t,sc){ // como vecinos peleados... a la carne asada (Raro detrás del asador)
+  gomita({t,x:220,y:SUELO,s:0.55,color:'#B8E6FF',disfraz:'soldadoAzul',expr:'sospecha',brazos:'frente',mira:{x:1,y:0},seed:1});
+  gomita({t,x:845,y:SUELO,s:0.55,color:'#FFC9A8',disfraz:'casacaRoja',expr:'sospecha',brazos:'frente',espejo:true,mira:{x:-1,y:0},seed:2});
+  const b20=brinco(t,at(162),0.5,180);
+  RA({t,x:540,y:SUELO-60,s:0.66,expr:t>=at(162)?'risa':'sospecha',brazos:t>=at(162)?'arriba':'frente',disfraz:'granjero',sq:b20.sq+gelatina(t,at(162)+0.5,0.4),alto:b20.alto});
+  chispas(t,at(162),540,1150,1.3,'#FFE45C');
+  parrilla(540,SUELO+10,0.85,t,1);
+  L0(t,162,'CARNE ASADA','madera',{tam:86});
+}
+function S21(t,sc){ // ¿quién lo resolvió? un emperador alemán, 1872 (carta con corona; sin dibujar personas reales)
+  const baja=easeOut(prog(t,at(167),0.6)), ab=easeOut(prog(t,at(171),0.4));
+  carta(540,lerp(300,950,baja),0.85,t,t>=at(167)?1:0,ab);
+  RA({t,x:540,y:SUELO,s:0.8,expr:t<at(167)?'sospecha':(t>=at(171)?'asombro':'feliz'),brazos:t<at(167)?'jarras':'carga',manos:t<at(167)?undefined:{i:[-100,-500],d:[100,-500]},disfraz:'granjero',tilt:t<at(167)?Math.sin(t*6)*0.12:0,sq:gelatina(t,at(167)+0.6,0.4)});
+  if(t>=at(171)) L0(t,171,'1872','pergamino',{tam:110}); else L0(t,164,'¿QUIÉN DECIDE?','madera');
+}
+function S22(t,sc){ // la isla se quedó con EE. UU.
+  isla(540,1420,1.15,t); const k=popIn(t,at(175));
+  if(k>0){ ctx.fillStyle='#7A4A22'; rr(752,1420-380*k,14,330*k,7); ctx.fill(); if(k>0.6) banderaEU(766,1060,1,t); }
+  RA({t,x:430,y:1380,s:0.8,expr:'risa',brazos:'arriba',disfraz:'granjero',alto:brinco(t,at(177)).alto,sq:brinco(t,at(177)).sq});
+  L0(t,177,'¡ISLA DE EE. UU.!','madera',{tam:80}); chispas(t,at(175),760,1050,1.2);
+}
+function S23(t,sc){ // ¿y los muertos? uno solo: el cerdo
+  cerdo({t,x:660+Math.sin(t*2)*20,y:1250-easeOut(prog(t,sc.start,2))*120,s:0.65,angel:true,expr:'feliz',piernas:'flota',sinSombra:true,seed:5});
+  const b23=susto(t,at(182));
+  RA({t,x:300,y:SUELO,s:0.85,expr:t>=at(184)?'llanto':(t>=at(182)?'asombro':'sospecha'),ojos:t>=at(182)&&t<at(184)?1.8:1,brazos:t>=at(184)?'cara':'idle',disfraz:'granjero',mira:{x:1,y:-1},wob:wobble(t,at(184)),alto:b23.alto,sq:b23.sq});
+  lineasVelocidad(t,at(184),660,1000);
+  if(t>=at(182)) L(`BAJAS: ${t>=at(184)?'1 CERDO':'1'}`,540,430,1,'piedra',{tam:84,t,t0:at(182)}); else L0(t,181,'¿Y LOS MUERTOS?','madera');
+}
+function S24(t,sc){ // ¿tú le hubieras pagado los 100 dólares?
+  RA({t,x:480,y:SUELO,s:1.0,expr:'sospecha',mira:{x:0,y:0},brazos:'frente',disfraz:'granjero',tilt:Math.sin(t*3)*0.06});
+  billete(480,SUELO-110,0.8,'$100',popIn(t,at(191)),Math.sin(t*4)*0.12);
+  L0(t,186,'¿TÚ PAGARÍAS $100?','madera',{tam:76});
+}
+function S25(t,sc){ gancho(t,t-sc.start); lineasVelocidad(t,at(199),600,1150); }
+
+const ORDER=[1,2,3,4,5,6,6,7,8,8,9,10,11,12,12,13,13,14,15,16,17,18,19,20,21,21,22,23,24,25];
+const FNS=[null,S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25];
+window.SCENES=ORDER.map((o,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; FNS[o](t,sc);});
+window.CHIPS={};
+const F_=[['magenta','liso'],['turquesa','olas'],['limon','cerros'],['violeta','cerros'],['mandarina','cielo'],['cielo','olas'],['magenta','olas'],['limon','interior'],['turquesa','cerros'],['magenta','cerros'],
+ ['violeta','cielo'],['limon','cerros'],['turquesa','olas'],['violeta','cerros'],['mandarina','cerros'],['magenta','olas'],['cielo','olas'],['limon','cielo'],['turquesa','olas'],['mandarina','interior'],
+ ['violeta','cerros'],['cielo','cerros'],['magenta','interior'],['mandarina','cerros'],['cielo','cielo'],['violeta','cielo'],['turquesa','olas'],['magenta','cielo'],['limon','interior'],['magenta','liso']];
+window.FONDOS={}; F_.forEach((f,i)=>window.FONDOS[i+1]={pal:f[0],tipo:f[1]});
+const T_={1:{mov:'push'},2:{mov:'pull'},3:{mov:'paneo-der'},4:{mov:'push',z:1.1,foco:[480,1150]},5:{mov:'sube'},6:{mov:'pull'},7:{mov:'push'},8:{mov:'paneo-izq'},9:{mov:'push'},10:{mov:'pull'},
+ 11:{mov:'push',z:1.25,foco:[540,1160]},12:{mov:'pull'},13:{mov:'paneo-der'},14:{mov:'pull'},15:{mov:'paneo-izq'},16:{mov:'pull'},17:{mov:'push'},18:{mov:'push',z:1.2,foco:[540,1120]},19:{mov:'orbita'},20:{mov:'push'},
+ 21:{mov:'push'},22:{mov:'pull'},23:{mov:'orbita'},24:{mov:'push'},25:{mov:'baja'},26:{mov:'push',z:1.12,foco:[540,1150]},27:{mov:'pull'},28:{mov:'sube'},29:{mov:'push',z:1.15,foco:[500,1150]},30:{mov:'push'}};
+window.TOMAS=T_;
+window.TRANS={5:'zoom',13:'latigazo',21:'bufanda',28:'zoom'};
+window.KEYWORDS=[3,6,8,25,30,39,50,56,60,69,77,84,87,88,92,100,105,110,126,132,139,146,149,163,171,178,185,191,199];
+window.SHAKES=[3,30,60,69,87,105,139,185];
+window.FLASHES=[];
+</script></body></html>
