@@ -4,6 +4,33 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 17 nov 2026 (9:50)
+Fuentes: Buffer por publicación (TikTok actualizado al 16 nov 13:41 CDMX; YouTube al 16 nov 16:32) y Metricool para Facebook (FBRE). estación (16 nov 18:00) y atacama (16 nov 20:30) todavía en 0 en Buffer y no aparecen en Metricool FB: sin dato.
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,956** | 23.1 | **167** | **2,685** | 1,005 | 12 |
+| gritar-001-v2 | quepasaria (todos) | 15 nov 09:00 | 3,499 | **28.7** | 83 | 1,692 | **1,712** | **19** |
+| laser-001-v2 | quepasaria (todos) | 15 nov 13:00 | 3,417 | 23.7 | 89 | 1,503 | 585 | 17 |
+| mexico-001-v2 | quepasaria (todos) | 14 nov 20:00 | 3,294 | 23.4 | 130 | 1,337 | 324 | 10 |
+| jalon-001-v2 | quepasaria (todos) | 14 nov 17:00 | 3,185 | 24.9 | 86 | 1,298 | 708 | 18 |
+| soplar-001-v2 | quepasaria (todos) | 15 nov 19:00 | 3,112 | 22.9 | 70 | 1,117 | 281 | 9 |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,959 | 26.2 | 92 | 1,601 | 376 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,846 | 27.4 | 94 | 2,014 | 380 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,766 | 26.1 | 72 | 2,106 | **4,502** | 11 |
+| mar-001-v2 | quepasaria (todos) | 14 nov 11:00 | 2,581 | 25.1 | 93 | 1,593 | 236 | 5 |
+| colibri-001-v2 | quepasaria (si fueras) | 13 nov 18:00 | 813 | 20.5 | 17 | 1,026 | 256 | 5 |
+| chicxulub-001 | dato | 11 nov 20:00 | 489 | 24.8 | 19 | **3,233** | 299 | 12 |
+| emus-001 | historia | 11 nov 18:40 | 213 | 14.8 | 10 | 1,221 | 229 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 139 | 35.2 | 2 | 1,668 | 4 | 21 |
+| tardigrado-001-v2 | dato (tú) | 16 nov 12:00 | 49 (horas) | 9.1 | 1 | 949 | 227 | 5 |
+| estacion-001 / atacama-001-v2 | — | 16 nov 18:00 / 20:30 | sin dato | — | — | sin dato | sin dato | sin dato |
+
+Lectura rápida (solo números):
+- gritar-001-v2 despegó en Facebook: 1,712 vistas y 19 s vistos (de 516 / 16 s ayer), el mejor tiempo visto de FB de la cuenta; también el mejor tiempo promedio en TikTok (28.7 s).
+- láser y soplar entraron al piso de la serie "todos" (3.1–3.4 K en TikTok, 1.1–1.5 K en YouTube).
+- tardígrado lleva 949 vistas en YouTube en horas; en TikTok el dato de Buffer es de apenas 1.5 h (49): sin lectura todavía.
+
 ## Corte del 16 nov 2026 (9:50)
 Fuentes: Buffer por publicación (TikTok actualizado al 15 nov 14:40 CDMX; YouTube al 15 nov 16:39) y Metricool para Facebook (FBRE). Buffer todavía no refleja láser (TikTok 355, de horas) ni soplar (0 en TikTok y YouTube): sin dato; la captura de TikTok Studio de Héctor de hoy dice láser 3.4 K y soplar 3.1 K.
 
