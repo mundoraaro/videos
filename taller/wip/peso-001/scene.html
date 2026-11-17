@@ -1,0 +1,348 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// peso-001 — ¿Qué pasaría si todos te diéramos un peso? (serie "¿Qué pasaría si TODOS…?", Parte 10)
+// Disfraces: rico (copa y monóculo) → astronauta (torre de monedas al espacio) → cobrador (contarlas) → anciano (año 2286) → rico (loop).
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras (v2: nunca una palabra vacía sola en pantalla) ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      // no cerrar un bloque con una palabra corta sin puntuación: pasa al siguiente
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  // un bloque de una sola palabra corta se une con el siguiente (o con el anterior)
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+// Igual que captions() del motor, pero las 2 primeras palabras de cada bloque aparecen juntas.
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) return; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda')?320:215, izq=215;
+  const ex=(o.disfraz==='tardigrado'&&!(o.bolita>0.5))?255:0; let x0=-Math.max(izq,ex)*s, x1=Math.max(der,ex)*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-470*s],[o.x+x1,o.y-alto-470*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería ----------
+let CUR=1;
+// Letrero en coordenadas de PANTALLA, compensando el zoom de la toma (soplar-001-v2).
+function L(txt,x,y,k,tipo='madera',opts={}){ let tam=opts.tam||72; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=700;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } x=clamp(x,170+w/2,910-w/2); y=clamp(y,390,520);
+  letrero(txt,x,y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',x-w/2,y-tam*0.85,x+w/2,y+tam*0.85); ctx.restore(); }
+function calendario(x,y,s,k,t,t0,hasta,d,txt='DÍAS'){ if(k<=0) return; ocupa(x-120*s,y-150*s,x+120*s,y+140*s,1.1); chk('obj',x-120*s,y-160*s,x+120*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-120,-140,240,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-120,-140,240,70,22); ctx.fill(); ctx.fillRect(-120,-100,240,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-110,-60,220,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,t0,d,0,hasta),0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore(); }
+function tierra(x,y,r,t,sinGlow){ ctx.save(); if(!sinGlow){ const g=ctx.createRadialGradient(x,y,r*0.9,x,y,r*1.25); g.addColorStop(0,'rgba(127,216,255,0.8)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(x,y,r*1.25); }
+  ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.clip();
+  const sp=t*0.05*r; ctx.fillStyle='#5CD67A'; for(let i=0;i<7;i++){ const xx=x-r+(((rand(i)*2.4*r+sp)%(2.4*r))) - 0.2*r, yy=y-r*0.8+rand(i+7)*r*1.6; blob(xx,yy,r*(0.18+rand(i+3)*0.2)); blob(xx+r*0.15,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.85)'; for(let i=0;i<6;i++){ const xx=x-r+(((rand(i+20)*2.4*r+sp*1.6)%(2.4*r)))-0.2*r, yy=y-r*0.9+rand(i+27)*r*1.8; ctx.beginPath(); ctx.ellipse(xx,yy,r*0.22,r*0.05,0,0,PI2); ctx.fill(); }
+  ctx.fillStyle='rgba(30,26,80,0.25)'; ctx.beginPath(); ctx.arc(x+r*0.35,y+r*0.2,r*1.05,0,PI2); ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x-r*0.45,y-r*0.5,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+// balanza de platillos gigante. ang>0 baja el platillo derecho. izq/der(px,py): dibujan lo que va encima (py = superficie del platillo)
+function balanza(t,o){ const x=o.x??500, y=o.y??930, L=o.L??290, ang=o.ang||0, cu=o.cuelga??210, pw=o.pw??125;
+  ctx.fillStyle='#8E6FD0'; rr(x-150,1400,300,50,24); ctx.fill(); ctx.fillStyle='#B79BFF'; rr(x-30,y,60,1420-y,26); ctx.fill(); ctx.fillStyle='#D8C8FF'; rr(x-18,y+20,14,1380-y,7); ctx.fill();
+  const E=[-1,1].map(s=>[x+s*L*Math.cos(ang), y+s*L*Math.sin(ang)]);
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.fillStyle='#FFD23F'; rr(-L-30,-22,2*L+60,44,22); ctx.fill(); ctx.fillStyle='#FFF3A6'; rr(-L-10,-16,2*L+20,10,5); ctx.fill(); ctx.restore();
+  ctx.fillStyle='#E23D5B'; blob(x,y,40); ctx.fillStyle='#FFFFFF'; blob(x-10,y-12,10);
+  for(const [k,[ex,ey]] of E.entries()){ const py=ey+cu; ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(ex-pw*0.9,py); ctx.lineTo(ex,ey); ctx.lineTo(ex+pw*0.9,py); ctx.stroke(); ctx.fillStyle='#5B4B8A'; blob(ex,ey,14);
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(ex,py,pw,30,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#E0A800'; ctx.beginPath(); ctx.ellipse(ex,py+8,pw,30,0,0,Math.PI); ctx.fill();
+    ctx.save(); (k?o.der:o.izq)?.(ex,py-6); ctx.restore(); chk('obj',ex-pw,py-30,ex+pw,py+38); }
+  ocupa(x-L-pw,y-60,x+L+pw,1440,0.4); return E; }
+// multitud de gomitas mini apretadas sobre un platillo
+function multitud(x,y,w,filas,t,sq=0){ for(let r=0;r<filas;r++){ const n=Math.max(2,Math.round(w/44)-r); for(let i=0;i<n;i++){ const xx=x-(n-1)*22+i*44+(r%2)*6, yy=y-14-r*30*(1-sq*0.4)-Math.abs(Math.sin(t*6+i*1.7+r))*6;
+  ctx.fillStyle=PASTELES[(i*3+r)%6]; ctx.beginPath(); ctx.ellipse(xx,yy,22*(1+sq*0.3),24*(1-sq*0.3),0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(xx-7,yy-5,3.5); blob(xx+7,yy-5,3.5); } }
+  ocupa(x-w/2,y-filas*32,x+w/2,y,0.8); }
+function basculaPesaje(x,y,s,t,v){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#5B4B8A'; rr(-230,-40,460,50,22); ctx.fill(); ctx.fillStyle='#8D7BCF'; rr(-210,-60,420,30,14); ctx.fill();
+  ctx.fillStyle='#5B4B8A'; rr(170,-560,40,520,16); ctx.fill(); ctx.translate(190,-640); ctx.fillStyle='#FFFFFF'; blob(0,0,120); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,120,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<11;i++){ ctx.save(); ctx.rotate(-2.3+i*0.46); rr(-4,-104,8,22,4); ctx.fill(); ctx.restore(); } ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(0,-104,0,0,1); ctx.save(); ctx.rotate(-2.3+4.6*clamp(v)+(v>=1?Math.sin(t*40)*0.06:0)); ctx.fillRect(-5,-96,10,100); ctx.restore(); blob(0,0,16); ctx.restore(); chk('obj',x-230*s,y-760*s,x+310*s,y+10*s); ocupa(x+70*s,y-760*s,x+310*s,y-520*s,1.2); }
+function flecha(x,y,ang,k,c='#D7FF3D'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(k,k); ctx.fillStyle=c; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(90,0); ctx.lineTo(20,-60); ctx.lineTo(20,-22); ctx.lineTo(-80,-22); ctx.lineTo(-80,22); ctx.lineTo(20,22); ctx.lineTo(20,60); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+function confeti(t,t0,n=26){ if(t<t0) return; for(let i=0;i<n;i++){ const u=(t-t0)*0.9+rand(i)*0.3; const x=80+rand(i+3)*920+Math.sin(t*3+i)*30, y=-40+u*900%1700; ctx.save(); ctx.translate(x,y); ctx.rotate(t*6+i); ctx.fillStyle=['#D7FF3D','#FF5FA2','#4CC9F0','#FFD23F'][i%4]; ctx.fillRect(-10,-6,20,12); ctx.restore(); } }
+function sudor(x,y,s,t,n=3){ for(let i=0;i<n;i++){ const a=-2.5+i*0.6; ctx.fillStyle='#7FD8FF'; const xx=x+Math.cos(a)*170*s, yy=y-290*s+Math.sin(a)*150*s+((t*2+i*0.3)%1)*30; ctx.beginPath(); ctx.moveTo(xx,yy-14*s*2); ctx.quadraticCurveTo(xx+10*s*2,yy,xx,yy+6*s*2); ctx.quadraticCurveTo(xx-10*s*2,yy,xx,yy-14*s*2); ctx.fill(); } }
+const dur=sc=>sc.end-sc.start;
+
+// ====================== utilería de monedas ======================
+const ORO='#FFD23F', ORO_OSC='#E0A800', ORO_CLARO='#FFF3A6';
+// moneda de $1 vista de frente; g = giro (−1..1, ancho aparente)
+function moneda(x,y,r,a=0,g=1){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(Math.max(0.08,Math.abs(g)),1);
+  ctx.fillStyle=ORO_OSC; blob(0,r*0.1,r); ctx.fillStyle=ORO; blob(0,0,r); ctx.fillStyle='#F2C230'; blob(0,0,r*0.78);
+  ctx.strokeStyle=ORO_OSC; ctx.lineWidth=Math.max(2,r*0.06); ctx.beginPath(); ctx.arc(0,0,r*0.78,0,PI2); ctx.stroke();
+  if(r>16 && g>0){ ctx.fillStyle='#B07800'; ctx.font=fuente(r*0.8); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('$1',0,r*0.05); }
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(-r*0.4,-r*0.45,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+// moneda acostada (vista de lado, para pilas y montones)
+function monedaPlana(x,y,r){ ctx.fillStyle=ORO_OSC; ctx.beginPath(); ctx.ellipse(x,y+r*0.16,r,r*0.34,0,0,PI2); ctx.fill(); ctx.fillStyle=ORO; ctx.beginPath(); ctx.ellipse(x,y,r,r*0.34,0,0,PI2); ctx.fill();
+  ctx.strokeStyle='#F2C230'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(x,y,r*0.7,r*0.22,0,0,PI2); ctx.stroke(); }
+// lluvia de monedas que caen girando (ciclo continuo)
+function lluvia(t,n=14,r=40,y0=-120,y1=1500,vel=1){ for(let i=0;i<n;i++){ const u=((t*0.55*vel+rand(i+3))%1); const x=60+rand(i)*960+Math.sin(t*2+i)*20; moneda(x,lerp(y0,y1,u*u*0.6+u*0.4),r*(0.75+rand(i+8)*0.5),t*2+i,Math.cos(t*6+i*1.7)); } }
+// montón de monedas en forma de cerro
+function monton(x,y,w,h,t,k=1,seed=0){ if(k<=0) return; const hh=h*k; ctx.fillStyle=ORO_OSC; ctx.beginPath(); ctx.ellipse(x,y,w/2,hh,0,Math.PI,0); ctx.fill();
+  ctx.fillStyle=ORO; ctx.beginPath(); ctx.ellipse(x,y-6,w/2-14,hh-10,0,Math.PI,0); ctx.fill();
+  const n=Math.round(w*h/2600); for(let i=0;i<n;i++){ const u=rand(i+seed)*2-1, v=rand(i+seed+50); const yy=y-v*hh*Math.sqrt(Math.max(0,1-u*u))*0.95, xx=x+u*w*0.46;
+    if(i%3) monedaPlana(xx,yy,22+rand(i+7)*10); else moneda(xx,yy,20+rand(i+5)*8,rand(i)*2,0.7+0.3*Math.sin(t*3+i)); }
+  for(let i=0;i<5;i++){ const tw=(t*1.3+i*0.37)%1; if(tw<0.25) estrella4(x+(rand(i+90)*2-1)*w*0.35,y-rand(i+91)*hh*0.8,18*Math.sin(tw/0.25*Math.PI),'#FFFFFF'); }
+  ocupa(x-w/2,y-hh,x+w/2,y,0.5); chk('obj',x-w/2,y-hh,x+w/2,y); }
+function costal(x,y,s,t,k=1,txt='$'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.rotate(Math.sin(t*3)*0.03);
+  ctx.fillStyle='#B98552'; ctx.beginPath(); ctx.moveTo(-150,0); ctx.quadraticCurveTo(-190,-170,-70,-250); ctx.lineTo(70,-250); ctx.quadraticCurveTo(190,-170,150,0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#D6A56E'; ctx.beginPath(); ctx.ellipse(-40,-120,60,90,0.2,0,PI2); ctx.fill(); ctx.fillStyle='#8A5A30'; rr(-80,-268,160,30,14); ctx.fill();
+  ctx.fillStyle='#B98552'; ctx.beginPath(); ctx.moveTo(-60,-262); ctx.lineTo(-90,-320); ctx.lineTo(0,-290); ctx.lineTo(90,-320); ctx.lineTo(60,-262); ctx.fill();
+  ctx.fillStyle='#5A3A1E'; ctx.font=fuente(130); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,0,-100); ctx.restore(); chk('obj',x-170*s*k,y-320*s*k,x+170*s*k,y); }
+function torreEiffel(x,y,s,k=1,col='#B0617E'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle=col;
+  ctx.beginPath(); ctx.moveTo(-120,0); ctx.quadraticCurveTo(-60,-160,-24,-330); ctx.lineTo(-10,-470); ctx.lineTo(10,-470); ctx.lineTo(24,-330); ctx.quadraticCurveTo(60,-160,120,0); ctx.lineTo(70,0); ctx.quadraticCurveTo(0,-110,-70,0); ctx.closePath(); ctx.fill();
+  rr(-86,-130,172,18,8); ctx.fill(); rr(-46,-300,92,14,6); ctx.fill(); ctx.fillRect(-3,-530,6,70);
+  ctx.strokeStyle=mix(col,'#FFFFFF',0.45); ctx.lineWidth=4; for(let i=0;i<6;i++){ const yy=-20-i*50, w=100-i*13; ctx.beginPath(); ctx.moveTo(-w,yy); ctx.lineTo(w*0.6,yy-40); ctx.moveTo(w,yy); ctx.lineTo(-w*0.6,yy-40); ctx.stroke(); }
+  ctx.restore(); }
+// pila de monedas (columna) de y0 hacia arriba, altura h
+function pila(x,y0,h,r){ const n=Math.ceil(h/(r*0.28)); ctx.fillStyle=ORO_OSC; rr(x-r,y0-h,r*2,h,6); ctx.fill();
+  ctx.fillStyle=ORO; rr(x-r+6,y0-h,r*1.25,h,6); ctx.fill(); ctx.strokeStyle='#C99000'; ctx.lineWidth=2; for(let i=0;i<Math.min(n,400);i++){ const yy=y0-i*r*0.28; if(yy<-300) break; ctx.beginPath(); ctx.moveTo(x-r,yy); ctx.lineTo(x+r,yy); ctx.stroke(); }
+  monedaPlana(x,y0-h,r); }
+function basculaCocina(x,y,s,txt,k=1){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FF8FB1'; rr(-220,-140,440,140,40); ctx.fill(); ctx.fillStyle='#FFB8D2'; rr(-200,-130,400,40,20); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; rr(-130,-80,260,64,16); ctx.fill(); ctx.fillStyle='#D7FF3D'; ctx.font=fuente(52); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.save(); ctx.translate(0,-48); ctx.scale(k,k); ctx.fillText(txt,0,0); ctx.restore();
+  ctx.fillStyle='#E06A93'; ctx.beginPath(); ctx.ellipse(0,-150,230,30,0,0,PI2); ctx.fill(); ctx.restore(); chk('obj',x-220*s,y-180*s,x+220*s,y); }
+function iss(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(Math.sin(t)*0.05); ctx.fillStyle='#4C6FD8'; for(const d of [-1,1]){ rr(d*60-(d<0?120:0),-40,120,80,6); ctx.fill(); }
+  ctx.fillStyle='#E8E4F4'; rr(-60,-8,120,16,8); ctx.fill(); rr(-24,-22,48,44,14); ctx.fill(); ctx.globalAlpha=0.5+0.5*Math.sin(t*8); ctx.fillStyle='#FF4D6D'; blob(0,-26,6); ctx.globalAlpha=1; ctx.restore(); }
+function reloj(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; blob(0,0,110); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,110,0,PI2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,18,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(Math.floor(t*3)*Math.PI/30*5); ctx.fillStyle='#E23D5B'; rr(-4,-90,8,96,4); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(t*0.6); ctx.fillStyle='#1E1A2E'; rr(-7,-60,14,66,7); ctx.fill(); ctx.restore(); blob(0,0,12); ctx.restore(); chk('obj',x-120*s,y-120*s,x+120*s,y+120*s); }
+function escritorio(x,y,w){ ctx.fillStyle='#8A5A3A'; rr(x-w/2,y,w,40,14); ctx.fill(); ctx.fillStyle='#6B4329'; rr(x-w/2+20,y+40,w-40,260,10); ctx.fill(); ctx.fillStyle='#A8714A'; rr(x-w/2+40,y+80,w-80,60,10); ctx.fill(); }
+function taco(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.ellipse(0,10,120,26,0,0,PI2); ctx.fill();
+  for(const d of [-50,40]){ ctx.fillStyle='#F5C26B'; ctx.beginPath(); ctx.arc(d,0,52,Math.PI,0); ctx.fill(); ctx.fillStyle='#5CD67A'; blob(d-18,-30,10); blob(d+14,-34,9); ctx.fillStyle='#E23D5B'; blob(d,-36,8); } ctx.restore(); }
+function autoVolador(x,y,s,t,col){ ctx.save(); ctx.translate(x,y+Math.sin(t*4+x)*8); ctx.scale(s,s); ctx.fillStyle=col; ctx.beginPath(); ctx.ellipse(0,0,110,40,0,0,PI2); ctx.fill(); ctx.fillStyle='#BFF4FF'; ctx.beginPath(); ctx.ellipse(10,-30,50,34,0,Math.PI,0); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.6)'; for(let i=0;i<3;i++) blob(-130-i*30,0,12-i*3); ctx.restore(); }
+function gomitasConMoneda(t,y,n,x0,dx,s=0.42){ for(let i=0;i<n;i++){ const x=x0+i*dx, b=Math.abs(Math.sin(t*5+i))*16; gomita({x,y:y-b,s,t,color:PASTELES[i%6],expr:i%2?'feliz':'risa',brazos:'arriba',seed:i}); moneda(x,y-b-s*560,34*s/0.42,0,Math.cos(t*5+i)); } }
+
+// ====================== fondos propios ======================
+EXTRA_FONDOS.tiendita=function(t,P,px){ ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
+  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.3); for(let i=0;i<5;i++){ rr(-200+i*320+px(0.1)%320,300,40,1200,10); ctx.fill(); }
+  for(let r=0;r<4;r++){ const y=640+r*200; ctx.fillStyle=P.oscuro; rr(-300,y,1680,26,8); ctx.fill();
+    for(let i=0;i<16;i++){ const x=-160+i*92+px(0.3)%92, h=80+rand(i*7+r)*70; ctx.fillStyle=PASTELES[(i+r*2)%6]; rr(x,y-h,70,h,14); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.55)'; rr(x+10,y-h+16,50,16,8); ctx.fill(); } }
+  ctx.fillStyle=P.medio; ctx.fillRect(-300,1440,1680,700); ctx.fillStyle=mix(P.medio,'#FFFFFF',0.2); for(let i=0;i<10;i++) rr(-200+i*170+px(1)%170,1480,120,40,16), ctx.fill();
+};
+EXTRA_FONDOS.oficina=function(t,P,px){ ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
+  ctx.fillStyle=mix(P.claro,P.medio,0.35); for(let i=0;i<4;i++){ rr(-100+i*330+px(0.15)%330,560,230,320,22); ctx.fill(); }
+  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.5); for(let i=0;i<4;i++){ rr(-80+i*330+px(0.15)%330,580,190,280,16); ctx.fill(); }
+  for(let i=0;i<7;i++){ const x=-60+i*190+px(0.4)%190; ctx.fillStyle=P.medio; rr(x,1100,150,340,16); ctx.fill(); ctx.fillStyle=P.oscuro; for(let k=0;k<3;k++){ rr(x+20,1130+k*100,110,70,10); ctx.fill(); } }
+  ctx.fillStyle=P.oscuro; ctx.fillRect(-300,1440,1680,700);
+};
+
+// ====================== escenas ======================
+const RICO='rico';
+// Gancho S1/S25 (loop): plaza de colores, lluvia de monedas de $1 y un cerro de monedas detrás; Raro rico (copa y monóculo) brincando con terror,
+// las monedas le rebotan en la copa; letrero ¡TODOS TE DAN $1! desde el cuadro 0. Toma push.
+function escenaGancho(t,sc,fin){ monton(540,1450,1000,420,t,1,3);
+  const hop=Math.abs(Math.sin(t*7))*60;
+  raro({x:540,y:1440,s:0.78,t,disfraz:RICO,expr:'terror',brazos:'arriba',piernas:'corre',alto:hop,sq:Math.sin(t*14)*0.1,wob:Math.sin(t*7)*0.6,ojos:1.5});
+  lluvia(t,16,44);
+  for(const [gx,e] of [[150,false],[870,true]]){ const b=Math.abs(Math.sin(t*6+gx))*30; gomita({x:gx,y:1440,s:0.4,t,color:gx<500?'#B8E6FF':'#FFE3A3',expr:'risa',brazos:'arriba',espejo:e,alto:b,seed:gx}); const u=((t*1.4+gx*0.001)%1); moneda(lerp(gx,540,u),1440-b-200-Math.sin(u*Math.PI)*380,30,t*8,Math.cos(t*9+gx)); }
+  for(let i=0;i<3;i++){ const u=((t*1.6+i/3)%1); const a=-Math.PI/2+(i-1)*0.9; moneda(540+Math.cos(a)*u*260,1440-hop-480*0.78+Math.sin(a)*u*200+u*u*500,30,t*8,Math.cos(t*9+i)); }
+  L('¡TODOS TE DAN $1!',540,430,1,'panel',{tam:86,t,t0:-1});
+  if(!fin && t>=at(5)) chispas(t,at(5),540,900,1.1,'#FFFFFF');
+}
+function S1(t,sc){ escenaGancho(t,sc,false); }
+function S25(t,sc){ escenaGancho(t,sc,true); }
+// S2 "te aplastaríamos!": una moneda GIGANTE cae del cielo; Raro voltea arriba (terror, ojos al doble) y en "aplastaríamos" queda aplastado bajo ella (onda de choque).
+function S2(t,sc){ const t0=at(7); const u=prog(t,t0-0.3,0.3); const yc=t<t0? lerp(-500,700,u*u) : 1180;
+  monton(540,1450,1000,300,t,1,3);
+  if(t<t0){ raro({x:540,y:1440,s:0.8,t,disfraz:RICO,expr:'terror',brazos:'arriba',ojos:2,mira:{x:0,y:-1},sq:Math.sin(t*20)*0.05}); moneda(540,yc,300,0.1,0.25+0.75*Math.abs(Math.cos(t*5))); }
+  else { const g=gelatina(t,t0,0.5); raro({x:540,y:1440,s:0.8,t,disfraz:RICO,expr:'yavalio',brazos:'arriba',sq:0.62+g*0.2,chafa:true}); ctx.save(); ctx.translate(540,1250); ctx.scale(1,0.32); moneda(0,0,320,0,1); ctx.restore(); ondaChoque(t,t0,540,1400,'#FFFFFF'); estrellitas(t,t0+0.1,540,1080); }
+  const k=popIn(t,t0); if(k>0) L('¡APLASTADO!',540,430,k,'madera',{tam:96,t,t0});
+}
+// S3 "Más de 8 mil millones de personas,": multitud de gomitas, cada una levanta su moneda; Raro rico sale de un brinco al frente; contador hasta 8,000,000,000.
+function S3(t,sc){ const n=Math.floor(easeOut(prog(t,sc.start,1.2))*4)+1;
+  for(let r=n-1;r>=0;r--) gomitasConMoneda(t+r,1060+r*90,9-r%2,120+(r%2)*50,105,0.3+r*0.03);
+  const c=caida(t,sc.start+0.15); raro({x:300,y:1440,s:0.6,t,disfraz:RICO,expr:t<at(13)?'asombro':'feliz',brazos:'saluda',alto:c.alto,sq:c.sq,wob:c.wob});
+  const k=popIn(t,at(10)); if(k>0) L(contador(t,at(10),at(13)-at(10)+0.3,0,8000000000),540,430,k,'panel',{tam:86,t,t0:at(10)});
+}
+// S4 "cada una con su monedita para ti.": fila de gomitas a la derecha lanza monedas en arco al costal de Raro (izquierda); cada una hace "pop".
+function S4(t,sc){ costal(300,1440,0.9,t,1); raro({x:470,y:1440,s:0.6,t,disfraz:RICO,expr:t<at(20)?'feliz':'risa',brazos:'frente',espejo:true,sq:gelatina(t,at(18),0.25)});
+  for(let i=0;i<3;i++) gomita({x:690+i*120,y:1440,s:0.42,t,color:PASTELES[i+1],expr:'feliz',brazos:'saluda',espejo:true,seed:i});
+  for(let i=0;i<6;i++){ const t0=sc.start+0.1+i*0.32, u=prog(t,t0,0.55); if(u<=0||u>=1) continue; const sx=690+(i%3)*120, x=lerp(sx,300,u), y=lerp(1180,1150,u)-Math.sin(u*Math.PI)*420; moneda(x,y,30,t*6,Math.cos(t*10+i)); }
+  const k=popIn(t,at(18)); if(k>0) L('UNA PARA TI',540,430,k,'madera',{tam:90,t,t0:at(18)});
+}
+// S5 "Suena a que ya te hiciste rico, ¿no?": Raro rico encima del cerro de monedas, orgulloso con monóculo y brazos en jarras; confeti; mira a cámara en "¿no?".
+function S5(t,sc){ monton(540,1450,900,380,t,1,9); const c=caida(t,sc.start+0.05,800);
+  raro({x:540,y:1090,s:0.62,t,disfraz:RICO,expr:t<at(28)?'orgullo':'sospecha',brazos:'jarras',mira:t<at(28)?null:{x:0,y:0},alto:c.alto,sq:c.sq+gelatina(t,at(27),0.3),wob:c.wob,bolsa:true});
+  confeti(t,sc.start); if(t>=at(27)) chispas(t,at(27),540,700,1.2,'#FFFFFF');
+  const k=popIn(t,at(26)); if(k>0) L('¿YA ERES RICO?',540,430,k,'panel',{tam:92,t,t0:at(26)});
+}
+// S6 "8,200 millones de pesos.": monedas que caen en cascada llenando la pantalla; contador $8,200,000,000; Raro boquiabierto abajo.
+function S6(t,sc){ cascada(t,sc.start+0.05,24,(x,y,k,i)=>moneda(x,y+Math.sin(t*4+i)*8,52*k,Math.sin(t*3+i)*0.2,Math.cos(t*4+i*0.7)),{x0:150,y0:640,cols:6,dx:156,dy:130,cada:0.07});
+  raro({x:540,y:1440,s:0.6,t,disfraz:RICO,expr:'asombro',brazos:'cara',ojos:t>=at(32)?2:1.3,sq:gelatina(t,at(32),0.3)});
+  const k=popIn(t,at(29)); if(k>0) L('$'+contador(t,at(29),at(32)-at(29)+0.2,0,8200000000),540,430,k,'panel',{tam:84,t,t0:at(29)});
+}
+// S7 "El problema es cargarlos.": Raro jala un costal gigante con todas sus fuerzas (sudor, piernas corriendo en su lugar); en "cargarlos" se resbala y cae de sentón.
+function S7(t,sc){ const tir=Math.sin(t*16)*6; costal(700,1440,1.6,t,1);
+  const cae=t>=at(36); const g=cae? gelatina(t,at(36),0.6):0;
+  raro({x:cae?330:390+tir,y:1440,s:0.62,t,disfraz:RICO,expr:cae?'llanto':'terror',brazos:cae?'arriba':'frente',piernas:cae?'quieto':'corre',tilt:cae?-0.35:0.25,sq:g,wob:wobble(t,at(36),0.6)}); if(!cae) sudor(390,1440,0.62,t,3);
+  if(!cae){ ctx.strokeStyle='#8A5A30'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(480+tir,1300); ctx.lineTo(600,1080); ctx.stroke(); } else estrellitas(t,at(36),330,1100);
+  const k=popIn(t,at(34)); if(k>0) L(t<at(36)?'EL PROBLEMA…':'¡CARGARLOS!',540,430,k,'madera',{tam:90,t,t0:t<at(36)?at(34):at(36)});
+}
+// S8 "Cada moneda pesa casi cuatro gramos…": báscula de cocina con UNA moneda; la pantalla marca 3.95 g en "cuatro"; Raro la mira de cerca con sospecha.
+function S8(t,sc){ const kd=popIn(t,at(41)); basculaCocina(430,1300,1.1,t<at(41)?'0.00 g':'3.95 g',t<at(41)?1:kd);
+  const c=caida(t,at(38)-0.25,600,0.25); if(t>=at(38)-0.25){ ctx.save(); ctx.translate(430,1110-c.alto); moneda(0,0,90,0,1); ctx.restore(); }
+  raro({x:800,y:1440,s:0.62,t,disfraz:RICO,expr:t<at(41)?'sospecha':'asombro',brazos:'senala',espejo:true,mira:{x:-0.8,y:0.3},sq:gelatina(t,at(41),0.25)});
+  const k=popIn(t,at(41)); if(k>0) L('CASI 4 GRAMOS',540,430,k,'panel',{tam:88,t,t0:at(41)});
+}
+// S9 "y juntas pesan más de 32 mil toneladas.": báscula de pesaje gigante; caen monedas hasta formar un cerro; la aguja se va al tope y tiembla; Raro se tapa la cara.
+function S9(t,sc){ const v=easeOut(prog(t,at(44),at(48)-at(44)+0.2)); basculaPesaje(450,1440,0.85,t,v);
+  monton(330,1385,520,360*easeOut(prog(t,sc.start,0.9))+20,t,1,21); lluvia(t,6,30,-100,1100,1.3);
+  raro({x:830,y:1440,s:0.5,t,disfraz:RICO,expr:t<at(48)?'asombro':'terror',brazos:t<at(48)?'cara':'arriba',espejo:true,ojos:t>=at(48)?2:1.2,sq:gelatina(t,at(48),0.35)});
+  const k=popIn(t,at(48)); if(k>0) L('32 MIL TONELADAS',540,430,k,'panel',{tam:84,t,t0:at(48)});
+}
+// S10 "¡Más de tres Torres Eiffel!": balanza: monedas contra Torres Eiffel que caen una por palabra (tres / torres / Eiffel); aun con las tres, ganan las monedas.
+function S10(t,sc){ const T=[at(51),at(52),at(53)]; const n=T.filter(x=>t>=x).length; const ang=lerp(-0.24,-0.06,n/3)+wobble(t,T[Math.max(0,n-1)],0.05);
+  balanza(t,{ang, izq:(px,py)=>{ monton(px,py,220,120,t,1,31); raro({x:px,y:py-110,s:0.34,t,disfraz:RICO,expr:n<3?'sospecha':'orgullo',brazos:'jarras',sq:gelatina(t,at(54),0.3)}); },
+    der:(px,py)=>{ [-60,0,60].forEach((dx,i)=>{ if(t<T[i]-0.2) return; const c=caida(t,T[i]-0.2,500,0.2); torreEiffel(px+dx,py-c.alto,0.5,1,['#B0617E','#7A6CC4','#4C9A8E'][i]); }); }});
+  const k=popIn(t,at(50)); if(k>0) L('¡MÁS DE 3 TORRES EIFFEL!',540,430,k,'madera',{tam:80,t,t0:at(50)});
+}
+// S11 "De puro cambio.": pattern interrupt: plano cerrado a la cara de Raro (ya valió) mirando a cámara; en "cambio" le cae una moneda en la copa (boing, estrellitas).
+function S11(t,sc){ const t0=at(57); const u=prog(t,t0-0.3,0.3);
+  raro({x:540,y:1440,s:1.1,t,disfraz:RICO,expr:t<t0?'yavalio':'llanto',mira:{x:0,y:0},brazos:'idle',sq:gelatina(t,t0,0.35),chafa:t>=t0});
+  if(t<t0+0.05) moneda(560,lerp(-200,500,u*u),70,t*8,Math.cos(t*12)); else { const b=brinco(t,t0,0.5,200); moneda(700+(t-t0)*300,560-b.alto,70,t*8,Math.cos(t*12)); estrellitas(t,t0,540,520); }
+  const k=popIn(t,at(55)); if(k>0) L('¡PURA MORRALLA!',540,430,k,'piedra',{tam:90,t,t0:at(55)});
+}
+// S12 "¿Y si las apilas?": Raro rico apila monedas una por una (click) en una columna que crece a su lado; cerros.
+function S12(t,sc){ const n=Math.floor(prog(t,sc.start,dur(sc))*14)+2; pila(640,1440,n*24,70);
+  const b=Math.sin(t*12)*0.08; raro({x:400,y:1440,s:0.66,t,disfraz:RICO,expr:'feliz',manos:{d:[200,-330-Math.abs(Math.sin(t*9))*60]},sq:b});
+  const k=popIn(t,at(58)); if(k>0) L('¿Y SI LAS APILAS?',540,430,k,'madera',{tam:88,t,t0:at(58)});
+}
+// S13 "una torre de monedas de 13 mil kilómetros.": puf a astronauta; la torre sale disparada hacia arriba con Raro agarrado; nubes que pasan hacia abajo (velocidad); contador de km.
+function S13(t,sc){ const p=pufCambio(t,sc.start+0.02); const u=prog(t,sc.start+0.3,dur(sc)-0.3);
+  for(let i=0;i<6;i++){ const yy=((t*900+i*420)%2400)-300; ctx.fillStyle='rgba(255,255,255,0.85)'; nube(120+rand(i)*840,yy,1+rand(i+4)*0.6); }
+  pila(620,2200,2200,80);
+  raro({x:500,y:1250-Math.sin(t*6)*20,s:0.62,t,disfraz:p.despues?'astronauta':RICO,spin:p.spin,expr:u<0.5?'terror':'asombro',manos:{d:[200,-300],i:[200,-200]},piernas:'flota',viento:1});
+  nubePuf(t,sc.start+0.08,500,1050,1.1); if(t>sc.start+0.3) rachas(t,1,0.5);
+  const k=popIn(t,at(63)); if(k>0) L(t<at(67)?'TORRE DE MONEDAS':contador(t,at(67),0.6,0,13000)+' KM',540,430,k,'panel',{tam:86,t,t0:t<at(67)?at(63):at(67)});
+}
+// S14 "¡Más alta que lo ancho de la Tierra!": espacio: la Tierra a la izquierda con su ancho marcado; la torre de monedas a la derecha la rebasa; Raro astronauta flota en la punta.
+function S14(t,sc){ const R=250, cy=1080; tierra(330,cy,R,t); const h=lerp(300,560,easeOut(prog(t,sc.start,1.0)));
+  pila(800,cy+R,h,60); ocupa(740,cy+R-h,860,cy+R,1);
+  const kd=popIn(t,at(73)); if(kd>0){ ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=8; ctx.setLineDash([20,14]); ctx.beginPath(); ctx.moveTo(60,cy-R); ctx.lineTo(980,cy-R); ctx.moveTo(60,cy+R); ctx.lineTo(980,cy+R); ctx.stroke(); ctx.setLineDash([]); }
+  raro({x:800,y:cy+R-h-20,s:0.34,t,disfraz:'astronauta',expr:t<at(76)?'asombro':'orgullo',brazos:'arriba',piernas:'flota',alto:Math.sin(t*3)*14,sq:gelatina(t,at(76),0.3)});
+  const k=popIn(t,at(69)); if(k>0) L('MÁS ALTA QUE LA TIERRA',540,430,k,'panel',{tam:76,t,t0:at(69)});
+}
+// S15 "La Estación Espacial se quedaría 30 veces más abajo.": la torre atraviesa la pantalla; abajo la orilla de la Tierra y la Estación Espacial chiquita; Raro saluda desde arriba.
+function S15(t,sc){ ctx.fillStyle='#3AB6FF'; ctx.beginPath(); ctx.arc(540,3200,1800,0,PI2); ctx.fill(); ctx.fillStyle='#5CD67A'; blob(300,1480,120); blob(800,1500,90);
+  pila(620,1460,1900,46); const kI=popIn(t,at(78)); if(kI>0){ ctx.save(); ctx.translate(380+Math.sin(t)*30,1340); ctx.scale(kI,kI); iss(0,0,0.9,t); ctx.restore(); flecha(520,1340,Math.PI,popIn(t,at(78)+0.2)); }
+  raro({x:740,y:820+Math.sin(t*3)*16,s:0.45,t,disfraz:'astronauta',expr:t<at(82)?'feliz':'risa',brazos:'saluda',piernas:'flota',espejo:true});
+  const k=popIn(t,at(78)); if(k>0) L(t<at(82)?'ESTACIÓN ESPACIAL':'×30 MÁS ABAJO',540,430,k,'madera',{tam:84,t,t0:t<at(82)?at(78):at(82)});
+}
+// S16 "¿Y en fila?": desierto; una fila de monedas rueda de canto hacia la derecha; Raro astronauta corre junto a ellas.
+function S16(t,sc){ for(let i=0;i<9;i++){ const x=((t-sc.start)*520+i*140)%1400-160; moneda(x,1370,62,(t*8),Math.cos(t*0.5+i)*0.25+0.3); }
+  const b=brinco(t,sc.start+0.1,0.4,140); raro({x:560,y:1440,s:0.55,t,disfraz:'astronauta',expr:'asombro',brazos:'corre',piernas:'corre',alto:b.alto,sq:b.sq});
+  const k=popIn(t,at(86)); if(k>0) L('¿EN FILA?',540,430,k,'madera',{tam:100,t,t0:at(86)});
+}
+// S17 "le darían más de cuatro vueltas al planeta.": espacio: la fila de monedas envuelve la Tierra; aparece un anillo por vuelta hasta 4; Raro astronauta da la vuelta montado en una moneda.
+function S17(t,sc){ const R=240, cx=540, cy=1020; const T=[at(90),at(92),at(93),at(94)]; const n=T.filter(x=>t>=x).length;
+  for(let r=0;r<n;r++){ const k=easeOut(prog(t,T[r],0.35)); for(let i=0;i<40;i++){ const a=i/40*PI2+t*0.6*(r%2?-1:1); if(i/40>k) break; const rx=R+40+r*42, ry=(R+40+r*42)*0.32; const x=cx+Math.cos(a)*rx, y=cy+Math.sin(a)*ry-(r-1.5)*30; if(Math.sin(a)<0) moneda(x,y,16,0,0.6); } }
+  tierra(cx,cy,R,t);
+  for(let r=0;r<n;r++){ const k=easeOut(prog(t,T[r],0.35)); for(let i=0;i<40;i++){ const a=i/40*PI2+t*0.6*(r%2?-1:1); if(i/40>k) break; const rx=R+40+r*42, ry=(R+40+r*42)*0.32; const x=cx+Math.cos(a)*rx, y=cy+Math.sin(a)*ry-(r-1.5)*30; if(Math.sin(a)>=0) moneda(x,y,18,0,0.7); } }
+  const a=t*1.4; raro({x:cx+Math.cos(a)*420,y:cy+Math.sin(a)*150+170,s:0.32,t,disfraz:'astronauta',expr:'risa',brazos:'arriba',piernas:'flota'});
+  const k=popIn(t,at(89)); if(k>0) L(n<1?'LA FILA…':n+(n>1?' VUELTAS':' VUELTA'),540,430,k,'panel',{tam:96,t,t0:T[Math.max(0,n-1)]});
+  if(t>=at(96)) estrellitas(t,at(96),cx,cy-R-60);
+}
+// S18 "Y aquí viene lo feo.": pattern interrupt: plano cerrado a la cara de Raro astronauta que mira a cámara y susurra; luz baja.
+function S18(t,sc){ raro({x:540,y:1440,s:1.05,t,disfraz:'astronauta',expr:t<at(101)?'sospecha':'yavalio',mira:{x:0,y:0},manos:{d:[150,-250]},sq:gelatina(t,at(101),0.3)});
+  ctx.save(); ctx.globalAlpha=0.25*easeOut(prog(t,sc.start,0.5)); ctx.fillStyle='#1E1A2E'; ctx.fillRect(-300,-300,1680,2520); ctx.restore();
+  const k=popIn(t,at(101)); if(k>0) L('LO FEO…',540,430,k,'piedra',{tam:96,t,t0:at(101)});
+}
+// S19 "Antes de gastarlas, hay que contarlas.": oficina; puf a cobrador (visera verde); escritorio con montañas de monedas; Raro toma la primera.
+function S19(t,sc){ const p=pufCambio(t,sc.start+0.02);
+  raro({x:540,y:1300,s:0.75,t,disfraz:p.despues?'cobrador':'astronauta',spin:p.spin,expr:t<at(107)?'sospecha':'yavalio',brazos:t<at(104)?'jarras':'frente',sq:gelatina(t,at(107),0.3)});
+  nubePuf(t,sc.start+0.08,540,1100,1.1); escritorio(540,1250,860);
+  monton(250,1255,300,180,t,popIn(t,sc.start+0.2),41); monton(830,1255,300,220,t,popIn(t,sc.start+0.35),47);
+  const k=popIn(t,at(104)); if(k>0) L(t<at(105)?'ANTES DE GASTARLAS':'HAY QUE CONTARLAS',540,430,k,'madera',{tam:80,t,t0:t<at(105)?at(102):at(105)});
+}
+// S20 "Una por segundo, sin dormir, sin comer…": Raro cobrador pasa monedas de un montón al otro al ritmo del reloj; en "dormir" cabecea; en "comer" el taco se aleja.
+function S20(t,sc){ reloj(820,800,0.8,t); escritorio(540,1250,860);
+  monton(230,1255,280,200,t,1,41); monton(850,1255,260,120+(t-sc.start)*30,t,1,47);
+  const per=0.4, ph=((t-sc.start)%per)/per; moneda(lerp(300,780,ph),1150-Math.sin(ph*Math.PI)*220,34,t*10,Math.cos(t*14));
+  const dor=t>=at(112)&&t<at(113); const tc=t>=at(114)? (t-at(114))*600:0; taco(160-tc,1230,0.7);
+  raro({x:540,y:1300,s:0.75,t,disfraz:'cobrador',expr:dor?'dormido':(t>=at(114)?'llanto':'sospecha'),brazos:'frente',tilt:dor?0.2:0,sq:Math.sin(t*15)*0.04});
+  const k=popIn(t,at(108)); if(k>0) L(t<at(111)?'1 POR SEGUNDO':(t<at(113)?'SIN DORMIR':'SIN COMER'),540,430,k,'madera',{tam:90,t,t0:t<at(111)?at(108):(t<at(113)?at(111):at(113))});
+}
+// S21 "260 años.": calendario que vuela hasta 260 AÑOS; Raro cobrador brinca del susto con líneas de velocidad; flash.
+function S21(t,sc){ calendario(540,820,1.05,popIn(t,sc.start,0.2),t,sc.start,260,at(116)-sc.start+0.15,'AÑOS');
+  const b=susto(t,at(116)); raro({x:540,y:1440,s:0.6,t,disfraz:'cobrador',expr:'terror',brazos:'arriba',ojos:t>=at(116)?2:1.4,alto:b.alto,sq:b.sq,wob:b.wob});
+  if(t>=at(116)) lineasVelocidad(t,at(116),540,1100);
+}
+// S22 "Si empiezas hoy, acabas en el año 2286.": ciudad; letrero del año corre de 2026 a 2286; puf a anciano (barba) en "acabas"; autos voladores pasan por el cielo.
+function S22(t,sc){ const ta=at(120); const p=pufCambio(t,ta);
+  if(t>=ta) for(let i=0;i<3;i++){ const x=((t-ta)*420*(i%2?-1:1)+i*500)%1500; autoVolador(x<0?x+1500-200:x-200,620+i*170,0.7,t,PASTELES[i+2]); }
+  escritorio(540,1250,860); monton(250,1255,300,160,t,1,41); monton(830,1255,300,200,t,1,47);
+  raro({x:540,y:1300,s:0.75,t,disfraz:p.despues?'anciano':'cobrador',spin:p.spin,expr:t<ta?'feliz':(t<at(124)?'yavalio':'asombro'),brazos:t<at(124)?'frente':'arriba',sq:gelatina(t,at(124),0.35)});
+  nubePuf(t,ta+0.06,540,1200,1.2);
+  const y=t<at(119)?2026:Math.round(lerp(2026,2286,easeInOut(prog(t,ta,at(124)-ta))));
+  L(t<at(117)+0.0?'HOY: 2026':'AÑO '+y,540,430,popIn(t,sc.start+0.05),'panel',{tam:92,t,t0:t<at(124)?sc.start:at(124)});
+  if(t>=at(124)) chispas(t,at(124),540,430,1.2,'#FFFFFF');
+}
+// S23 "Y aun así, en la tiendita te van a decir: “¿No traes cambio?”": tiendita; Raro anciano llega arrastrando su costal; la tendera gomita se asoma y pregunta; Raro ya valió.
+function S23(t,sc){ const x=lerp(-100,300,easeOut(prog(t,sc.start,1.0)));
+  gomita({x:800,y:1160,s:0.55,t,color:'#FFB8D2',expr:t<at(135)?'neutral':'sospecha',brazos:t<at(135)?'idle':'jarras',espejo:true,sq:gelatina(t,at(135),0.25)});
+  ctx.fillStyle='#E23D5B'; rr(560,1150,560,300,24); ctx.fill(); ctx.fillStyle='#FF8FB1'; rr(560,1150,560,40,20); ctx.fill(); chk('obj',560,1150,1080,1450);
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('TIENDITA',840,1290);
+  costal(x-170,1440,0.9,t,1); raro({x,y:1440,s:0.7,t,disfraz:'anciano',expr:t<at(137)?'feliz':'yavalio',brazos:'frente',espejo:true,piernas:t<sc.start+1?'camina':'quieto',sq:gelatina(t,at(137),0.3)});
+  if(t>=at(137)) for(let i=0;i<4;i++){ const u=prog(t,at(137)+i*0.08,0.6); if(u>0&&u<1) moneda(x-170+(i-1.5)*40,1200+u*240,22,t*6,1); }
+  const k=popIn(t,at(135)); if(k>0) L('“¿NO TRAES CAMBIO?”',540,430,k,'panel',{tam:86,t,t0:at(135)});
+  else { const k2=popIn(t,at(130)); if(k2>0) L('EN LA TIENDITA…',540,430,k2,'madera',{tam:84,t,t0:at(130)}); }
+}
+// S24 "¿Tú cómo te las llevarías?": puf a rico; plano medio, Raro señala a cámara con ceja arriba; costal y monedas.
+function S24(t,sc){ const p=pufCambio(t,sc.start+0.02); monton(540,1450,1000,180,t,1,3);
+  raro({x:430,y:1440,s:0.95,t,disfraz:p.despues?RICO:'anciano',spin:p.spin,expr:'sospecha',mira:{x:0,y:0},brazos:'senala',sq:gelatina(t,sc.start+0.3,0.3)});
+  nubePuf(t,sc.start+0.08,430,1200,1.3);
+  const k=popIn(t,at(139)); if(k>0) L('¿CÓMO TE LAS LLEVAS?',540,430,k,'madera',{tam:84,t,t0:at(139)});
+}
+const NS=25;
+window.SCENES=Array.from({length:NS},(_,i)=>window['S'+(i+1)]||eval('S'+(i+1))).map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; f(t,sc);});
+window.CHIPS={};
+window.FONDOS={1:{pal:'magenta',tipo:'ciudad'},2:{pal:'cielo',tipo:'cerros'},3:{pal:'turquesa',tipo:'ciudad'},4:{pal:'mandarina',tipo:'cerros'},5:{pal:'violeta',tipo:'cielo'},
+  6:{pal:'turquesa',tipo:'interior'},7:{pal:'limon',tipo:'desierto'},8:{pal:'magenta',tipo:'interior',pp:false},9:{pal:'cielo',tipo:'cerros'},10:{pal:'mandarina',tipo:'ciudad'},
+  11:{pal:'violeta',tipo:'interior',pp:false},12:{pal:'turquesa',tipo:'cerros'},13:{pal:'cielo',tipo:'cielo',pp:false},14:{pal:'violeta',tipo:'espacio',pp:false},15:{pal:'magenta',tipo:'espacio',pp:false},
+  16:{pal:'mandarina',tipo:'desierto'},17:{pal:'turquesa',tipo:'espacio',pp:false},18:{pal:'violeta',tipo:'interior',pp:false},19:{pal:'limon',tipo:'oficina'},20:{pal:'cielo',tipo:'oficina'},
+  21:{pal:'magenta',tipo:'interior',pp:false},22:{pal:'violeta',tipo:'ciudad'},23:{pal:'limon',tipo:'tiendita'},24:{pal:'turquesa',tipo:'cerros',pp:false},25:{pal:'magenta',tipo:'ciudad'}};
+window.TOMAS={1:{mov:'push'},2:{mov:'push',z:1.1,foco:[540,1200]},3:{mov:'pull'},4:{mov:'paneo-der'},5:{mov:'sube'},6:{mov:'pull'},7:{mov:'push',z:1.1,foco:[520,1200]},8:{mov:'push',z:1.15,foco:[540,1150]},
+  9:{mov:'baja'},10:{mov:'sube'},11:{mov:'push',z:1.05,foco:[540,1150]},12:{mov:'paneo-izq'},13:{mov:'sube'},14:{mov:'pull'},15:{mov:'baja'},16:{mov:'paneo-der'},17:{mov:'orbita'},18:{mov:'push',z:1.1,foco:[540,1100]},
+  19:{mov:'pull'},20:{mov:'push'},21:{mov:'push',z:1.1,foco:[540,1000]},22:{mov:'pull'},23:{mov:'paneo-der'},24:{mov:'push',z:1.15,foco:[480,1150]},25:{mov:'push'}};
+window.TRANS={2:'zoom',3:'bufanda',5:'latigazo',7:'zoom',9:'bufanda',10:'latigazo',12:'bufanda',13:'zoom',14:'latigazo',16:'bufanda',17:'zoom',19:'latigazo',21:'zoom',22:'bufanda',23:'latigazo',25:'bufanda'};
+window.KEYWORDS=[5,7,10,18,27,29,36,41,48,54,57,61,67,76,82,88,94,101,107,110,115,124,137,142,149];
+window.SHAKES=[7,36,48,54,57,67,76,94,116,124,137];
+window.FLASHES=[[7,'#FFFFFF'],[48,'#FFF3A6'],[116,'#FFFFFF'],[124,'#FFFFFF']];
+</script></body></html>
