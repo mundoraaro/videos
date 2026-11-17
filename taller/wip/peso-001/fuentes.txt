@@ -1,7 +1,0 @@
-- Banco de México, "Moneda de 1 peso – Elementos de diseño" (banxico.org.mx): peso 3.95 g, diámetro 21.0 mm.
-- Numista, "1 Peso (1996–2026)": grosor 1.6 mm (8,200 millones × 1.6 mm ≈ 13,120 km).
-- ONU, UN News (jul 2024), World Population Prospects 2024: casi 8,200 millones de personas a mediados de 2024.
-- Tour Eiffel, "Key figures" (toureiffel.paris): masa total 10,100 t (32,390 t de monedas ÷ 10,100 ≈ 3.2 torres).
-- Space.com, "How big is Earth?": diámetro ≈12,756 km; circunferencia ecuatorial ≈40,075 km (8,200 millones × 21 mm ≈ 172,200 km ≈ 4.3 vueltas).
-- Space.com, "International Space Station": órbita a ~402 km (13,120 ÷ 402 ≈ 32 veces).
-- Conteo: 8,200 millones de segundos ≈ 260 años (2026 + 260 = 2286). Cálculo propio.
