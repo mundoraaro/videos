@@ -4,6 +4,37 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 18 nov 2026 (9:50)
+Fuentes: Buffer por publicación (TikTok actualizado al 17 nov 12:42 CDMX; YouTube al 17 nov 16:06) y Metricool para Facebook (FBRE). Júpiter (17 nov 15:00) y cerdo (17 nov 19:00) todavía sin dato en TikTok y Facebook; báscula en TikTok es de minutos (22).
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,960** | 23.0 | **167** | **2,680** | 1,006 | 12 |
+| estacion-001 | quepasaria (si vivieras) | 16 nov 18:00 | 3,699 | 20.9 | 98 | 1,118 | 0 | 0 |
+| gritar-001-v2 | quepasaria (todos) | 15 nov 09:00 | 3,512 | **28.7** | 84 | 2,319 | **1,719** | **19** |
+| laser-001-v2 | quepasaria (todos) | 15 nov 13:00 | 3,422 | 23.7 | 89 | 1,529 | 590 | 17 |
+| mexico-001-v2 | quepasaria (todos) | 14 nov 20:00 | 3,298 | 23.4 | 130 | 1,746 | 324 | 10 |
+| jalon-001-v2 | quepasaria (todos) | 14 nov 17:00 | 3,193 | 24.9 | 86 | 1,338 | 708 | 18 |
+| soplar-001-v2 | quepasaria (todos) | 15 nov 19:00 | 3,149 | 22.9 | 72 | 1,130 | 283 | 9 |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,961 | 26.2 | 92 | 1,599 | 378 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,848 | 27.3 | 94 | 2,015 | 380 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,773 | 26.1 | 72 | 2,111 | **4,504** | 11 |
+| mar-001-v2 | quepasaria (todos) | 14 nov 11:00 | 2,584 | 25.1 | 93 | 1,637 | 237 | 5 |
+| colibri-001-v2 | quepasaria (si fueras) | 13 nov 18:00 | 813 | 20.4 | 17 | 1,017 | 256 | 5 |
+| atacama-001-v2 | quepasaria (te mudarías) | 16 nov 20:30 | 574 | 18.7 | 15 | 952 | 243 | 6 |
+| tardigrado-001-v2 | dato (tú) | 16 nov 12:00 | 535 | 14.8 | 13 | 1,023 | 256 | 5 |
+| chicxulub-001 | dato | 11 nov 20:00 | 489 | 24.8 | 19 | **3,234** | 299 | 12 |
+| emus-001 | historia | 11 nov 18:40 | 214 | 14.7 | 10 | 1,221 | 229 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 139 | 35.2 | 2 | 1,668 | 5 | 17 |
+| bascula-001 | quepasaria (todos) | 17 nov 12:00 | 22 (minutos) | — | 0 | 923 | 219 | 9 |
+| jupiter-001 | — | 17 nov 15:00 | sin dato | — | — | 271 (horas) | sin dato | sin dato |
+| cerdo-001-v2 | — | 17 nov 19:00 | sin dato | — | — | sin dato | sin dato | sin dato |
+
+Lectura rápida (solo números):
+- estación (16 nov) entró directo al grupo alto de TikTok: 3,699 vistas en menos de un día, 2º de la tabla; pero en Facebook va en 0 vistas (falla de distribución en FB, como nutrias y cleopatra).
+- tardígrado (dato en tercera persona aunque abre con "tú") y atacama se quedaron en 535–574 en TikTok con los peores tiempos promedio de la semana (14.8 y 18.7 s); en YouTube ambos rondan 1,000.
+- gritar sigue subiendo en YouTube (2,319, de 1,692) y mantiene el mejor tiempo visto en TikTok y en FB.
+
 ## Corte del 17 nov 2026 (9:50)
 Fuentes: Buffer por publicación (TikTok actualizado al 16 nov 13:41 CDMX; YouTube al 16 nov 16:32) y Metricool para Facebook (FBRE). estación (16 nov 18:00) y atacama (16 nov 20:30) todavía en 0 en Buffer y no aparecen en Metricool FB: sin dato.
 
