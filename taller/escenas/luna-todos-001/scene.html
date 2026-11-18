@@ -244,7 +244,7 @@ function S8(t,sc){ tierra(880,1060,80,t); sueloLunar(t);
   for(let i=0;i<12;i++){ const k=popIn(t,at(47)+i*0.16,0.2); const x=140+(i%6)*150+(i%2)*20, y=1490+Math.floor(i/6)*90; huella(x,y,1,k); huella(x+34,y-30,1,k); }
   const d=t>=at(55); const b=susto(t,at(55)); raro({x:540,y:1440,s:d?0.8:0.6,t,disfraz:ASTRO,expr:d?'terror':(t<at(48)?'feliz':'asombro'),brazos:d?'cara':'senala',ojos:d?2:1.2,alto:b.alto,sq:b.sq,wob:b.wob});
   if(d) lineasVelocidad(t,at(55),540,1100);
-  const k=popIn(t,at(48)); if(k>0) L('SOLO '+contador(t,at(48),1.6,1,12)+' PERSONAS',540,430,k,'panel',{tam:88,t,t0:at(48)}); else { const k0=popIn(t,sc.start+0.03); if(k0>0) L('EN TODA LA HISTORIA…',540,430,k0,'madera',{tam:84,t,t0:sc.start+0.03}); }
+  const k=popIn(t,at(48)); if(k>0) L('SOLO 12 PERSONAS',540,430,k,'panel',{tam:88,t,t0:at(48)}); else { const k0=popIn(t,sc.start+0.03); if(k0>0) L('EN TODA LA HISTORIA…',540,430,k0,'madera',{tam:84,t,t0:sc.start+0.03}); }
 }
 // S9 "Digamos que despega un cohete con 100 personas cada minuto, sin parar.": puf a ingeniero; plataforma de lanzamiento; cohetes despegan uno tras otro; reloj; Raro da la salida.
 function S9(t,sc){ const p=pufCambio(t,sc.start+0.02); plataforma(700,1440); reloj(240,880,0.6,t*8);
