@@ -236,7 +236,7 @@ function S18(t,sc){ reloj(800,800,0.7,t*6); const sh=((t-sc.start)*300)%220;
   const tt=t<at(98)?at(95):(t<at(101)?at(98):at(101)); const k=popIn(t,tt); if(k>0) L(t<at(98)?'RECORRER LA FILA':(t<at(101)?'CAMINANDO':'SIN DORMIR'),540,430,k,'madera',{tam:88,t,t0:tt});
 }
 // S19 "te tardarías 280 años.": calendario que vuela hasta 280 AÑOS; puf a anciano en "280"; susto con líneas de velocidad y flash.
-function S19(t,sc){ calendario(540,960,1.0,popIn(t,sc.start,0.2),t,sc.start,280,at(107)-sc.start+0.1,'AÑOS'); const p=pufCambio(t,at(106));
+function S19(t,sc){ calendario(540,1010,0.85,popIn(t,sc.start,0.2),t,sc.start,280,at(107)-sc.start+0.1,'AÑOS'); const p=pufCambio(t,at(106));
   const b=susto(t,at(106)); raro({x:540,y:1440,s:0.6,t,disfraz:p.despues?'anciano':ESC,spin:p.spin,expr:t<at(106)?'sospecha':'terror',brazos:'arriba',ojos:t>=at(106)?2:1.3,alto:b.alto,sq:b.sq,wob:b.wob});
   nubePuf(t,at(106)+0.06,540,1250,1.2); if(t>=at(106)) lineasVelocidad(t,at(106),540,1100);
 }
