@@ -199,8 +199,9 @@ function grafica(x0,y0,w,h,k,caida,t){ ctx.save(); ctx.strokeStyle='rgba(255,255
 function escenaGancho(t,sc,iLuz){ const on=t>=at(iLuz)?1:0; const k=on?popIn(t,at(iLuz),0.25):0;
   edificiosB(t,i=>on?1:0.12+0.1*Math.sin(t*3+i)); foco(820,860,1.05,k,t);
   const pull=on?1:easeOut(clamp((t-sc.start)/Math.max(0.3,at(iLuz)-sc.start)))*0.4; apagador(230,960,1.2,on);
-  const b=on?brinco(t,at(iLuz),0.5,120):{alto:Math.abs(Math.sin(t*7))*40,sq:0,wob:0};
-  raro({x:560,y:1440,s:0.95,t,disfraz:PIY,expr:on?'asombro':'feliz',manos:{i:[-345,on?-430:-520+pull*50],d:[170,-330]},ojos:on?1.8:1.1,alto:b.alto,sq:b.sq,wob:b.wob,piernas:'flota'});
+  const b=on?brinco(t,at(iLuz),0.5,120):{alto:Math.abs(Math.sin(t*7))*40,sq:Math.max(0,Math.sin(t*14))*0.18,wob:0};
+  raro({x:560,y:1440,s:0.95,t,disfraz:PIY,expr:on?'asombro':'feliz',manos:{i:[-345,on?-430:-520+pull*50],d:[170,-330]},ojos:on?1.8:1.1,alto:b.alto,sq:b.sq,wob:b.wob,piernas:'flota',tilt:on?0:-0.12+Math.sin(t*7)*0.06});
+  if(!on) for(let i=0;i<3;i++){ const u=((t*1.6+i/3)%1); ctx.fillStyle='rgba(255,255,255,'+(1-u)+')'; blob(330+u*40,860-u*90+i*30,8+u*6); }
   if(on){ chispas(t,at(iLuz),800,840,1.2,'#FFE680'); lineasVelocidad(t,at(iLuz),540,900); }
   L('¡TODOS PRENDEN LA LUZ!',540,430,1,'panel',{tam:84,t,t0:-1});
 }
@@ -210,7 +211,7 @@ function S28(t,sc){ escenaGancho(t,sc,192); }
 function S2(t,sc){ const p=t>=at(12)?1:clamp((t-sc.start)/0.8)*0.4; cables(250,1000,540,960,t,p); cables(540,960,830,1000,t,p);
   torre(250,1430,0.85,t,p,1); torre(540,1390,0.85,t,p,2); torre(830,1430,0.85,t,p,3);
   if(t>=at(12)){ for(let i=0;i<5;i++) rayito(150+i*190,900+Math.sin(i*3)*60,0.9,t,i); }
-  const b=susto(t,at(12)); raro({x:540,y:1500,s:0.42,t,disfraz:PIY,expr:t<at(12)?'asombro':'terror',brazos:t<at(12)?'senala':'cara',ojos:t>=at(12)?1.9:1.2,alto:b.alto,sq:b.sq,wob:b.wob});
+  const b=susto(t,at(12)); raro({x:690,y:1440,s:0.4,t,disfraz:PIY,expr:t<at(12)?'asombro':'terror',brazos:t<at(12)?'senala':'cara',ojos:t>=at(12)?1.9:1.2,alto:b.alto,sq:b.sq,wob:b.wob});
   const kk=popIn(t,at(9)); if(kk>0) L('LA RED: ¡PÁNICO!',540,430,kk,'piedra',{tam:92,t,t0:at(9)});
 }
 // S3 "Un foco LED gasta unos 10 watts. Nada.": Raro sostiene un foco chiquito (prendido); letrero 10 W; en "Nada." lo mira con sospecha y se encoge.
@@ -309,7 +310,7 @@ function S19(t,sc){ const p=pufCambio(t,sc.start+0.02); const off=t>=at(126); fo
   const t0=t<at(126)?sc.start+0.03:at(126); L(t<at(126)?'LO MÁS RARO…':'APAGAR TAMBIÉN ASUSTA',540,430,popIn(t,t0,0.25),t<at(126)?'piedra':'panel',{tam:82,t,t0});
 }
 // S20 "En la India, en 2020, millones apagaron la luz 9 minutos.": ciudad iluminada; en "apagaron" se apaga entera y salen las estrellas; reloj de 9 MIN; Raro piyama señala desde la azotea.
-function S20(t,sc){ const off=t>=at(135); const u=off?easeOut(prog(t,at(135),0.4)):0; edificiosB(t,i=>1-u); if(off){ oscuridad(t,u*0.55,540,1200,300); for(let i=0;i<22;i++){ const k=popIn(t,at(135)+0.2+i*0.03,0.2); if(k>0){ ctx.fillStyle='#FFFFFF'; blob(60+rand(i)*960,620+rand(i+9)*260,5*k+Math.sin(t*5+i)*1.5); } } }
+function S20(t,sc){ const off=t>=at(135); const u=off?easeOut(prog(t,at(135),0.4)):0; edificiosB(t,i=>1-u); if(off){ oscuridad(t,u*0.55,540,1200,300); for(let i=0;i<22;i++){ const k=popIn(t,at(135)+0.2+i*0.03,0.2); if(k>0){ ctx.fillStyle='#FFFFFF'; blob(60+rand(i)*960,620+rand(i+9)*260,Math.max(0.5,5*k+Math.sin(t*5+i)*1.5)); } } }
   if(t>=at(138)) calendario(820,980,0.75,popIn(t,at(138),0.25),t,at(138),9,0.5,'MINUTOS');
   raro({x:300,y:1440,s:0.55,t,disfraz:PIY,expr:off?'asombro':'feliz',brazos:'senala',mira:{x:1,y:-1},ojos:off?1.6:1,sq:gelatina(t,at(135),0.3)});
   const t0=t<at(138)?at(131):at(138); const k=popIn(t,t0); if(k>0) L(t<at(138)?'INDIA, 2020':'9 MINUTOS SIN LUZ',540,430,k,t<at(138)?'madera':'panel',{tam:90,t,t0}); else { const k0=popIn(t,sc.start+0.03); if(k0>0) L('EN LA INDIA…',540,430,k0,'madera',{tam:90,t,t0:sc.start}); }
