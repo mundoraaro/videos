@@ -1,0 +1,294 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// aguacate-001 — Tu guacamole debería estar extinto
+// Disfraces: cavernícola → científico → campesino → cavernícola (loop). Gomitas: perezoso gigante y gonfoterio.
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras (v2: nunca una palabra vacía sola en pantalla) ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      // no cerrar un bloque con una palabra corta sin puntuación: pasa al siguiente
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  // un bloque de una sola palabra corta se une con el siguiente (o con el anterior)
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(/[.?!…]$/.test(W[CH[c][0]].t) && c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; }
+    else if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+// Igual que captions() del motor, pero las 2 primeras palabras de cada bloque aparecen juntas.
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) ci=0; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=(ci===0&&n<2&&t<0.4)?1:(t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16)));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda')?320:215, izq=215;
+  const ex=(o.disfraz==='tardigrado'&&!(o.bolita>0.5))?255:0; let x0=-Math.max(izq,ex)*s, x1=Math.max(der,ex)*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-470*s],[o.x+x1,o.y-alto-470*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería ----------
+let CUR=1;
+// Letrero en coordenadas de PANTALLA, compensando el zoom de la toma (soplar-001-v2).
+function L(txt,x,y,k,tipo='madera',opts={}){ let tam=opts.tam||72; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=700;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } x=clamp(x,170+w/2,910-w/2); y=clamp(y,390,520);
+  letrero(txt,x,y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',x-w/2,y-tam*0.85,x+w/2,y+tam*0.85); ctx.restore(); }
+function calendario(x,y,s,k,t,t0,hasta,d,txt='DÍAS'){ ocupa(x-120*s,y-170*s,x+120*s,y+140*s,1.5); if(k<=0) return; chk('obj',x-120*s,y-160*s,x+120*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-120,-140,240,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-120,-140,240,70,22); ctx.fill(); ctx.fillRect(-120,-100,240,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-110,-60,220,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,t0,d,0,hasta),0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore(); }
+function tierra(x,y,r,t,sinGlow){ if(r<200) ocupa(x-r*1.2,y-r*1.2,x+r*1.2,y+r*1.2,0.8); ctx.save(); if(!sinGlow){ const g=ctx.createRadialGradient(x,y,r*0.9,x,y,r*1.25); g.addColorStop(0,'rgba(127,216,255,0.8)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(x,y,r*1.25); }
+  ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.clip();
+  const sp=t*0.05*r; ctx.fillStyle='#5CD67A'; for(let i=0;i<7;i++){ const xx=x-r+(((rand(i)*2.4*r+sp)%(2.4*r))) - 0.2*r, yy=y-r*0.8+rand(i+7)*r*1.6; blob(xx,yy,r*(0.18+rand(i+3)*0.2)); blob(xx+r*0.15,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.85)'; for(let i=0;i<6;i++){ const xx=x-r+(((rand(i+20)*2.4*r+sp*1.6)%(2.4*r)))-0.2*r, yy=y-r*0.9+rand(i+27)*r*1.8; ctx.beginPath(); ctx.ellipse(xx,yy,r*0.22,r*0.05,0,0,PI2); ctx.fill(); }
+  ctx.fillStyle='rgba(30,26,80,0.25)'; ctx.beginPath(); ctx.arc(x+r*0.35,y+r*0.2,r*1.05,0,PI2); ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x-r*0.45,y-r*0.5,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+function basculaPesaje(x,y,s,t,v){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#5B4B8A'; rr(-230,-40,460,50,22); ctx.fill(); ctx.fillStyle='#8D7BCF'; rr(-210,-60,420,30,14); ctx.fill();
+  ctx.fillStyle='#5B4B8A'; rr(170,-560,40,520,16); ctx.fill(); ctx.translate(190,-640); ctx.fillStyle='#FFFFFF'; blob(0,0,120); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,120,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<11;i++){ ctx.save(); ctx.rotate(-2.3+i*0.46); rr(-4,-104,8,22,4); ctx.fill(); ctx.restore(); } ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(0,-104,0,0,1); ctx.save(); ctx.rotate(-2.3+4.6*clamp(v)+(v>=1?Math.sin(t*40)*0.06:0)); ctx.fillRect(-5,-96,10,100); ctx.restore(); blob(0,0,16); ctx.restore(); chk('obj',x-230*s,y-760*s,x+310*s,y+10*s); ocupa(x+70*s,y-760*s,x+310*s,y-520*s,1.2); }
+function flecha(x,y,ang,k,c='#D7FF3D'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(k,k); ctx.fillStyle=c; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(90,0); ctx.lineTo(20,-60); ctx.lineTo(20,-22); ctx.lineTo(-80,-22); ctx.lineTo(-80,22); ctx.lineTo(20,22); ctx.lineTo(20,60); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+function confeti(t,t0,n=26){ if(t<t0) return; for(let i=0;i<n;i++){ const u=(t-t0)*0.9+rand(i)*0.3; const x=80+rand(i+3)*920+Math.sin(t*3+i)*30, y=-40+u*900%1700; ctx.save(); ctx.translate(x,y); ctx.rotate(t*6+i); ctx.fillStyle=['#D7FF3D','#FF5FA2','#4CC9F0','#FFD23F'][i%4]; ctx.fillRect(-10,-6,20,12); ctx.restore(); } }
+function sudor(x,y,s,t,n=3){ for(let i=0;i<n;i++){ const a=-2.5+i*0.6; ctx.fillStyle='#7FD8FF'; const xx=x+Math.cos(a)*170*s, yy=y-290*s+Math.sin(a)*150*s+((t*2+i*0.3)%1)*30; ctx.beginPath(); ctx.moveTo(xx,yy-14*s*2); ctx.quadraticCurveTo(xx+10*s*2,yy,xx,yy+6*s*2); ctx.quadraticCurveTo(xx-10*s*2,yy,xx,yy-14*s*2); ctx.fill(); } }
+const dur=sc=>sc.end-sc.start;
+function reloj(x,y,s,t){ ocupa(x-120*s,y-120*s,x+120*s,y+120*s,1.5); ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; blob(0,0,110); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,110,0,PI2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,18,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(Math.floor(t*3)*Math.PI/30*5); ctx.fillStyle='#E23D5B'; rr(-4,-90,8,96,4); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(t*0.6); ctx.fillStyle='#1E1A2E'; rr(-7,-60,14,66,7); ctx.fill(); ctx.restore(); blob(0,0,12); ctx.restore(); chk('obj',x-120*s,y-120*s,x+120*s,y+120*s); }
+function mini(x,y,s,col,t,i){ const b=Math.abs(Math.sin(t*5+i*1.3))*4*s; ctx.fillStyle=col; ctx.beginPath(); ctx.ellipse(x,y-b,16*s,20*s,0,0,PI2); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x-5*s,y-b-10*s,5*s,3*s,-0.5,0,PI2); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; blob(x-5*s,y-b-4*s,2.6*s); blob(x+5*s,y-b-4*s,2.6*s); }
+// mapa de México estilizado
+function mexico(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#5CD67A'; ctx.beginPath();
+  ctx.moveTo(-170,-110); ctx.lineTo(-40,-120); ctx.lineTo(30,-80); ctx.lineTo(90,-40); ctx.lineTo(80,30); ctx.lineTo(120,80); ctx.lineTo(180,70); ctx.lineTo(170,110); ctx.lineTo(110,125); ctx.lineTo(40,100); ctx.lineTo(-30,40); ctx.lineTo(-90,-20); ctx.lineTo(-150,-70); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-190,-105); ctx.lineTo(-170,-100); ctx.lineTo(-110,10); ctx.lineTo(-125,15); ctx.closePath(); ctx.fill(); ctx.restore(); }
+function palmera(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.strokeStyle='#A8714A'; ctx.lineWidth=34; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(40,-200,10,-420); ctx.stroke();
+  ctx.fillStyle='#3FBF6A'; for(let i=0;i<6;i++){ const a=-Math.PI/2+(i-2.5)*0.55+Math.sin(t*2+i)*0.05; ctx.save(); ctx.translate(10,-420); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(110,0,120,30,0.2,0,PI2); ctx.fill(); ctx.restore(); } ctx.restore(); }
+
+
+// ====================== utilería del aguacate ======================
+const CAV='cavernicola', CIE='cientifico', CAM='campesino';
+function peraPath(r){ ctx.beginPath(); ctx.moveTo(0,-r*1.25); ctx.bezierCurveTo(r*0.55,-r*1.25,r*0.62,-r*0.45,r*0.92,r*0.15); ctx.bezierCurveTo(r*1.2,r*0.95,r*0.55,r*1.3,0,r*1.3); ctx.bezierCurveTo(-r*0.55,r*1.3,-r*1.2,r*0.95,-r*0.92,r*0.15); ctx.bezierCurveTo(-r*0.62,-r*0.45,-r*0.55,-r*1.25,0,-r*1.25); ctx.closePath(); }
+// aguacate: mitad=true lo muestra partido (pulpa y hueso); cara=true le pone carita
+function aguacate(x,y,r,a=0,k=1,o={}){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(k,k);
+  if(o.mitad){ ctx.fillStyle='#3D6B2A'; peraPath(r); ctx.fill(); ctx.save(); ctx.scale(0.88,0.9); ctx.fillStyle='#D9EE8C'; peraPath(r); ctx.fill(); ctx.restore(); ctx.save(); ctx.scale(0.7,0.72); ctx.fillStyle='#F3F7B0'; peraPath(r); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#7A4A22'; blob(0,r*0.38,r*0.48); ctx.fillStyle='#9C6232'; blob(-r*0.1,r*0.3,r*0.38); ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.ellipse(-r*0.18,r*0.18,r*0.12,r*0.06,-0.5,0,PI2); ctx.fill(); }
+  else { ctx.fillStyle='#2F5A22'; peraPath(r); ctx.fill(); ctx.save(); ctx.scale(0.9,0.92); ctx.fillStyle='#4E8A35'; peraPath(r); ctx.fill(); ctx.restore(); ctx.fillStyle='#6B4329'; rr(-r*0.06,-r*1.42,r*0.12,r*0.24,4); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(-r*0.4,-r*0.3,r*0.14,r*0.3,0.3,0,PI2); ctx.fill(); ctx.fillStyle='#3D6B2A'; for(let i=0;i<7;i++) blob(-r*0.5+rand(i)*r,-r*0.6+rand(i+9)*r*1.6,r*0.04); }
+  if(o.cara){ const yy=o.mitad?-r*0.35:0; ctx.fillStyle='#1E1A2E'; blob(-r*0.26,yy,r*0.1); blob(r*0.26,yy,r*0.1); ctx.fillStyle='#FFFFFF'; blob(-r*0.23,yy-r*0.04,r*0.035); blob(r*0.29,yy-r*0.04,r*0.035);
+    ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=r*0.06; ctx.lineCap='round'; ctx.beginPath(); if(o.triste) ctx.arc(0,yy+r*0.32,r*0.16,Math.PI*1.15,Math.PI*1.85); else ctx.arc(0,yy+r*0.12,r*0.16,0.2,Math.PI-0.2); ctx.stroke(); if(o.lagrima){ ctx.fillStyle='#7FD8FF'; blob(r*0.3,yy+r*0.2+((o.t||0)*60%30),r*0.06); } }
+  ctx.restore(); chk('obj',x-r*1.1*k,y-r*1.3*k,x+r*1.1*k,y+r*1.3*k); }
+function hueso(x,y,r,a=0,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(k,k); ctx.fillStyle='#6B4329'; ctx.beginPath(); ctx.ellipse(0,0,r,r*1.1,0,0,PI2); ctx.fill(); ctx.fillStyle='#9C6232'; ctx.beginPath(); ctx.ellipse(-r*0.12,-r*0.1,r*0.8,r*0.9,0,0,PI2); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-r*0.35,-r*0.45,r*0.25,r*0.12,-0.6,0,PI2); ctx.fill(); ctx.restore(); chk('obj',x-r*k,y-r*1.1*k,x+r*k,y+r*1.1*k); }
+function brote(x,y,s,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.strokeStyle='#4FB45E'; ctx.lineWidth=12; ctx.lineCap='round'; const h=120*easeOut(k); ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(10,-h*0.5,0,-h); ctx.stroke();
+  if(k>0.5){ const kk=(k-0.5)*2; ctx.fillStyle='#5CD67A'; ctx.save(); ctx.translate(0,-h); ctx.rotate(-0.6+Math.sin(t*3)*0.1); ctx.beginPath(); ctx.ellipse(-30*kk,0,32*kk,14*kk,0,0,PI2); ctx.fill(); ctx.restore(); ctx.save(); ctx.translate(0,-h); ctx.rotate(0.6+Math.sin(t*3+1)*0.1); ctx.beginPath(); ctx.ellipse(30*kk,0,32*kk,14*kk,0,0,PI2); ctx.fill(); ctx.restore(); } ctx.restore(); }
+function arbolAg(x,y,s,t,frutos=6){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#8A5A3A'; rr(-30,-420,60,420,24); ctx.fill(); ctx.fillStyle='#2F8A45'; for(const [u,v,r] of [[-120,-470,150],[110,-480,150],[0,-600,170],[-60,-380,120],[80,-380,120]]) blob(u+Math.sin(t*1.5+u)*4,v,r);
+  ctx.fillStyle='#3FA85A'; blob(-40,-560,90); for(let i=0;i<frutos;i++){ const u=-160+rand(i+2)*320, v=-560+rand(i+5)*220; ctx.save(); ctx.translate(u,v+Math.sin(t*2+i)*4); ctx.scale(0.25,0.25); ctx.fillStyle='#2F5A22'; peraPath(100); ctx.fill(); ctx.restore(); } ctx.restore(); ocupa(x-300*s,y-780*s,x+300*s,y,0.6); chk('obj',x-280*s,y-770*s,x+280*s,y); }
+function popo(x,y,s,k=1,t=0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#8A5A3A'; ctx.beginPath(); ctx.ellipse(0,-20,90,30,0,0,PI2); ctx.fill(); ctx.beginPath(); ctx.ellipse(0,-58,64,26,0,0,PI2); ctx.fill(); ctx.beginPath(); ctx.ellipse(0,-90,38,20,0,0,PI2); ctx.fill(); ctx.beginPath(); ctx.moveTo(-14,-104); ctx.quadraticCurveTo(6,-140,20,-118); ctx.lineTo(4,-100); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(-30,-64,20,7,-0.3,0,PI2); ctx.fill(); ctx.strokeStyle='rgba(150,200,90,0.7)'; ctx.lineWidth=6; ctx.lineCap='round'; for(let i=0;i<3;i++){ const u=(t*0.8+i/3)%1; ctx.globalAlpha=1-u; ctx.beginPath(); ctx.moveTo(-40+i*40,-130-u*80); ctx.quadraticCurveTo(-20+i*40,-150-u*80,-40+i*40,-170-u*80); ctx.stroke(); } ctx.globalAlpha=1; ctx.restore(); }
+function letreroTaxi(x,y,s,k=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#1E1A2E'; rr(-90,-40,180,80,18); ctx.fill(); ctx.fillStyle='#FFD23F'; rr(-82,-32,164,64,14); ctx.fill(); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(50); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('TAXI',0,3); ctx.restore(); }
+function molcajete(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#4A4458'; for(const d of [-80,0,80]){ rr(d-22,-30,44,40,12); ctx.fill(); } ctx.fillStyle='#5E5872'; ctx.beginPath(); ctx.ellipse(0,-90,150,80,0,0,Math.PI); ctx.fill(); ctx.fillStyle='#6E6A85'; ctx.beginPath(); ctx.ellipse(0,-95,150,36,0,0,PI2); ctx.fill();
+  ctx.fillStyle='#9ACD4E'; ctx.beginPath(); ctx.ellipse(0,-100,124,26,0,0,PI2); ctx.fill(); ctx.fillStyle='#C8E27A'; blob(-30,-108,16); blob(40,-104,12); ctx.fillStyle='#E23D5B'; blob(10,-110,8); blob(-60,-102,7); ctx.fillStyle='#FFFFFF'; blob(70,-108,7); ctx.restore(); chk('obj',x-150*s,y-130*s,x+150*s,y+10*s); }
+function totopo(x,y,s,a){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(s,s); ctx.fillStyle='#E9B44C'; ctx.beginPath(); ctx.moveTo(0,-50); ctx.lineTo(45,35); ctx.lineTo(-45,35); ctx.closePath(); ctx.fill(); ctx.fillStyle='#F4CF7E'; blob(-6,6,8); ctx.restore(); }
+function sello(txt,x,y,k,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(-0.18); const sc=lerp(2.2,1,easeOut(k)); ctx.scale(sc,sc); ctx.globalAlpha=Math.min(1,k*2); ctx.strokeStyle='#E8323C'; ctx.lineWidth=12; rr(-210,-60,420,120,20); ctx.stroke(); ctx.fillStyle='#E8323C'; ctx.font=fuente(84); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,0,6); ctx.restore(); }
+function telarana(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=4; for(let i=0;i<6;i++){ const a=Math.PI/2+i*Math.PI/10; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*160,Math.sin(a)*160); ctx.stroke(); } for(let r=40;r<=160;r+=40){ ctx.beginPath(); for(let i=0;i<6;i++){ const a=Math.PI/2+i*Math.PI/10; i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r); } ctx.stroke(); } ctx.restore(); }
+function raton(x,y,s,t,i=0,dir=1){ const b=Math.abs(Math.sin(t*9+i))*8*s; ctx.save(); ctx.translate(x,y-b); ctx.scale(s*dir,s); ctx.fillStyle='#C9C3D6'; ctx.beginPath(); ctx.ellipse(0,-34,52,34,0,0,PI2); ctx.fill(); ctx.fillStyle='#FFB8D2'; blob(30,-70,16); blob(-4,-74,16); ctx.fillStyle='#C9C3D6'; blob(30,-70,10); ctx.fillStyle='#1E1A2E'; blob(44,-42,5); ctx.fillStyle='#FF8FB1'; blob(56,-34,6);
+  ctx.strokeStyle='#C9C3D6'; ctx.lineWidth=6; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-50,-30); ctx.quadraticCurveTo(-90,-60+Math.sin(t*8+i)*14,-110,-30); ctx.stroke(); ctx.restore(); }
+// perezoso gigante: gomita café con pelaje, antifaz de perezoso (franjas junto a los ojos) y garras largas
+const DISFRAZ_PEREZOSO={
+  cuerpo(o){ ctx.fillStyle='#A8774E'; ctx.fillRect(-220,-400,440,420); ctx.fillStyle='#8E6240'; for(let i=0;i<14;i++){ const x=-170+rand(i)*340, y=-360+rand(i+20)*340; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+16,y+40); ctx.lineTo(x-14,y+38); ctx.fill(); } ctx.fillStyle='#D2A97E'; ctx.beginPath(); ctx.ellipse(0,-120,100,110,0,0,PI2); ctx.fill(); },
+  cabeza(o){ ctx.fillStyle='#5E3E26'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*50,-284); ctx.rotate(s*0.35); ctx.beginPath(); ctx.ellipse(s*14,6,46,22,0,0,PI2); ctx.fill(); ctx.restore(); } ctx.fillStyle='#3E2A1A'; blob(0,-258,14); },
+  frente(o,B){ ctx.fillStyle='#FFF3D6'; for(const h of [B[-1].h,B[1].h]){ for(let j=-1;j<=1;j++){ ctx.save(); ctx.translate(h[0]+j*14,h[1]+10); ctx.rotate(j*0.25+(h[0]<0?0.2:-0.2)); ctx.beginPath(); ctx.moveTo(-6,0); ctx.quadraticCurveTo(-4,46,10,62); ctx.quadraticCurveTo(2,40,6,0); ctx.closePath(); ctx.fill(); ctx.restore(); } } } };
+function perezoso(o){ return gomita({color:'#C49A6C',expr:'feliz',...o,disfraz:DISFRAZ_PEREZOSO}); }
+function fantasma(o,k){ ctx.save(); ctx.globalAlpha=k; perezoso(o); ctx.restore(); }
+
+// ====================== escenas ======================
+// S1/S2/S35 Gancho (loop): Raro cavernícola presume su molcajete de guacamole; un aguacate partido gigante (con carita) detrás.
+// En "extinto" cae un sello rojo ¡EXTINTO! sobre el aguacate (flash, sacudida) y Raro brinca del susto. Letrero desde el cuadro 0.
+function escenaGancho(t,sc,iE,loop){ aguacate(300,1030,170,Math.sin(t*2)*0.04,1,{mitad:true,cara:true,triste:iE!=null&&t>=at(iE),t});
+  const st=iE!=null && t>=at(iE); if(st){ sello('¡EXTINTO!',300,1050,prog(t,at(iE),0.18),t); ondaChoque(t,at(iE)+0.18,300,1050,'#FFFFFF'); }
+  const p=loop?pufCambio(t,sc.start+0.02):{spin:0,despues:true}; const b=st?susto(t,at(iE)+0.15):(iE!=null?brinco(t,at(1),0.4,50):{alto:0,sq:0,wob:0});
+
+  raro({x:760,y:1440,s:0.85,t,disfraz:p.despues?CAV:CAM,spin:p.spin,expr:st?'terror':'orgullo',brazos:st?'arriba':'senala',espejo:true,ojos:st?1.9:1,alto:b.alto,sq:b.sq,wob:b.wob}); if(loop) nubePuf(t,sc.start+0.08,760,1200,1.2);
+  molcajete(760,1440-120*0.85-(b.alto||0),0.55,t);
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0); letrero('¿TU GUACAMOLE',540,375,1,'panel',{t,t0:-1,tam:96,sinPalo:true}); letrero('EXTINTO?',540,545,1,'panel',{t,t0:-1,tam:112,sinPalo:true,color:'#D7FF3D'}); chk('letrero',140,290,940,630); ctx.restore(); }
+function S1(t,sc){ escenaGancho(t,sc,4,false); } function S2(t,sc){ escenaGancho(t,sc,4,false); } function S35(t,sc){ escenaGancho(t,sc,null,true); }
+// S3 "Mira el hueso del aguacate:": el aguacate partido gira y el hueso sale volando hacia arriba; Raro lo señala.
+function S3(t,sc){ aguacate(400,1080,150,0.1,1,{mitad:true}); const u=easeOut(prog(t,at(7),0.5)); if(t>=at(7)) hueso(lerp(400,560,u),lerp(1130,880,u),60*lerp(0.8,1.3,u),t*3);
+  raro({x:820,y:1440,s:0.78,t,disfraz:CAV,expr:'sospecha',brazos:'senala',espejo:true,sq:gelatina(t,at(7),0.3)});
+  L('EL HUESO…',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:100,t,t0:sc.start}); }
+// S4 "es enorme.": el hueso gigante cae junto a Raro (thud) y casi lo aplasta; Raro con terror.
+function S4(t,sc){ const c=caida(t,sc.start+0.05,1300,0.3); hueso(380,1250-c.alto,190,0.2); if(t>sc.start+0.35) ondaChoque(t,sc.start+0.35,380,1420,'#FFFFFF');
+  const b=susto(t,sc.start+0.35); raro({x:820,y:1440,s:0.78,t,disfraz:CAV,expr:'terror',brazos:'arriba',espejo:true,ojos:1.8,alto:b.alto,sq:b.sq,wob:b.wob});
+  L('¡ES ENORME!',540,430,popIn(t,sc.start+0.05,0.25),'panel',{tam:110,t,t0:sc.start}); }
+// S5 "¿Qué animal se traga eso entero?": desfilan gomitas (vaca, borrego, venado) que ven el hueso y niegan con la cabeza; Raro les ofrece el hueso.
+function S5(t,sc){ const A=[vaca,borrego,venado]; A.forEach((f,i)=>{ const k=popIn(t,at([13,15,17][i])); if(k>0) f({x:190+i*200,y:1440,s:0.45*k,t,seed:i,expr:'asco',tilt:Math.sin(t*8+i)*0.12}); });
+  raro({x:850,y:1440,s:0.75,t,disfraz:CAV,expr:'sospecha',manos:{i:[-150,-200],d:[-230,-250]},espejo:true}); hueso(850-230*0.75,1440-250*0.75,50,t);
+  L('¿QUIÉN SE LO TRAGA?',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:86,t,t0:sc.start}); }
+// S6 "Hoy… ninguno.": grillos: Raro solo con el hueso, mira a cámara (pausa cómica). Remate.
+function S6(t,sc){ hueso(540,1180,90,Math.sin(t*2)*0.1); raro({x:540,y:1440,s:1.0,t,disfraz:CAV,expr:'yavalio',mira:{x:0,y:0},manos:{i:[-150,-150],d:[150,-150]},tilt:Math.sin(t*4)*0.03});
+  L(t<at(19)?'HOY…':'…NINGUNO',540,430,popIn(t,t<at(19)?sc.start+0.03:at(19),0.25),'madera',{tam:110,t,t0:t<at(19)?sc.start:at(19)}); ocupa(440,1080,640,1280,1); }
+// S7 "Pero hace más de 13,000 años,": calendario que cuenta hacia atrás; Raro cavernícola gira en un remolino del tiempo.
+function S7(t,sc){ ctx.save(); ctx.translate(540,1000); ctx.rotate(t*2); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=14; for(let i=0;i<4;i++){ ctx.beginPath(); ctx.arc(0,0,120+i*90,i,i+2.2); ctx.stroke(); } ctx.restore();
+  const b=caida(t,sc.start+0.02); raro({x:540,y:1440,s:0.85,t,disfraz:CAV,expr:'asombro',brazos:'arriba',ojos:1.5,alto:b.alto,sq:b.sq,wob:b.wob,tilt:Math.sin(t*6)*0.1});
+  const k=popIn(t,at(24)); if(k>0) L('+'+contador(t,at(24),0.6,0,13000)+' AÑOS',540,430,k,'panel',{tam:104,t,t0:at(24)}); else L('HACE MÁS DE…',540,430,popIn(t,sc.start+0.03),'madera',{tam:96,t,t0:sc.start}); }
+// S8 "por aquí andaban perezosos gigantes,": selva; entra un perezoso gigante (gomita café con garras) caminando; Raro chiquito a su lado, asombrado.
+function S8(t,sc){ const x=lerp(1250,380,easeOut(prog(t,at(28)-0.2,0.8))); perezoso({x,y:1440,s:1.25,t,expr:'feliz',piernas:'camina',manos:{i:[-160,-260],d:[160,-260]},seed:3,alto:Math.abs(Math.sin(t*5))*10});
+  raro({x:860,y:1440,s:0.6,t,disfraz:CAV,expr:t<at(29)?'sospecha':'asombro',brazos:'arriba',espejo:true,ojos:t>=at(29)?1.8:1,sq:gelatina(t,at(29),0.3)});
+  const k=popIn(t,at(29)); if(k>0) L('PEREZOSOS GIGANTES',540,430,k,'panel',{tam:90,t,t0:at(29)}); else L('POR AQUÍ ANDABAN…',540,430,popIn(t,sc.start+0.03),'madera',{tam:90,t,t0:sc.start}); }
+// S9 "más pesados que una camioneta de reparto.": balanza: perezoso de un lado, camioneta del otro; el perezoso gana (la balanza se inclina).
+function S9(t,sc){ const ang=lerp(0,0.22,easeOut(prog(t,at(35),0.5)));
+  balanzaSimple(540,900,ang,t,(x,y)=>perezoso({x,y,s:0.55,t,expr:'orgullo',manos:{i:[-150,-200],d:[150,-200]},seed:3}),(x,y)=>{ camioneta(x,y,0.55,t); });
+  raro({x:900,y:1440,s:0.55,t,disfraz:CAV,expr:t<at(35)?'sospecha':'asombro',brazos:'jarras',espejo:true,ojos:t>=at(35)?1.6:1});
+  L('MÁS QUE UNA CAMIONETA',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:84,t,t0:sc.start}); }
+function camioneta(x,y,s,t){ ctx.save(); ctx.translate(x,y-Math.abs(Math.sin(t*10))*3); ctx.scale(s,s); ctx.fillStyle='#8D7BCF'; rr(-200,-260,280,220,24); ctx.fill(); ctx.fillStyle='#B79BFF'; rr(80,-200,120,160,24); ctx.fill(); ctx.fillStyle='#B8E6FF'; rr(100,-185,80,60,12); ctx.fill(); ctx.fillStyle='#2A2340'; blob(-130,-40,40); blob(130,-40,40); ctx.fillStyle='#8E8AA3'; blob(-130,-40,16); blob(130,-40,16); ctx.restore(); }
+function balanzaSimple(x,y,ang,t,izq,der){ const L2=300; ctx.fillStyle='#8E6FD0'; rr(x-150,1400,300,40,20); ctx.fill(); ctx.fillStyle='#B79BFF'; rr(x-26,y,52,1410-y,24); ctx.fill();
+  ctx.save(); ctx.translate(x,y); ctx.rotate(-ang); ctx.fillStyle='#FFD23F'; rr(-L2-30,-20,2*L2+60,40,20); ctx.fill(); ctx.restore(); ctx.fillStyle='#E23D5B'; blob(x,y,34);
+  [[-1,izq],[1,der]].forEach(([sg,f])=>{ const ex=x+sg*L2*Math.cos(ang), ey=y-sg*L2*Math.sin(ang), py=ey+200; ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(ex-110,py); ctx.lineTo(ex,ey); ctx.lineTo(ex+110,py); ctx.stroke();
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(ex,py,130,28,0,0,PI2); ctx.fill(); f(ex,py-8); chk('obj',ex-130,py-30,ex+130,py+30); }); ocupa(x-L2-130,y-60,x+L2+130,1440,0.4); }
+// S10 "Y parientes de los elefantes:": entra un elefante gomita (pop), Raro lo señala.
+function S10(t,sc){ perezoso({x:220,y:1440,s:0.8,t,expr:'feliz',manos:{i:[-160,-260],d:[160,-260]},seed:3}); const k=popIn(t,at(42)-0.3);
+  if(k>0) elefante({x:720,y:1440,s:0.75*k,t,seed:5,expr:'feliz',espejo:true,alto:Math.abs(Math.sin(t*4))*8});
+  raro({x:470,y:1440,s:0.55,t,disfraz:CAV,expr:'asombro',brazos:'senala',espejo:false,sq:gelatina(t,at(42),0.3)});
+  L('PARIENTES DE ELEFANTES',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:82,t,t0:sc.start}); }
+// S11 "los gonfoterios.": plano cerrado al gonfoterio que levanta la trompa (barrito: chispas); letrero GONFOTERIOS.
+function S11(t,sc){ elefante({x:540,y:1440,s:1.05,t,seed:5,expr:'risa',brazos:'arriba',sq:gelatina(t,sc.start+0.1,0.3)}); chispas(t,sc.start+0.2,540,900,1.1,'#FFFFFF');
+  L('GONFOTERIOS',540,430,popIn(t,sc.start+0.03,0.25),'panel',{tam:110,t,t0:sc.start}); }
+// S12 "Ellos se tragaban el aguacate de un bocado,": el perezoso abre la boca y el aguacate entero entra de un jalón (gulp); Raro con asco/asombro.
+function S12(t,sc){ const u=prog(t,at(49),0.45); perezoso({x:420,y:1440,s:1.05,t,expr:u>0&&u<1?'asombro':'feliz',manos:{i:[-160,-300],d:[160,-300]},seed:3,sq:gelatina(t,at(52),0.4)});
+  if(u<1) aguacate(lerp(820,420,easeInOut(u)),lerp(900,1440-240*1.05,easeInOut(u))-Math.sin(u*Math.PI)*200,70,t*4,1-u*0.6);
+  raro({x:870,y:1440,s:0.6,t,disfraz:CAV,expr:t<at(52)?'asombro':'asco',brazos:'arriba',espejo:true});
+  L('¡DE UN BOCADO!',540,430,popIn(t,at(52)>sc.start?sc.start+0.03:sc.start,0.25),'madera',{tam:100,t,t0:sc.start}); }
+// S13 "se lo llevaban lejos…": paneo: el perezoso camina por cerros con la panza abultada; Raro corre detrás.
+function S13(t,sc){ const x=lerp(440,760,prog(t,sc.start,dur(sc))); perezoso({x,y:1440,s:0.9,t,expr:'feliz',piernas:'camina',manos:{i:[-160,-200],d:[160,-200]},seed:3,alto:Math.abs(Math.sin(t*6))*12});
+  raro({x:x-310,y:1440,s:0.5,t,disfraz:CAV,expr:'feliz',piernas:'corre',brazos:'corre'}); L('…LEJOS, LEJOS',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:100,t,t0:sc.start}); }
+// S14 "y lo hacían popó.": el perezoso detrás de un arbusto (apenado); aparece la popó con olor (corte de música). Raro se tapa la nariz.
+function S14(t,sc){ ctx.fillStyle='#3FA85A'; blob(300,1330,170); blob(470,1350,140); blob(160,1360,120); perezoso({x:320,y:1300,s:0.7,t,expr:'apenado',rubor:true,manos:{i:[-150,-150],d:[150,-150]},seed:3});
+  ctx.fillStyle='#2F8A45'; blob(300,1400,160); blob(470,1410,130); blob(150,1410,110); popo(600,1440,0.9,popIn(t,at(60)),t);
+  raro({x:870,y:1440,s:0.75,t,disfraz:CAV,expr:t<at(60)?'sospecha':'asco',brazos:t<at(60)?'jarras':'cara',espejo:true});
+  L('…Y LO HACÍAN POPÓ',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:92,t,t0:sc.start}); }
+// S15 "Con todo y hueso.": zoom a la popó: asoma el hueso (pop) con brillo; Raro con lupa (risa).
+function S15(t,sc){ popo(470,1440,1.6,1,t); hueso(500,1300,44,0.3,popIn(t,at(64))); if(t>=at(64)) chispas(t,at(64),500,1300,0.8,'#FFFFFF');
+  raro({x:860,y:1440,s:0.75,t,disfraz:CAV,expr:'risa',brazos:'senala',espejo:true,sq:gelatina(t,at(64),0.3)});
+  L('¡CON TODO Y HUESO!',540,430,popIn(t,sc.start+0.03,0.25),'panel',{tam:92,t,t0:sc.start}); }
+// S16 "Así se sembraban los aguacates:": de la popó brota una plantita que crece en árbol (brote → árbol); Raro aplaude.
+function S16(t,sc){ const k=prog(t,sc.start+0.1,dur(sc)*0.7); if(k<0.6) brote(400,1440,1.6,k/0.6,t); else arbolAg(400,1440,lerp(0.4,0.95,easeOut((k-0.6)/0.4)),t,5);
+  raro({x:850,y:1440,s:0.75,t,disfraz:CAV,expr:'feliz',brazos:'arriba',espejo:true,alto:Math.abs(Math.sin(t*8))*14});
+  L('ASÍ SE SEMBRABAN',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:96,t,t0:sc.start}); }
+// S17 "con taxi y abono incluidos.": el perezoso con letrero de TAXI en la cabeza lleva a un aguacate con carita de pasajero; remate.
+function S17(t,sc){ const x=lerp(300,620,prog(t,sc.start,dur(sc))); perezoso({x,y:1440,s:0.95,t,expr:'feliz',piernas:'camina',manos:{i:[-160,-260],d:[160,-260]},seed:3,alto:Math.abs(Math.sin(t*6))*10});
+  letreroTaxi(x,1440-400*0.95-Math.abs(Math.sin(t*6))*10,0.9,popIn(t,at(71))); aguacate(x+150*0.95,1440-280*0.95,60,0.2,1,{cara:true,t});
+  raro({x:900,y:1440,s:0.55,t,disfraz:CAV,expr:'risa',brazos:'saluda',espejo:true});
+  L('TAXI + ABONO',540,430,popIn(t,at(71),0.25),'panel',{tam:110,t,t0:at(71)}); }
+// S18 "El problema:": corte seco; Raro cavernícola mira a cámara con sospecha; música se corta.
+function S18(t,sc){ raro({x:540,y:1440,s:1.1,t,disfraz:CAV,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',sq:gelatina(t,sc.start+0.1,0.4)}); L('EL PROBLEMA…',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:104,t,t0:sc.start}); }
+// S19 "hace unos 13,000 años, esos gigantes desaparecieron.": el perezoso y el gonfoterio se vuelven transparentes y suben como fantasmas; Raro llora.
+function S19(t,sc){ const k=1-prog(t,at(83)-0.1,0.8), up=(1-k)*300; fantasma({x:300,y:1440-up,s:0.75,t,expr:'llanto',manos:{i:[-150,-200],d:[150,-200]},seed:3},Math.max(0.15,k)); ctx.save(); ctx.globalAlpha=Math.max(0.15,k); elefante({x:740,y:1440-up,s:0.7,t,seed:5,expr:'llanto',espejo:true}); ctx.restore();
+  raro({x:540,y:1440,s:0.6,t,disfraz:CAV,expr:t<at(83)?'asombro':'llanto',brazos:'cara',sq:gelatina(t,at(83),0.3)});
+  const kk=popIn(t,at(83)); if(kk>0) L('¡DESAPARECIERON!',540,430,kk,'panel',{tam:100,t,t0:at(83)}); else L('HACE 13,000 AÑOS…',540,430,popIn(t,sc.start+0.03),'madera',{tam:92,t,t0:sc.start}); }
+// S20 "Y el aguacate se quedó sin taxi.": parada de taxi vacía; un aguacate con carita espera con su maletita (triste); Raro lo consuela.
+function S20(t,sc){ ctx.fillStyle='#6E6A85'; rr(240,860,20,580,10); ctx.fill(); letreroTaxi(250,860,1.0,1); aguacate(380,1300,90,Math.sin(t*3)*0.05,1,{cara:true,triste:true,lagrima:t>=at(90),t});
+  ctx.fillStyle='#8A5A3A'; rr(470,1340,90,80,14); ctx.fill(); ctx.strokeStyle='#5E3716'; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(515,1340,22,Math.PI,0); ctx.stroke();
+  raro({x:830,y:1440,s:0.75,t,disfraz:CAV,expr:'llanto',brazos:'frente',espejo:true}); chk('obj',230,800,560,1440);
+  L('SIN TAXI',540,430,popIn(t,sc.start+0.05,0.25),'madera',{tam:120,t,t0:sc.start}); }
+// S21 "Sus frutos caían junto al árbol…": árbol; aguacates caen uno tras otro y rebotan junto al tronco (boing).
+function S21(t,sc){ arbolAg(380,1440,0.95,t,3); for(let i=0;i<4;i++){ const t0=sc.start+0.15+i*0.3; if(t<t0) continue; const u=clamp((t-t0)/0.3); aguacate(250+i*90,lerp(800,1400,u*u)-Math.abs(Math.sin((t-t0)*12))*(u>=1?14*Math.exp(-(t-t0)*4):0),50,i,1); }
+  raro({x:860,y:1440,s:0.7,t,disfraz:CAV,expr:'sospecha',brazos:'senala',espejo:true});
+  L('JUNTO AL ÁRBOL',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:100,t,t0:sc.start}); }
+// S22 "y ahí se pudrían.": los aguacates del suelo se ponen cafés con moscas; Raro con asco (zoom).
+function S22(t,sc){ arbolAg(380,1440,0.95,t,3); for(let i=0;i<4;i++){ ctx.save(); ctx.filter='none'; aguacate(250+i*90,1400,50,i,1); ctx.globalAlpha=clamp((t-sc.start)/0.6)*0.7; ctx.fillStyle='#5E3716'; ctx.beginPath(); ctx.ellipse(250+i*90,1400,46,58,i,0,PI2); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<5;i++){ const a=t*6+i*1.3; blob(380+Math.cos(a)*120+i*10,1320+Math.sin(a*1.3)*40,6); }
+  raro({x:860,y:1440,s:0.7,t,disfraz:CAV,expr:'asco',brazos:'cara',espejo:true}); L('…Y SE PUDRÍAN',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:100,t,t0:sc.start}); ocupa(180,1320,640,1460,0.8); }
+// S23 "Los biólogos le llaman anacronismo evolutivo:": puf a científico con lupa; pizarrón con flecha perezoso→aguacate tachado.
+function S23(t,sc){ const p=pufCambio(t,sc.start+0.02); ctx.fillStyle='#2E2A44'; rr(130,840,480,380,30); ctx.fill(); aguacate(260,1030,60,0,popIn(t,sc.start+0.3),{}); flecha(390,1030,0,popIn(t,sc.start+0.45),'#FFFFFF');
+  ctx.save(); ctx.globalAlpha=popIn(t,sc.start+0.6); ctx.fillStyle='#C49A6C'; blob(510,1030,60); ctx.strokeStyle='#E8323C'; ctx.lineWidth=12; ctx.beginPath(); ctx.moveTo(450,970); ctx.lineTo(570,1090); ctx.moveTo(570,970); ctx.lineTo(450,1090); ctx.stroke(); ctx.restore(); chk('obj',130,840,610,1220); ocupa(130,840,610,1220,1);
+  raro({x:840,y:1440,s:0.78,t,disfraz:p.despues?CIE:CAV,spin:p.spin,lupa:true,expr:'sospecha',brazos:'senala',espejo:true}); nubePuf(t,sc.start+0.08,840,1200,1.2);
+  const k=popIn(t,at(105)); if(k>0) L('ANACRONISMO',540,430,k,'panel',{tam:110,t,t0:at(105)}); else L('LOS BIÓLOGOS…',540,430,popIn(t,sc.start+0.03),'madera',{tam:100,t,t0:sc.start}); }
+// S24 "un fruto que sigue esperando a animales que ya no existen.": aguacate en banquita con reloj que gira rápido y telarañas; Raro lo mira con lástima.
+function S24(t,sc){ ctx.fillStyle='#8A5A3A'; rr(220,1300,360,30,12); ctx.fill(); rr(250,1330,24,110,8); ctx.fill(); rr(526,1330,24,110,8); ctx.fill(); aguacate(400,1220,80,Math.sin(t*1.5)*0.05,1,{cara:true,triste:true,t});
+  reloj(400,900,0.9,t*8); telarana(220,840,0.9,clamp((t-sc.start)/1.5)); telarana(580,1300,0.6,clamp((t-sc.start-0.5)/1.5));
+  raro({x:840,y:1440,s:0.75,t,disfraz:CIE,expr:'llanto',brazos:'frente',espejo:true}); L('SIGUE ESPERANDO…',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:96,t,t0:sc.start}); chk('obj',220,1130,580,1440); }
+// S25 "¿Y cómo se salvó?": Raro científico mira a cámara (pattern interrupt), signo de interrogación gigante.
+function S25(t,sc){ ctx.save(); ctx.translate(320,1050); ctx.rotate(Math.sin(t*4)*0.1); ctx.scale(popIn(t,sc.start+0.05),popIn(t,sc.start+0.05)); ctx.fillStyle='#D7FF3D'; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=14; ctx.font=fuente(360); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.strokeText('?',0,0); ctx.fillText('?',0,0); ctx.restore(); ocupa(200,880,440,1240,1); chk('obj',200,880,440,1240);
+  raro({x:740,y:1440,s:0.95,t,disfraz:CIE,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',espejo:true,sq:gelatina(t,sc.start+0.1,0.3)}); L('¿CÓMO SE SALVÓ?',540,430,popIn(t,sc.start+0.03,0.25),'panel',{tam:100,t,t0:sc.start}); }
+// S26 "Quizá algunos roedores enterraban semillas.": ratoncitos corren y entierran huesos (montoncitos de tierra); Raro con lupa.
+function S26(t,sc){ for(let i=0;i<3;i++){ const x=((t-sc.start)*180+i*300)%1000+40; raton(x,1440,1.5,t,i); hueso(x+60,1440-170,34,t*4+i); }
+  for(let i=0;i<3;i++){ ctx.fillStyle='#8A5A3A'; ctx.beginPath(); ctx.ellipse(220+i*300,1440,60*popIn(t,sc.start+0.4+i*0.3),24,0,Math.PI,0); ctx.fill(); }
+  raro({x:880,y:1440,s:0.62,t,disfraz:CIE,lupa:true,expr:'sospecha',brazos:'senala',espejo:true});
+  L('¿UNOS RATONES?',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:100,t,t0:sc.start}); }
+// S27 "Pero el gran rescate fuimos nosotros:": puf a campesino; Raro con capa de héroe imaginaria (lineas de velocidad) carga un aguacate.
+function S27(t,sc){ const p=pufCambio(t,sc.start+0.02); lineasVelocidad(t,sc.start+0.1,540,1000,'#FFFFFF',0.6);
+  const b=brinco(t,at(132)-0.1,0.5,120); raro({x:540,y:1440,s:0.95,t,disfraz:p.despues?CAM:CIE,spin:p.spin,expr:'orgullo',manos:{i:[-150,-200],d:[150,-420]},alto:b.alto,sq:b.sq,wob:b.wob}); nubePuf(t,sc.start+0.08,540,1200,1.2);
+  aguacate(540+150*0.95,1440-b.alto-420*0.95-30,60,0.2,1,{cara:true,t});
+  const k=popIn(t,at(132)); if(k>0) L('¡FUIMOS NOSOTROS!',540,430,k,'panel',{tam:96,t,t0:at(132)}); else L('EL GRAN RESCATE…',540,430,popIn(t,sc.start+0.03),'madera',{tam:92,t,t0:sc.start}); }
+// S28 "la gente empezó a sembrarlo.": Raro campesino siembra; brotan arbolitos en fila (pop) con gomitas ayudando.
+function S28(t,sc){ for(let i=0;i<4;i++){ const k=prog(t,sc.start+0.2+i*0.25,0.6); if(k>0) brote(250+i*130,1420,1.5,k,t); } gomita({x:150,y:1440,s:0.4,t,color:PASTELES[2],expr:'feliz',brazos:'arriba',seed:1,alto:Math.abs(Math.sin(t*6))*10});
+  raro({x:840,y:1440,s:0.78,t,disfraz:CAM,expr:'feliz',brazos:'frente',espejo:true,tilt:0.1+Math.sin(t*6)*0.05}); L('LO EMPEZAMOS A SEMBRAR',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:80,t,t0:sc.start}); ocupa(100,1250,760,1440,0.6); }
+// S29 "Y vaya que le seguimos: hoy México cosecha más de uno de cada cuatro aguacates del mundo.": 4 aguacates gigantes; en "uno" el primero se pinta con bandera tricolor (verde-blanco-rojo) y salta; letrero 1 DE CADA 4.
+function S29(t,sc){ for(let i=0;i<4;i++){ const k=popIn(t,sc.start+0.1+i*0.12); const mx=i===0&&t>=at(148); const b=mx?brinco(t,at(148),0.45,80):{alto:0}; aguacate(140+i*170,1180-b.alto,72,Math.sin(t*3+i)*0.06,k,{cara:true,t});
+  if(mx){ ctx.save(); ctx.translate(140,1180-b.alto-125); ctx.fillStyle='#2E9E4F'; rr(-40,-20,27,40,4); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-13,-20,27,40,4); ctx.fill(); ctx.fillStyle='#E23D5B'; rr(14,-20,27,40,4); ctx.fill(); ctx.restore(); } }
+  raro({x:920,y:1440,s:0.58,t,disfraz:CAM,expr:t<at(148)?'feliz':'orgullo',brazos:'senala',espejo:true,sq:gelatina(t,at(148),0.3)});
+  const k=popIn(t,at(148)); if(k>0) L('+1 DE CADA 4',540,430,k,'panel',{tam:110,t,t0:at(148)}); else L('HOY MÉXICO…',540,430,popIn(t,sc.start+0.03),'madera',{tam:100,t,t0:sc.start}); ocupa(80,1060,860,1300,0.8); }
+// S30 "Y casi tres de cada cuatro salen de Michoacán.": mapa de México; Michoacán brilla en lima y salen aguacates en cascada; Raro campesino orgulloso.
+function S30(t,sc){ { const kk=popIn(t,sc.start+0.03,0.3); ctx.fillStyle='rgba(255,255,255,0.35)'; rr(540-420*kk,1000-300*kk,840*kk,600*kk,60); ctx.fill(); } mexico(520,980,2.1,popIn(t,sc.start+0.03,0.3));
+  if(t>=at(163)){ ctx.fillStyle='#D7FF3D'; blob(520+(-10)*2.1,980+40*2.1,36+Math.sin(t*8)*4); ondaChoque(t,at(163),499,1064,'#D7FF3D'); cascada(t,at(163),9,(x,y,k,i)=>aguacate(x,y,30,i,k),{x0:380,y0:1180,cols:9,dx:40,dy:40,cada:0.04}); }
+  ocupa(120,700,940,1300,0.6); raro({x:850,y:1440,s:0.65,t,disfraz:CAM,expr:'orgullo',brazos:'jarras',espejo:true,sq:gelatina(t,at(163),0.3)});
+  const k=popIn(t,at(163)); if(k>0) L('¡MICHOACÁN: 3 DE 4!',540,430,k,'panel',{tam:92,t,t0:at(163)}); else L('CASI TRES DE CADA CUATRO',540,430,popIn(t,sc.start+0.03),'madera',{tam:78,t,t0:sc.start}); }
+// S31 "O sea, cada vez que haces guacamole…": Raro machaca aguacate en el molcajete (golpes con click).
+function S31(t,sc){ molcajete(420,1440,1.4,t); const g=Math.abs(Math.sin(t*9)); raro({x:800,y:1440,s:0.85,t,disfraz:CAM,expr:'feliz',manos:{i:[-260,-260+g*80],d:[-160,-260+g*80]},espejo:true,sq:g*0.06});
+  L('CADA VEZ QUE HACES GUACAMOLE',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:72,t,t0:sc.start}); }
+// S32 "haces el trabajo de un perezoso gigante.": puf: aparece el fantasma del perezoso detrás de Raro y le choca la mano.
+function S32(t,sc){ molcajete(420,1440,1.2,t); const k=popIn(t,at(176)-0.3); fantasma({x:250,y:1440,s:0.9,t,expr:'risa',manos:{i:[-150,-200],d:[260,-380]},seed:3},0.75*k);
+  raro({x:760,y:1440,s:0.85,t,disfraz:CAM,expr:'risa',manos:{i:[-290,-380],d:[150,-200]},espejo:true,sq:gelatina(t,at(176),0.3)}); if(t>=at(176)) chispas(t,at(176),500,1110,1,'#D7FF3D');
+  const kk=popIn(t,at(176)); if(kk>0) L('TRABAJO DE PEREZOSO',540,430,kk,'panel',{tam:88,t,t0:at(176)}); else L('HACES EL TRABAJO…',540,430,popIn(t,sc.start+0.03),'madera',{tam:92,t,t0:sc.start}); }
+// S33 "Pero sin la popó.": la popó aparece y Raro la tacha con cara de asco; remate (corte de música).
+function S33(t,sc){ popo(380,1440,1.2,popIn(t,sc.start+0.1),t); if(t>=at(180)){ ctx.strokeStyle='#E8323C'; ctx.lineWidth=26; ctx.lineCap='round'; const k=prog(t,at(180),0.2); ctx.beginPath(); ctx.moveTo(250,1150); ctx.lineTo(lerp(250,510,k),lerp(1150,1430,k)); ctx.stroke(); }
+  raro({x:800,y:1440,s:0.85,t,disfraz:CAM,expr:'asco',brazos:'frente',espejo:true}); L('…SIN LA POPÓ',540,430,popIn(t,sc.start+0.03,0.25),'madera',{tam:104,t,t0:sc.start}); chk('obj',230,1130,530,1440); }
+// S34 "¿Tú con qué te lo comes?": Raro señala a cámara con un totopo; totopos alrededor del molcajete.
+function S34(t,sc){ molcajete(360,1440,1.2,t); for(let i=0;i<5;i++) totopo(200+i*80,1300-Math.abs(Math.sin(t*4+i))*12,0.9,i*0.6);
+  raro({x:800,y:1440,s:0.88,t,disfraz:CAV,expr:'sospecha',mira:{x:0,y:0},brazos:'senala',espejo:true,sq:gelatina(t,sc.start+0.2,0.3)}); totopo(800-215*0.88,1440-300*0.88,1.0,0.4);
+  L('¿CON QUÉ TE LO COMES?',540,430,popIn(t,sc.start+0.03,0.25),'panel',{tam:86,t,t0:sc.start}); }
+
+const ORDER=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25,S26,S27,S28,S29,S30,S31,S32,S33,S34,S35];
+window.SCENES=ORDER.map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; ocupa(150,330,930,665,2); f(t,sc);});
+window.CHIPS={};
+window.FONDOS={1:{pal:'magenta',tipo:'selva',pp:false},2:{pal:'magenta',tipo:'selva',pp:false},3:{pal:'turquesa',tipo:'cerros',pp:false},4:{pal:'mandarina',tipo:'desierto',pp:false},5:{pal:'cielo',tipo:'cerros',pp:false},6:{pal:'violeta',tipo:'liso',pp:false},7:{pal:'violeta',tipo:'espacio',pp:false},8:{pal:'turquesa',tipo:'selva'},9:{pal:'limon',tipo:'liso',pp:false},10:{pal:'mandarina',tipo:'selva',pp:false},11:{pal:'cielo',tipo:'cerros',pp:false},12:{pal:'magenta',tipo:'selva',pp:false},13:{pal:'limon',tipo:'cerros'},14:{pal:'turquesa',tipo:'selva',pp:false},15:{pal:'mandarina',tipo:'liso',pp:false},16:{pal:'cielo',tipo:'cerros',pp:false},17:{pal:'magenta',tipo:'cerros',pp:false},18:{pal:'violeta',tipo:'liso',pp:false},19:{pal:'cielo',tipo:'cielo',pp:false},20:{pal:'mandarina',tipo:'ciudad',pp:false},21:{pal:'turquesa',tipo:'cerros',pp:false},22:{pal:'limon',tipo:'cerros',pp:false},23:{pal:'cielo',tipo:'interior',pp:false},24:{pal:'violeta',tipo:'interior',pp:false},25:{pal:'magenta',tipo:'liso',pp:false},26:{pal:'mandarina',tipo:'cerros',pp:false},27:{pal:'turquesa',tipo:'cielo',pp:false},28:{pal:'limon',tipo:'cerros'},29:{pal:'cielo',tipo:'liso',pp:false},30:{pal:'turquesa',tipo:'liso',pp:false},31:{pal:'mandarina',tipo:'interior',pp:false},32:{pal:'magenta',tipo:'interior',pp:false},33:{pal:'limon',tipo:'liso',pp:false},34:{pal:'cielo',tipo:'interior',pp:false},35:{pal:'magenta',tipo:'selva',pp:false}};
+window.TOMAS={1:{mov:'push'},2:{mov:'push',z:1.14,foco:[560,1100]},3:{mov:'push',z:1.06,foco:[540,1100]},4:{mov:'pull'},5:{mov:'push',z:1.04,foco:[540,1150]},6:{mov:'push',z:1.2,foco:[540,1150]},7:{mov:'orbita'},8:{mov:'pull'},9:{mov:'sube'},10:{mov:'paneo-izq'},11:{mov:'push',z:1.1,foco:[540,1050]},12:{mov:'pull'},13:{mov:'paneo-der'},14:{mov:'push',z:1.06,foco:[540,1200]},15:{mov:'push',z:1.12,foco:[560,1250]},16:{mov:'sube'},17:{mov:'paneo-der'},18:{mov:'push',z:1.2,foco:[540,1100]},19:{mov:'sube'},20:{mov:'pull'},21:{mov:'baja'},22:{mov:'push',z:1.1,foco:[540,1300]},23:{mov:'paneo-izq'},24:{mov:'push',z:1.06,foco:[540,1150]},25:{mov:'push',z:1.12,foco:[600,1100]},26:{mov:'paneo-der'},27:{mov:'pull'},28:{mov:'push',z:1.04,foco:[540,1200]},29:{mov:'sube'},30:{mov:'pull'},31:{mov:'push',z:1.08,foco:[560,1200]},32:{mov:'pull'},33:{mov:'push',z:1.1,foco:[540,1250]},34:{mov:'push',z:1.08,foco:[600,1150]},35:{mov:'push'}};
+window.TRANS={3:'bufanda',4:'zoom',6:'latigazo',7:'zoom',8:'bufanda',10:'latigazo',12:'bufanda',14:'latigazo',16:'zoom',18:'bufanda',19:'zoom',21:'latigazo',23:'bufanda',25:'zoom',27:'latigazo',29:'bufanda',30:'zoom',31:'latigazo',33:'bufanda',35:'latigazo'};
+window.KEYWORDS=[4, 7, 11, 17, 19, 24, 30, 35, 42, 44, 52, 56, 60, 64, 69, 71, 76, 83, 90, 96, 100, 106, 117, 121, 124, 132, 137, 148, 154, 163, 170, 177, 181, 187, 195];
+window.SHAKES=[4, 11, 35, 60, 83, 132, 148, 163];
+window.FLASHES=[[4, "#FFFFFF"], [11, "#FFFFFF"], [83, "#FFFFFF"], [132, "#D7FF3D"], [163, "#D7FF3D"]];
+</script></body></html>
