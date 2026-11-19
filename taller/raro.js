@@ -555,6 +555,28 @@ const DISFRACES = {
       ctx.fillStyle='#B81E2A'; rr(-62,-158,124,16,8); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.ellipse(-22,-186,16,7,-0.5,0,Math.PI*2); ctx.fill();
       ctx.restore(); }
   },
+  taquero: { // taquero: playera roja, mandil blanco con bolsillo y mancha de salsa, paliacate rojo con puntos y nudo; o.tortilla=true pone una tortilla en la mano derecha; o.taco=true pone un taco servido
+    cuerpo(o){ ctx.fillStyle='#E8323C'; ctx.fillRect(-200,-210,400,215);
+      ctx.fillStyle='#B81E2A'; ctx.beginPath(); ctx.ellipse(0,-206,70,22,0,0,Math.PI); ctx.fill();
+      ctx.fillStyle='#FFFDF6'; ctx.beginPath(); ctx.moveTo(-110,-170); ctx.lineTo(110,-170); ctx.lineTo(150,5); ctx.lineTo(-150,5); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#FFFDF6'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(-100,-168); ctx.lineTo(-60,-212); ctx.moveTo(100,-168); ctx.lineTo(60,-212); ctx.stroke();
+      ctx.fillStyle='#E9E3F2'; rr(-50,-110,100,60,12); ctx.fill(); ctx.fillStyle='#FFFDF6'; rr(-50,-110,100,14,6); ctx.fill();
+      ctx.fillStyle='#E8323C'; ctx.beginPath(); ctx.ellipse(70,-40,18,12,0.3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(92,-30,6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#4FB45E'; ctx.beginPath(); ctx.ellipse(-80,-30,10,6,-0.4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFFDF6'; ctx.fillRect(-200,-150,60,10); ctx.fillRect(140,-150,60,10); },
+    cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-352); ctx.rotate(-0.04+w*0.07);
+      ctx.fillStyle='#E8323C'; ctx.beginPath(); ctx.moveTo(-136,12); ctx.quadraticCurveTo(-128,-70,0,-76); ctx.quadraticCurveTo(128,-70,136,12); ctx.quadraticCurveTo(0,-6,-136,12); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FFFFFF'; for(const [x,y] of [[-90,-20],[-40,-48],[20,-54],[70,-34],[-20,-16],[40,-14],[100,-6]]){ ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill(); }
+      ctx.fillStyle='#B81E2A'; ctx.save(); ctx.translate(132,4); ctx.rotate(0.4+Math.sin(o.t*4)*0.15+w*0.5); ctx.beginPath(); ctx.ellipse(26,-6,30,12,0.3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(22,16,26,10,-0.5,0,Math.PI*2); ctx.fill(); ctx.restore();
+      ctx.fillStyle='#B81E2A'; ctx.beginPath(); ctx.arc(132,4,14,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-60,-44,30,9,-0.4,0,Math.PI*2); ctx.fill(); ctx.restore(); },
+    frente(o,B){ if(!o.tortilla && !o.taco) return; const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]-30); ctx.rotate(Math.sin(o.t*3)*0.08+(o.wob||0)*0.3);
+      if(o.taco){ ctx.fillStyle='#F2C46B'; ctx.beginPath(); ctx.arc(0,0,58,Math.PI,0); ctx.fill(); ctx.fillStyle='#D99A3A'; ctx.beginPath(); ctx.arc(0,0,58,Math.PI,0); ctx.arc(0,0,46,0,Math.PI,true); ctx.fill();
+        ctx.fillStyle='#C8553D'; ctx.beginPath(); ctx.ellipse(0,-30,40,16,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#4FB45E'; for(const x of [-24,-4,18]){ ctx.beginPath(); ctx.arc(x,-44,8,0,Math.PI*2); ctx.fill(); } ctx.fillStyle='#FFFDF6'; ctx.beginPath(); ctx.arc(8,-40,6,0,Math.PI*2); ctx.fill(); }
+      else { ctx.fillStyle='#E0A84E'; ctx.beginPath(); ctx.ellipse(0,0,66,62,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#F4CF7E'; ctx.beginPath(); ctx.ellipse(-4,-4,58,54,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#C9893A'; for(const [x,y,r] of [[-20,-14,7],[18,10,6],[24,-24,5],[-10,22,5]]){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); } }
+      ctx.restore(); }
+  },
   faraon: { // faraón/realeza egipcia: nemes a rayas oro y azul con cobra al frente, collar ancho de colores y faldellín blanco; o.cetro=true pone un cayado en la mano derecha
     cuerpo(o){ ctx.fillStyle='#FFF6E6'; ctx.fillRect(-200,-205,400,210);
       ctx.fillStyle='#F2C14E'; ctx.fillRect(-200,-74,400,22); ctx.fillStyle='#2E5BBA'; for(let x=-190;x<200;x+=40) ctx.fillRect(x,-70,18,14);
