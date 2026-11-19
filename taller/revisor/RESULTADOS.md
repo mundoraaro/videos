@@ -4,6 +4,40 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 19 nov 2026 (9:50)
+Fuentes: Buffer por publicación (TikTok actualizado al 18 nov 17:01 CDMX; YouTube al 18 nov 15:56) y Metricool para Facebook (FBRE). Metricool FB todavía no trae júpiter, cerdo, peso, rayo ni marte: sin dato. Marte (18 nov 19:00) sin dato en Buffer. Peso y rayo son de horas.
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,962** | 23.1 | **168** | **2,679** | 1,006 | 12 |
+| bascula-001 | quepasaria (todos) | 17 nov 12:00 | 3,807 | 28.0 | 94 | 1,308 | 219 | 9 |
+| estacion-001 | quepasaria (si vivieras) | 16 nov 18:00 | 3,724 | 20.9 | 97 | 1,227 | 0 | 0 |
+| gritar-001-v2 | quepasaria (todos) | 15 nov 09:00 | 3,522 | **28.7** | 85 | 2,607 | **1,719** | **19** |
+| laser-001-v2 | quepasaria (todos) | 15 nov 13:00 | 3,430 | 23.7 | 89 | 1,530 | 590 | 17 |
+| mexico-001-v2 | quepasaria (todos) | 14 nov 20:00 | 3,306 | 23.4 | 132 | 1,978 | 324 | 10 |
+| jalon-001-v2 | quepasaria (todos) | 14 nov 17:00 | 3,196 | 24.9 | 87 | 1,338 | 708 | 18 |
+| soplar-001-v2 | quepasaria (todos) | 15 nov 19:00 | 3,167 | 22.9 | 73 | 1,132 | 283 | 9 |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,964 | 26.3 | 93 | 1,600 | 378 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,852 | 27.3 | 95 | 2,017 | 380 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,777 | 26.1 | 73 | 2,113 | **4,504** | 11 |
+| mar-001-v2 | quepasaria (todos) | 14 nov 11:00 | 2,590 | 25.1 | 94 | 1,640 | 237 | 5 |
+| peso-001 | quepasaria (todos) | 18 nov 12:00 | 1,602 (horas) | 25.3 | 35 | 994 | sin dato | sin dato |
+| colibri-001-v2 | quepasaria (si fueras) | 13 nov 18:00 | 816 | 20.5 | 18 | 1,020 | 256 | 5 |
+| jupiter-001 | quepasaria (si saltaras) | 17 nov 15:00 | 694 | 24.1 | 28 | 1,120 | sin dato | sin dato |
+| atacama-001-v2 | quepasaria (te mudarías) | 16 nov 20:30 | 585 | 18.7 | 15 | 965 | 243 | 6 |
+| tardigrado-001-v2 | dato (tú) | 16 nov 12:00 | 544 | 14.6 | 13 | 1,029 | 256 | 5 |
+| cerdo-001-v2 | historia | 17 nov 19:00 | 534 | 13.4 | 18 | 965 | sin dato | sin dato |
+| chicxulub-001 | dato | 11 nov 20:00 | 497 | 24.6 | 20 | **3,234** | 299 | 12 |
+| rayo-001 | dato | 18 nov 15:00 | 358 (horas) | 18.4 | 15 | 173 (horas) | sin dato | sin dato |
+| emus-001 | historia | 11 nov 18:40 | 216 | 14.9 | 11 | 1,222 | 229 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 142 | 35.1 | 3 | 1,669 | 5 | 17 |
+| marte-001-v2 | serie | 18 nov 19:00 | sin dato | — | — | sin dato | sin dato | sin dato |
+
+Lectura rápida (solo números):
+- báscula (serie "todos") pasó de 22 a 3,807 vistas en TikTok con 28.0 s promedio, casi empatando el mejor tiempo de la cuenta (gritar, 28.7 s). Peso (también "todos") lleva 1,602 en horas con 25.3 s.
+- cerdo (historia) tiene el peor tiempo promedio de TikTok de la semana (13.4 s) y 534 vistas, en la línea de emús (14.9 s, también historia).
+- júpiter ("si saltaras", espacio) se quedó en 694 en TikTok, pero 1,120 en YouTube; mismo patrón que chicxulub/tardígrado: el espacio y los datos rinden más en YouTube que en TikTok.
+
 ## Corte del 18 nov 2026 (9:50)
 Fuentes: Buffer por publicación (TikTok actualizado al 17 nov 12:42 CDMX; YouTube al 17 nov 16:06) y Metricool para Facebook (FBRE). Júpiter (17 nov 15:00) y cerdo (17 nov 19:00) todavía sin dato en TikTok y Facebook; báscula en TikTok es de minutos (22).
 
