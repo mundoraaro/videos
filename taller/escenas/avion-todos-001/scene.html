@@ -245,7 +245,7 @@ function S14(t,sc){ pista(t,1180,120); for(let i=0;i<7;i++){ const t0=sc.start+0
   raro({x:540,y:1440,s:0.72,t,disfraz:VIAJERO,expr:t<at(77)?'orgullo':'risa',manos:{i:[-200,-330],d:[200,-330]},sq:gelatina(t,at(77),0.3),tilt:Math.sin(t*3)*0.05});
   const k=popIn(t,at(75)); L(k>0?'¡PARA NOSOTROS!':'TODOS LOS AVIONES…',540,430,k>0?k:popIn(t,sc.start+0.03),k>0?'panel':'madera',{tam:96,t,t0:k>0?at(75):sc.start}); }
 // S15 "necesitaríamos casi 28 viajes.": el avión va y viene (ida y vuelta) cada vez más rápido; tablero de VIAJES 0→28; Raro mareado lo sigue con la mirada.
-function S15(t,sc){ const ph=(t-sc.start)*1.8+(t>at(80)?(t-at(80))*2.5:0); const dir=Math.floor(ph)%2===0; const u=ph%1; avion(dir?lerp(-500,1580,u):lerp(1580,-500,u),700,0.5,t,{rot:0}); if(!dir){}
+function S15(t,sc){ const ph=(t-sc.start)*1.8+(t>at(80)?(t-at(80))*2.5:0); const dir=Math.floor(ph)%2===0; const u=ph%1; const AX=dir?lerp(-500,1580,u):lerp(1580,-500,u); ctx.save(); if(!dir){ ctx.translate(2*AX,0); ctx.scale(-1,1); } avion(AX,700,0.5,t,{rot:0}); ctx.restore();
   calendario(300,1080,0.95,popIn(t,sc.start+0.03),t,at(79),28,at(81)-at(79)+0.3,'VIAJES');
   raro({x:800,y:1440,s:0.72,t,disfraz:VIAJERO,expr:t<at(80)?'sospecha':'yavalio',brazos:'jarras',espejo:true,mira:{x:dir?1:-1,y:-0.6},tilt:Math.sin(t*6)*0.06,sq:gelatina(t,at(80),0.35)}); if(t>=at(80)) estrellitas(t,at(80),800,1080);
   const k=popIn(t,at(80)); if(k>0) L('¡CASI 28 VIAJES!',540,430,k,'panel',{tam:96,t,t0:at(80),color:'#D7FF3D'}); else L('NECESITARÍAMOS…',540,430,popIn(t,sc.start+0.03),'madera',{tam:90,t,t0:sc.start}); }
@@ -265,7 +265,7 @@ function S18(t,sc){ const s=1.6; ocupa(120,820,520,1200,1.5); ctx.save(); ctx.tr
   L('¿CUÁNTO TARDARÍAMOS?',540,430,popIn(t,sc.start+0.05,0.25),'madera',{tam:84,t,t0:sc.start}); }
 // S19 "En todo 2025, las aerolíneas movieron": tablero de salidas que voltea renglones; letrero 2025; Raro lo lee.
 function S19(t,sc){ tablero(540,800,820,[['CANCÚN','A TIEMPO'],['MADRID','ABORDANDO','#D7FF3D'],['BOGOTÁ','A TIEMPO'],['TOKIO','ABORDANDO','#D7FF3D']],t,at(104));
-  const b=caida(t,sc.start+0.02); raro({x:540,y:1440,s:0.58,t,disfraz:VIAJERO,expr:'asombro',mira:{x:0,y:-1},brazos:'senala',alto:b.alto,sq:b.sq+gelatina(t,at(107),0.3),wob:b.wob});
+  const b=brinco(t,sc.start+0.05,0.45,70); raro({x:540,y:1440,s:0.58,t,disfraz:VIAJERO,expr:'asombro',mira:{x:0,y:-1},brazos:'senala',alto:b.alto,sq:b.sq+gelatina(t,at(107),0.3),wob:b.wob});
   L('EN TODO 2025…',540,430,popIn(t,at(104)-0.3,0.25),'madera',{tam:100,t,t0:at(104)}); }
 // S20 "casi 5,000 millones de pasajeros.": lluvia de avioncitos en cascada; contador; Raro con terror.
 function S20(t,sc){ cascada(t,sc.start+0.03,30,(x,y,k,i)=>avioncito(x+Math.sin(t*3+i)*10,y,0.55*k,-0.1,PASTELES[i%6]),{x0:150,y0:640,cols:5,dx:195,dy:105,cada:0.03}); ocupa(60,580,1020,1250,0.5);
