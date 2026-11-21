@@ -5,3 +5,4 @@
 - Chilango, '¿De dónde viene el agua que usamos en la CDMX?' (2019): el Cutzamala "cada segundo bombea con destino a la ZMVM 16 metros cúbicos de líquido, que equivalen a 16 tinacos de mil litros". 2,050,000 m³ ÷ 16 m³/s = 128,125 s ≈ 35.6 h → "como día y medio".
 - Guinness World Records, 'Greatest river (by flow rate)': el Amazonas "discharges an average of 200,000 m³/sec … into the Atlantic Ocean". 2,050,000 ÷ 200,000 ≈ 10.3 s → "unos diez segundos".
 - Cálculo propio (supuesto declarado: 10 s por vaso): 8,200 M × 10 s = 8.2×10^10 s ÷ 31,557,600 s/año ≈ 2,598 años → "dos mil seiscientos años".
+- INEGI Encuesta Intercensal 2025 (vía Xataka México): 130,911,314 habitantes → "131 millones". 131 M × 0.25 L = 32.75 M L = 32,750 m³ ÷ 2,500 ≈ 13.1 albercas; ÷ 16 m³/s ≈ 2,047 s ≈ 34 min → "poquito más de media hora".
