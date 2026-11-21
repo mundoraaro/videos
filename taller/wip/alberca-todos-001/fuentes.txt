@@ -1,0 +1,7 @@
+- UN DESA, World Population Prospects 2024: ~8,200 millones de personas.
+- Wikipedia, 'Olympic-size swimming pool': 50 × 25 m, 2,500 m³ (1,250 m² de superficie).
+- Supuesto declarado en voz: 4 personas por m² apretadas → 1,250 × 4 = 5,000 por alberca. 8,200 M ÷ 5,000 = 1.64 M albercas.
+- Wikipedia, 'San Alfonso del Mar': "The pool is 1,013 m (3,323 ft) long, covering 8.2 ha (20 acres), containing some 250 million litres" (Algarrobo, Chile). 82,000 m² × 4 = 328,000 → "como trescientos mil".
+- ScienceDaily / BMC Public Health (Walpole et al. 2012, 'The weight of nations'): "the average body mass globally was 62kg". Densidad corporal ≈ agua (≈1 kg/L) → ≈62 L desplazados por persona. Supuesto declarado: contar a todos como adulto promedio. 8,200 M × 62 L = 508.4 M m³ (+500 millones de m³). ÷ 2,500 m³ = 203,360 albercas olímpicas → "doscientas mil".
+- iAgua (con Conagua), '¿Cuál es el lago más grande de México?': Chapala "es el más grande de México… Su extensión es de 1,116 kilómetros cuadrados". 0.5084 km³ ÷ 1,116 km² = 0.455 m → "casi medio metro".
+- Wikipedia, 'Ocean': superficie ≈ 361 millones de km². 0.5084 km³ ÷ 361,000,000 km² ≈ 1.4×10⁻⁹ km = 1.4 µm ≈ "como una milésima y media de milímetro".
