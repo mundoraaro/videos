@@ -172,13 +172,13 @@ function S2(t,sc){ const p=pufCambio(t,sc.start+0.02); const g=[[200,0.95],[400,
   const ac=t>=at(16); raro({x:540,y:1240,s:0.72,t,disfraz:p.despues?DIR:AST,spin:p.spin,batuta:true,brazos:ac?'cara':'carga',expr:ac?'yavalio':'sospecha',sq:gelatina(t,at(16),0.4),tilt:Math.sin(t*4)*0.05}); nubePuf(t,sc.start+0.08,540,1060,1.1);
   podio(540,1250,0.9); L(ac?'¡PONERSE DE ACUERDO!':'PRIMERO…',540,430,popIn(t,ac?at(14):sc.start+0.03,0.25),ac?'panel':'madera',{tam:ac?84:110,t,t0:ac?at(14):sc.start}); }
 // S3 "Si aplaudimos a las 12:00 del día en México,": día soleado en la ciudad; reloj marca 12:00; Raro director aplaude feliz bajo el sol; gomitas en la banqueta.
-function S3(t,sc){ sol(860,760,90,t); const kr=popIn(t,at(21)); if(kr>0){ ctx.save(); ctx.translate(310,820); ctx.scale(kr,kr); relojHora(0,0,0.9,12,0,t); ctx.restore(); }
-  for(let i=0;i<4;i++) miniAp(120+i*90+(i>1?520:0),1460,3,PASTELES[i],t,i+200);
+function S3(t,sc){ sol(860,760,90,t); const kr=popIn(t,at(21)); if(kr>0){ ctx.save(); ctx.translate(290,1150); ctx.scale(kr,kr); relojHora(0,0,0.8,12,0,t); ctx.restore(); }
+  for(let i=0;i<4;i++) miniAp(200+i*80+(i>1?440:0),1460,3,PASTELES[i],t,i+200);
   const b=caida(t,sc.start+0.02); raro({x:600,y:1440,s:0.82,t,disfraz:DIR,expr:'feliz',manos:palmas(t,6.5),alto:b.alto,sq:b.sq,wob:b.wob}); plas(600,1440-b.alto-105*0.82,0.82,t,6.5);
   const mx=t>=at(25); L(mx?'MÉXICO: 12:00 DEL DÍA':'A LAS 12:00…',540,430,popIn(t,mx?at(25):at(21),0.25),mx?'panel':'madera',{tam:mx?84:104,t,t0:mx?at(25):at(21)}); }
 // S4 "en Tokio son las 3:00 de la mañana.": latigazo a una ciudad de noche; reloj 3:00; gomita dormida en su cama; Raro llega aplaudiendo y se congela del susto.
 function S4(t,sc){ estrellasCielo(t,26,900); luna(830,650,80); edificios(t,1230,'#4B3F8C','#5B4B9C','#FFE88A',7);
-  const kr=popIn(t,at(30)); if(kr>0){ ctx.save(); ctx.translate(250,760); ctx.scale(kr,kr); relojHora(0,0,0.85,3,0,t,true); ctx.restore(); }
+  const kr=popIn(t,at(30)); if(kr>0){ ctx.save(); ctx.translate(250,1010); ctx.scale(kr,kr); relojHora(0,0,0.8,3,0,t,true); ctx.restore(); }
   cama(300,1440,0.8); gomita({x:300,y:1420,s:0.5,t,color:PASTELES[4],expr:'dormido',seed:3,disfraz:PIY,acostado:false,brazos:'idle'}); cobija(300,1440,0.8,'#8EC5FF'); zzz(390,1170,t,1);
   const sus=t>=at(30); const b=sus?susto(t,at(30)):{alto:0,sq:0,wob:0}; raro({x:760,y:1440,s:0.76,t,disfraz:DIR,expr:sus?'asombro':'feliz',manos:sus?null:palmas(t,7),brazos:sus?'cara':undefined,espejo:true,ojos:sus?1.8:1,alto:b.alto,sq:b.sq,wob:b.wob}); if(!sus) plas(760,1440-105*0.76,0.76,t,7);
   L(t>=at(30)?'TOKIO: 3:00 A.M.':'EN TOKIO…',540,430,popIn(t,t>=at(30)?at(30):sc.start+0.03,0.25),t>=at(30)?'panel':'madera',{tam:100,t,t0:t>=at(30)?at(30):sc.start}); }
@@ -208,7 +208,7 @@ function S8(t,sc){ sonometro(540,1440,0.8,t<at(57)?'85':'¿?',1,t);
 // S9 "No. Apenas 3 decibeles más.": el sonómetro apenas pasa de 85 a 88; Raro se aplasta decepcionado; "+3" chiquito.
 function S9(t,sc){ sonometro(560,1440,0.95,contador(t,at(63),0.4,85,88)+'',1,t); const no=at(61);
   raro({x:230,y:1440,s:0.72,t,disfraz:DIR,expr:'yavalio',brazos:'jarras',sq:gelatina(t,no,0.5)+0.06*easeOut(prog(t,no,0.3)),tilt:-0.08});
-  gomita({x:880,y:1440,s:0.6,t,color:PASTELES[0],expr:'apenado',seed:4,espejo:true,brazos:'cara'});
+  gomita({x:760,y:1440,s:0.5,t,color:PASTELES[0],expr:'apenado',seed:4,espejo:true,brazos:'cara'});
   if(t>=at(63)) chispas(t,at(63),560,1060,0.8,'#D7FF3D');
   L(t>=at(62)?'APENAS +3 dB':'NO.',540,430,popIn(t,t>=at(62)?at(62):no,0.25),'panel',{tam:120,t,t0:t>=at(62)?at(62):no,color:t>=at(62)?'#D7FF3D':undefined}); }
 // S10 "10 aplausos: 10 más. 100: 20 más.": cascada de 10 gomitas aplaudiendo y luego 100 chiquitas; sonómetro 95 → 105.
@@ -297,7 +297,7 @@ function S22(t,sc){ const pt=t>=at(181);
   L(pt?'¿TODOS A DORMIR?':'PARTE 21',540,430,popIn(t,pt?at(181):sc.start+0.03,0.25),'panel',{tam:pt?100:130,t,t0:pt?at(181):sc.start}); }
 
 const ORDER0=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23];
-const SUB={1:[{mov:'push'},{mov:'pull',z:1.05}],3:[null,{mov:'push',z:1.12,foco:[600,1200]}],5:[null,{mov:'push',z:1.12,foco:[540,1250]}],7:[null,{mov:'push',z:1.1,foco:[500,1150]}],
+const SUB={1:[{mov:'push'},{mov:'pull',z:1.05}],3:[null,{mov:'push',z:1.12,foco:[540,1000]}],5:[null,{mov:'push',z:1.12,foco:[540,1250]}],7:[null,{mov:'push',z:1.1,foco:[500,1150]}],
   10:[null,{mov:'pull',z:1.05}],11:[null,{mov:'push',z:1.35,foco:[540,1180]}],14:[{mov:'push',z:1.04,foco:[540,960]},{mov:'push',z:1.08,foco:[540,960]}],15:[null,{mov:'push',z:1.1,foco:[560,1100]}],16:[null,{mov:'orbita',z:1.06}],
   17:[null,{mov:'push',z:1.15,foco:[540,1100]}],18:[null,{mov:'push',z:1.1,foco:[600,1000]}],19:[null,{mov:'push',z:1.12,foco:[420,1250]}],20:[null,{mov:'fija'}],22:[null,{mov:'push',z:1.08,foco:[540,1200]}]};
 const PLAN=[]; for(let n=1;n<=23;n++){ (SUB[n]||[null]).forEach(tm=>PLAN.push([n,tm])); }
@@ -308,7 +308,7 @@ const OLD_F={1:{pal:'magenta',tipo:'liso',pp:false},2:{pal:'mandarina',tipo:'int
   7:{pal:'turquesa',tipo:'cerros',pp:false},8:{pal:'mandarina',tipo:'liso',pp:false},9:{pal:'limon',tipo:'cerros',pp:false},10:{pal:'violeta',tipo:'liso',pp:false},11:{pal:'magenta',tipo:'ciudad',pp:false},12:{pal:'violeta',tipo:'liso',pp:false},
   13:{pal:'cielo',tipo:'espacio',pp:false},14:{pal:'turquesa',tipo:'ciudad',pp:false},15:{pal:'mandarina',tipo:'cerros',pp:false},16:{pal:'limon',tipo:'liso',pp:false},17:{pal:'violeta',tipo:'espacio',pp:false},18:{pal:'cielo',tipo:'liso',pp:false},
   19:{pal:'magenta',tipo:'espacio',pp:false},20:{pal:'violeta',tipo:'liso',pp:false},21:{pal:'mandarina',tipo:'interior',pp:false},22:{pal:'cielo',tipo:'cerros',pp:false},23:{pal:'magenta',tipo:'liso',pp:false}};
-const OLD_T={1:{mov:'push'},2:{mov:'pull'},3:{mov:'paneo-der'},4:{mov:'push',z:1.06,foco:[540,1100]},5:{mov:'sube'},6:{mov:'push',z:1.1,foco:[540,1250]},7:{mov:'paneo-izq'},8:{mov:'pull'},9:{mov:'push',z:1.12,foco:[300,1250]},
+const OLD_T={1:{mov:'push'},2:{mov:'pull'},3:{mov:'paneo-der'},4:{mov:'push',z:1.06,foco:[540,960]},5:{mov:'sube'},6:{mov:'push',z:1.1,foco:[540,1250]},7:{mov:'paneo-izq'},8:{mov:'pull'},9:{mov:'push',z:1.05,foco:[470,1000]},
   10:{mov:'sube'},11:{mov:'pull'},12:{mov:'push',z:1.25,foco:[540,1150]},13:{mov:'orbita'},14:{mov:'paneo-der'},15:{mov:'pull'},16:{mov:'push',z:1.08,foco:[540,1200]},17:{mov:'baja'},18:{mov:'sube'},19:{mov:'paneo-izq'},20:{mov:'push',z:1.04,foco:[540,1000]},21:{mov:'push',z:1.08,foco:[450,1200]},22:{mov:'pull'},23:{mov:'push'}};
 const OLD_TR={3:'bufanda',4:'latigazo',5:'zoom',7:'bufanda',9:'zoom',11:'latigazo',13:'zoom',14:'bufanda',16:'zoom',17:'latigazo',19:'bufanda',20:'zoom',21:'bufanda',23:'latigazo'};
 const SUBF={2:{pal:'violeta',tipo:'espacio',pp:false}}; // sub-toma espacial del gancho
