@@ -4,6 +4,48 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 22 nov 2026 (9:50)
+Fuentes: Buffer por publicación (TikTok actualizado al 22 nov 07:47 CDMX; YouTube al 21 nov 16:17) y Metricool para Facebook (FBRE). taco-todos tiene ≈18 h en TikTok; su YouTube (21 nov 18:00) y su Facebook todavía no traen dato. aguacate tiene ≈1 día.
+
+| Video | Formato | Publicado (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | **3,968** | 20.0 | **168** | **2,681** | 1,006 | 12 |
+| bascula-001 | quepasaria (todos) | 17 nov 12:00 | 3,836 | 27.9 | 94 | 1,461 | 341 | 7 |
+| estacion-001 | quepasaria (si vivieras) | 16 nov 18:00 | 3,735 | 20.9 | 97 | 1,246 | 0 | 0 |
+| gritar-001-v2 | quepasaria (todos) | 15 nov 09:00 | 3,526 | 28.7 | 85 | 2,622 | **1,723** | 19 |
+| laser-001-v2 | quepasaria (todos) | 15 nov 13:00 | 3,438 | 23.7 | 89 | 1,520 | 595 | 17 |
+| mexico-001-v2 | quepasaria (todos) | 14 nov 20:00 | 3,311 | 23.4 | 132 | 1,990 | 324 | 10 |
+| jalon-001-v2 | quepasaria (todos) | 14 nov 17:00 | 3,204 | 24.9 | 87 | 1,333 | 709 | 18 |
+| soplar-001-v2 | quepasaria (todos) | 15 nov 19:00 | 3,201 | 23.0 | 73 | 1,132 | 283 | 9 |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,971 | 26.3 | 93 | 1,603 | 379 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,854 | 23.8 | 95 | 2,017 | 380 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,786 | 26.1 | 73 | 2,112 | **4,504** | 11 |
+| mar-001-v2 | quepasaria (todos) | 14 nov 11:00 | 2,596 | 25.1 | 94 | 1,640 | 237 | 5 |
+| luna-todos-001 | quepasaria (todos) | 19 nov 15:00 | 2,574 | 28.4 | 71 | no publicado aún (23 nov) | 250 | 11 |
+| peso-001 | quepasaria (todos) | 18 nov 12:00 | 1,948 | 25.6 | 55 | 1,043 | 1,166 | **20** |
+| taco-todos-001 | quepasaria (todos) | 21 nov 14:00 | 1,090 (≈18 h) | 25.6 | 53 | sin dato (YT 21 nov 18:00) | sin dato | sin dato |
+| aguacate-001 | dato | 21 nov 11:00 | 938 (≈1 día) | **28.9** | 27 | 1,175 | 250 | 14 |
+| saturno-001 | serie planetas (5) | 19 nov 19:00 | 883 | 20.5 | 28 | 974 | 250 | 4 |
+| colibri-001-v2 | quepasaria (si fueras) | 13 nov 18:00 | 818 | 20.5 | 18 | 1,020 | 256 | 5 |
+| rayo-001 | dato | 18 nov 15:00 | 787 | 25.8 | 26 | 1,119 | 233 | 5 |
+| luz-todos-001-v2 | quepasaria (todos) | 20 nov 12:00 | 742 | 25.3 | 28 | 1,171 | 607 | 15 |
+| jupiter-001 | quepasaria (si saltaras) | 17 nov 15:00 | 706 | 24.1 | 28 | 1,330 | 285 | 5 |
+| atacama-001-v2 | quepasaria (te mudarías) | 16 nov 20:30 | 592 | 18.9 | 15 | 971 | 247 | 6 |
+| tardigrado-001-v2 | dato (tú) | 16 nov 12:00 | 553 | 14.5 | 13 | 1,031 | 258 | 5 |
+| cerdo-001-v2 | historia | 17 nov 19:00 | 548 | 13.3 | 18 | 1,023 | 567 | 3 |
+| todos-mano-001-v2 | quepasaria (todos) | 19 nov 12:00 | 546 | 26.3 | 17 | programado hoy 11:00 | 252 | 9 |
+| chicxulub-001 | dato | 11 nov 20:00 | 497 | 22.0 | 20 | **3,237** | 299 | 12 |
+| ciudad-todos-001-v2 | quepasaria (todos) | 20 nov 15:00 | 472 | 18.7 | 15 | no publicado aún (23 nov) | 232 | 7 |
+| marte-001-v2 | serie planetas (4) | 18 nov 19:00 | 442 | 18.1 | 22 | 910 | 239 | 3 |
+| emus-001 | historia | 11 nov 18:40 | 216 | 12.9 | 11 | 1,222 | 229 | 6 |
+| nutrias-001 | dato | 12 nov 10:00 | 142 | 31.2 | 3 | 1,678 | 5 | 17 |
+
+Lectura rápida (solo números):
+- taco-todos arranca fuerte: 1,090 vistas en TikTok en ≈18 h (25.6 s, 53 likes, 4 compartidos), más del doble que todos-mano, ciudad-todos o luz-todos a la misma edad.
+- aguacate (dato) tiene el mejor tiempo promedio de TikTok de la cuenta (28.9 s, arriba de gritar 28.7 s) y 1,175 vistas en YouTube en su primer día.
+- luz-todos subió en Facebook a 607 vistas con 15 s vistos (antes 195 / 11 s).
+- La serie de planetas sigue abajo en TikTok (saturno 883, marte 442; 20.5 y 18.1 s), aunque en YouTube saturno subió a 974.
+
 ## Corte del 21 nov 2026 (9:50)
 Fuentes: Buffer por publicación (TikTok actualizado al 21 nov 08:46 CDMX; YouTube al 20 nov 16:24) y Metricool para Facebook (FBRE). En YouTube, todos-mano y luna-todos siguen sin publicarse (reprogramados al 22 y 23 nov) y ciudad-todos se movió al 23 nov por el límite diario. Ciudad-todos y luz-todos son de 1 día o menos.
 
