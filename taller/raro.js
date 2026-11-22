@@ -598,6 +598,20 @@ const DISFRACES = {
       ctx.lineCap='round'; ctx.lineWidth=18; for(let y=-150;y<120;y+=36){ ctx.strokeStyle=((y/36)|0)%2?'#2E5BBA':'#F2C14E'; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(0,y+36); ctx.stroke(); }
       ctx.strokeStyle='#F2C14E'; ctx.beginPath(); ctx.arc(-36,-150,36,0,Math.PI,true); ctx.stroke(); ctx.restore(); }
   },
+  director: { // director de orquesta: frac negro con colas, camisa blanca, moño rojo y melena alborotada; o.batuta=true pone la batuta en la mano derecha
+    atras(o){ const w=o.wob||0; ctx.fillStyle='#2A2440'; for(const s of [-1,1]){ ctx.save(); ctx.translate(s*70,-60); ctx.rotate(s*(0.12+Math.sin(o.t*6+s)*0.08+w*0.2));
+      ctx.beginPath(); ctx.moveTo(-50,0); ctx.lineTo(50,0); ctx.lineTo(s*40+24,46); ctx.lineTo(s*40-30,40); ctx.closePath(); ctx.fill(); ctx.restore(); } },
+    cuerpo(o){ ctx.fillStyle='#2A2440'; ctx.fillRect(-200,-210,400,190);
+      ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-62,-212); ctx.lineTo(62,-212); ctx.lineTo(26,-30); ctx.lineTo(-26,-30); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#3B3458'; ctx.beginPath(); ctx.moveTo(-62,-212); ctx.lineTo(-30,-110); ctx.lineTo(-96,-150); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(62,-212); ctx.lineTo(30,-110); ctx.lineTo(96,-150); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#1E1A2E'; for(const y of [-150,-110,-70]){ ctx.beginPath(); ctx.arc(0,y,6,0,Math.PI*2); ctx.fill(); } },
+    cabeza(o){ const w=o.wob||0; ctx.fillStyle='#8A8FB0'; for(let i=0;i<9;i++){ const a=Math.PI*(1.05+i/8*0.9); ctx.save(); ctx.translate(Math.cos(a)*138,-292+Math.sin(a)*96); ctx.rotate(a+Math.PI/2+Math.sin(o.t*8+i)*0.12+w*0.4);
+      ctx.beginPath(); ctx.ellipse(0,-20,24,46,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+      ctx.fillStyle='#A6ABC9'; for(let i=0;i<5;i++){ const a=Math.PI*(1.2+i/4*0.6); ctx.beginPath(); ctx.arc(Math.cos(a)*120,-300+Math.sin(a)*88,22,0,Math.PI*2); ctx.fill(); } },
+    frente(o,B){ ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(0,-205); ctx.lineTo(-46,-228); ctx.lineTo(-46,-182); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(0,-205); ctx.lineTo(46,-228); ctx.lineTo(46,-182); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#B82A47'; ctx.beginPath(); ctx.arc(0,-205,13,0,Math.PI*2); ctx.fill();
+      if(o.batuta){ const h=B[1].h; ctx.save(); ctx.translate(h[0],h[1]); ctx.rotate(-0.9+Math.sin(o.t*7)*0.35+(o.wob||0)*0.4); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=9; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-150); ctx.stroke(); ctx.fillStyle='#A8714A'; rr(-10,-12,20,34,8); ctx.fill(); ctx.restore(); } }
+  },
   estudiante: { // universitario de toga y birrete (borla que se balancea); o.diploma=true pone un diploma enrollado en la mano derecha
     cuerpo(o){ ctx.fillStyle='#2B2140'; ctx.fillRect(-200,-205,400,210);
       ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-70,-208); ctx.lineTo(0,-130); ctx.lineTo(70,-208); ctx.closePath(); ctx.fill();

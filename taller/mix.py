@@ -6,6 +6,7 @@ Lee timeline.json, voz_final.wav, scene_XX.mp4 y cues.json:
    "puf": [...], "boing": [...], "click": [...], "chispa": [...], "whoosh": [...],
    "musica": [{"t": 0, "estilo": "jugueton"}, {"w": 40, "estilo": "medieval"}], "corte": [índices de remates]}
 Sonidos de marca (siempre los mismos, ver IDENTIDAD.md): "puf" = cambio de disfraz, "boing" = aterrizaje de Raro.
+"palmada" = una palmada; "aplausos": [{"w": i, "d": segundos, "g": volumen}] = multitud aplaudiendo.
 Estilos de música (sintetizados, sin derechos): jugueton, medieval, espacio, misterio, aventura.
 "corte" silencia la música ~0.7 s en cada remate cómico.
 Escribe <carpeta>/<id>.mp4 (1080x1920, para publicar) y <carpeta>/<id>_720.mp4 (para el estudio).
@@ -110,6 +111,16 @@ def descarga():  # jalón de baño: remolino de agua (ruido filtrado que gira) +
 def grillos():  # grillos para la espera cómica (agregado con jalon-001)
     n = int(1.4 * SR); d = np.arange(n) / SR; env = ((np.sin(2 * np.pi * 3.2 * d) > 0.6).astype(float)) * (0.5 + 0.5 * np.sin(2 * np.pi * 40 * d))
     return np.sin(2 * np.pi * 4300 * d) * np.convolve(env, np.ones(200) / 200, 'same') * 0.6
+def palmada():  # una palmada seca (agregado con aplaudir-todos-001)
+    n = int(.1 * SR); d = np.arange(n) / SR; x = rng.standard_normal(n); x = x - np.convolve(x, np.ones(6) / 6, 'same')
+    return x * np.exp(-d * 55) * np.minimum(1, d / 0.0015) * 1.4
+def aplausos(dur, rate=60):  # multitud aplaudiendo: muchas palmadas al azar (agregado con aplaudir-todos-001)
+    n = int(dur * SR); y = np.zeros(n + int(.1 * SR)); p = palmada()
+    for _ in range(int(dur * rate)):
+        i = int(rng.random() * n); y[i:i+len(p)] += p * (0.3 + 0.7 * rng.random())
+    y = y[:n]; f = min(n, int(0.25 * SR)); y[:f] *= np.linspace(0, 1, f); y[-f:] *= np.linspace(1, 0, f); return y / max(1e-6, np.abs(y).max())
+for c in cues.get('palmada', []): place(palmada(), when(c), 0.5)
+for c in cues.get('aplausos', []): place(aplausos(c.get('d', 2.0), c.get('rate', 60)), when(c) if 't' in c else W[c['w']]['s'], c.get('g', 0.22))
 for c in cues.get('descarga', []): place(descarga(), when(c), 0.28)
 for c in cues.get('grillos', []): place(grillos(), when(c), 0.12)
 for c in cues.get('splash', []): place(splash(), when(c), 0.3)
