@@ -4,6 +4,54 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 24 nov 2026 (9:45)
+Fuentes: Buffer por publicación (TikTok actualizado al 24 nov 05:49 CDMX; YouTube al 23 nov 19:04) y Metricool para Facebook (FBRE). No hubo corte el 23 nov. Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (YouTube de avion, todos-mano, venus y agua aún no se publica o no trae dato; ciudad-todos salió en YT el 23 nov 19:00 y marca 0 porque el dato se tomó minutos después; Facebook de agua y avion aún sin vistas).
+
+| Video | Formato | Publicado TK (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | quepasaria | 12 nov 16:00 | 3,970 | 20.01 | 168 | 2,687 | 1006 | 12 |
+| bascula-001 | todos | 17 nov 12:00 | 3,839 | 27.9 | 94 | 1,465 | 342 | 7 |
+| estacion-001 | quepasaria | 16 nov 18:00 | 3,739 | 20.97 | 97 | 1,249 | 0 | 0 |
+| gritar-001-v2 | todos (Parte 6) | 15 nov 09:00 | 3,527 | 28.72 | 85 | 2,626 | 1723 | 19 |
+| laser-001-v2 | quepasaria | 15 nov 13:00 | 3,440 | 23.75 | 89 | 1,525 | 595 | 17 |
+| mexico-001-v2 | todos | 14 nov 20:00 | 3,311 | 20.93 | 132 | 1,996 | 324 | 10 |
+| soplar-001-v2 | todos (Parte 8) | 15 nov 19:00 | 3,215 | 22.99 | 74 | 1,139 | 283 | 9 |
+| jalon-001-v2 | todos | 14 nov 17:00 | 3,205 | 21.85 | 88 | 1,337 | 709 | 18 |
+| apolo-001-v2 | dato | 13 nov 12:00 | 2,977 | 23.03 | 93 | 1,607 | 380 | 9 |
+| torre-001 | quepasaria | 12 nov 12:00 | 2,856 | 23.77 | 95 | 2,020 | 382 | 12 |
+| hielo-001-v2 | quepasaria | 13 nov 10:00 | 2,789 | 22.19 | 73 | 2,118 | 4505 | 11 |
+| playa-todos-001-v2 | todos | 22 nov 11:00 | 2,771 | 29.3 | 73 | 1,388 | 256 | 17 |
+| mar-001-v2 | todos | 14 nov 11:00 | 2,601 | 22.21 | 94 | 1,644 | 237 | 5 |
+| luna-todos-001 | todos | 19 nov 15:00 | 2,593 | 28.37 | 71 | 1,630 | 250 | 11 |
+| peso-001 | todos | 18 nov 12:00 | 1,949 | 25.64 | 55 | 1,064 | 1171 | 20 |
+| avion-todos-001-v2 | todos | 23 nov 12:00 | 1,354 | 26.07 | 53 | sin dato | 0 | 0 |
+| taco-todos-001 | todos | 21 nov 14:00 | 1,107 | 25.78 | 57 | 1,558 | 258 | 14 |
+| aguacate-001 | dato | 21 nov 11:00 | 970 | 28.83 | 27 | 2,287 | 276 | 16 |
+| saturno-001 | planetas | 19 nov 19:00 | 890 | 20.4 | 28 | 1,017 | 251 | 4 |
+| colibri-001-v2 | quepasaria | 13 nov 18:00 | 819 | 16.95 | 18 | 1,022 | 256 | 5 |
+| rayo-001 | dato | 18 nov 15:00 | 794 | 25.78 | 26 | 1,181 | 235 | 4 |
+| luz-todos-001-v2 | todos | 20 nov 12:00 | 760 | 25.12 | 29 | 1,308 | 613 | 15 |
+| jupiter-001 | quepasaria | 17 nov 15:00 | 709 | 24.12 | 29 | 1,338 | 285 | 5 |
+| atacama-001-v2 | quepasaria | 16 nov 20:30 | 601 | 18.93 | 15 | 977 | 248 | 6 |
+| tardigrado-001-v2 | dato | 16 nov 12:00 | 556 | 14.49 | 13 | 1,035 | 258 | 5 |
+| cerdo-001-v2 | historia | 17 nov 19:00 | 550 | 13.28 | 18 | 1,030 | 567 | 3 |
+| todos-mano-001-v2 | todos | 19 nov 12:00 | 549 | 26.3 | 17 | sin dato | 253 | 9 |
+| chicxulub-001 | dato | 11 nov 20:00 | 497 | 22.02 | 20 | 3,241 | 299 | 12 |
+| ciudad-todos-001-v2 | todos | 20 nov 15:00 | 483 | 18.89 | 15 | 0 | 232 | 7 |
+| marte-001-v2 | planetas | 18 nov 19:00 | 445 | 18.16 | 22 | 939 | 239 | 3 |
+| agua-todos-001-v2 | todos | 23 nov 19:00 | 440 | 23.68 | 16 | sin dato | sin dato | sin dato |
+| venus-002-v2 | planetas | 22 nov 18:00 | 404 | 14.26 | 18 | sin dato | 274 | 6 |
+| emus-001 | historia | 11 nov 18:40 | 216 | 12.87 | 11 | 1,224 | 229 | 6 |
+| hoyonegro-001 | quepasaria | 11 nov 10:07 | 168 | 18.6 | 9 | sin dato | sin dato | sin dato |
+| nutrias-001 | dato | 12 nov 10:00 | 142 | 31.2 | 3 | 1,684 | 5 | 17 |
+
+Lectura rápida (solo números):
+- playa-todos (22 nov) es el mejor arranque reciente: 2,771 vistas en TikTok en ≈2 días con 29.3 s promedio (el más alto de la cuenta entre videos con más de 1,000 vistas) y 1,388 en YouTube en ≈1.5 días.
+- luna-todos subió en YouTube a 1,630 vistas en su primer día (publicado en YT el 23 nov) y sigue con 28.4 s en TikTok.
+- aguacate (dato) llegó a 2,287 vistas en YouTube (antes 1,175) y mantiene 28.8 s en TikTok.
+- avion-todos arranca con 1,354 vistas en TikTok en <1 día (26.1 s), arriba de taco-todos a la misma edad.
+- venus-002 (serie planetas) es el más flojo reciente en TikTok: 404 vistas y 14.3 s promedio; la serie de planetas sigue abajo en TikTok (saturno 890, marte 445).
+
 ## Corte del 22 nov 2026 (9:50)
 Fuentes: Buffer por publicación (TikTok actualizado al 22 nov 07:47 CDMX; YouTube al 21 nov 16:17) y Metricool para Facebook (FBRE). taco-todos tiene ≈18 h en TikTok; su YouTube (21 nov 18:00) y su Facebook todavía no traen dato. aguacate tiene ≈1 día.
 
