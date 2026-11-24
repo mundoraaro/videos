@@ -319,9 +319,9 @@ function S16(t,sc){ const p=pufCambio(t,sc.start+0.03); cascada(t,at(114),8,(x,y
 function S17(t,sc){ const u=easeOut(prog(t,at(122),1.4)); estrellaW(-40,760,170,t);
   for(let i=0;i<4;i++){ const v=((t*1.5+i/4)%1); ctx.save(); ctx.globalAlpha=(1-v)*0.8; ctx.strokeStyle='#FFE45C'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(-40,760,200+v*420,-0.5,0.7); ctx.stroke(); ctx.restore(); }
   const kj=popIn(t,at(126)); jupiterP(250,1060,105,t,kj); if(kj>0.5) etiqueta('JÚPITER',250,1210,44);
-  const r=lerp(105,200,u)+Math.sin(t*9)*3*u; planetaW(730,960,r,t,{ang:Math.PI}); etiqueta('WASP-76b',730,960+r+44,44,'#FFB13D');
+  const r=lerp(105,200,u)+Math.sin(t*9)*3*u; planetaW(730,960,r,t,{ang:Math.PI});
   if(t>=at(122)) chispas(t,at(122),730,960-r,0.9,'#FFE45C');
-  const pump=Math.abs(Math.sin((t-sc.start)*7)); bomba(520,SUELO,0.75,t,(t-sc.start)*7); ctx.strokeStyle='#3B3557'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(545,SUELO-60); ctx.quadraticCurveTo(650,SUELO-20,700,960+r); ctx.stroke();
+  const pump=Math.abs(Math.sin((t-sc.start)*7)); bomba(520,SUELO,0.75,t,(t-sc.start)*7); ctx.strokeStyle='#3B3557'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(545,SUELO-60); ctx.quadraticCurveTo(650,SUELO-20,700,960+r); ctx.stroke(); etiqueta('WASP-76b',800,960+r+44,44,'#FFB13D');
   raro({x:380,y:SUELO+20,s:0.52,t,disfraz:'playero',sinLentes:true,sinFlotador:true,expr:t<at(126)?'risa':'asombro',ojos:t>=at(126)?1.7:1,manos:{i:[200,-300-pump*90],d:[230,-300-pump*90]},sq:pump*0.12});
   L(t<at(123)?'¡EL CALOR LO INFLA!':'CASI EL DOBLE DE ANCHO',540,430,popIn(t,t<at(123)?at(118):at(123)),t<at(123)?'madera':'panel',{tam:86,t,t0:t<at(123)?at(118):at(123)}); }
 // S18 "pero pesa menos. Inflado como bolillo.": balanza: baja Júpiter; un bolillo inflado cae en el plato; Raro brinca de risa y señala.
