@@ -1,0 +1,356 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// dormir-todos-001 — ¿Qué pasaría si TODOS nos durmiéramos al mismo tiempo? (Parte 21)
+// Disfraces: piloto (gancho, cabina) → piyama (cama, ciudad, espacio, cine, sueños) → piloto (loop).
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras (v2: nunca una palabra vacía sola en pantalla) ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      // no cerrar un bloque con una palabra corta sin puntuación: pasa al siguiente
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  // un bloque de una sola palabra corta se une con el siguiente (o con el anterior)
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(/[.?!…]$/.test(W[CH[c][0]].t) && c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; }
+    else if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+// Igual que captions() del motor, pero las 2 primeras palabras de cada bloque aparecen juntas.
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) ci=0; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=(ci===0&&n<2&&t<0.4)?1:(t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16)));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda')?320:215, izq=215;
+  const ex=(o.disfraz==='tardigrado'&&!(o.bolita>0.5))?255:0; let x0=-Math.max(izq,ex)*s, x1=Math.max(der,ex)*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-470*s],[o.x+x1,o.y-alto-470*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería ----------
+let CUR=1;
+// Letrero en coordenadas de PANTALLA, compensando el zoom de la toma (soplar-001-v2).
+function L(txt,x,y,k,tipo='madera',opts={}){ let tam=opts.tam||72; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=700;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } x=clamp(x,170+w/2,910-w/2); y=clamp(y,390,520);
+  letrero(txt,x,y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',x-w/2,y-tam*0.85,x+w/2,y+tam*0.85); ctx.restore(); }
+function calendario(x,y,s,k,t,t0,hasta,d,txt='DÍAS'){ ocupa(x-120*s,y-170*s,x+120*s,y+140*s,1.5); if(k<=0) return; chk('obj',x-120*s,y-160*s,x+120*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-120,-140,240,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-120,-140,240,70,22); ctx.fill(); ctx.fillRect(-120,-100,240,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-110,-60,220,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,t0,d,0,hasta),0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore(); }
+function tierra(x,y,r,t,sinGlow){ if(r<200) ocupa(x-r*1.2,y-r*1.2,x+r*1.2,y+r*1.2,0.8); ctx.save(); if(!sinGlow){ const g=ctx.createRadialGradient(x,y,r*0.9,x,y,r*1.25); g.addColorStop(0,'rgba(127,216,255,0.8)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(x,y,r*1.25); }
+  ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.clip();
+  const sp=t*0.05*r; ctx.fillStyle='#5CD67A'; for(let i=0;i<7;i++){ const xx=x-r+(((rand(i)*2.4*r+sp)%(2.4*r))) - 0.2*r, yy=y-r*0.8+rand(i+7)*r*1.6; blob(xx,yy,r*(0.18+rand(i+3)*0.2)); blob(xx+r*0.15,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.85)'; for(let i=0;i<6;i++){ const xx=x-r+(((rand(i+20)*2.4*r+sp*1.6)%(2.4*r)))-0.2*r, yy=y-r*0.9+rand(i+27)*r*1.8; ctx.beginPath(); ctx.ellipse(xx,yy,r*0.22,r*0.05,0,0,PI2); ctx.fill(); }
+  ctx.fillStyle='rgba(30,26,80,0.25)'; ctx.beginPath(); ctx.arc(x+r*0.35,y+r*0.2,r*1.05,0,PI2); ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x-r*0.45,y-r*0.5,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+function basculaPesaje(x,y,s,t,v){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#5B4B8A'; rr(-230,-40,460,50,22); ctx.fill(); ctx.fillStyle='#8D7BCF'; rr(-210,-60,420,30,14); ctx.fill();
+  ctx.fillStyle='#5B4B8A'; rr(170,-560,40,520,16); ctx.fill(); ctx.translate(190,-640); ctx.fillStyle='#FFFFFF'; blob(0,0,120); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,120,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<11;i++){ ctx.save(); ctx.rotate(-2.3+i*0.46); rr(-4,-104,8,22,4); ctx.fill(); ctx.restore(); } ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.arc(0,-104,0,0,1); ctx.save(); ctx.rotate(-2.3+4.6*clamp(v)+(v>=1?Math.sin(t*40)*0.06:0)); ctx.fillRect(-5,-96,10,100); ctx.restore(); blob(0,0,16); ctx.restore(); chk('obj',x-230*s,y-760*s,x+310*s,y+10*s); ocupa(x+70*s,y-760*s,x+310*s,y-520*s,1.2); }
+function flecha(x,y,ang,k,c='#D7FF3D'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(k,k); ctx.fillStyle=c; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(90,0); ctx.lineTo(20,-60); ctx.lineTo(20,-22); ctx.lineTo(-80,-22); ctx.lineTo(-80,22); ctx.lineTo(20,22); ctx.lineTo(20,60); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+function confeti(t,t0,n=26){ if(t<t0) return; for(let i=0;i<n;i++){ const u=(t-t0)*0.9+rand(i)*0.3; const x=80+rand(i+3)*920+Math.sin(t*3+i)*30, y=-40+u*900%1700; ctx.save(); ctx.translate(x,y); ctx.rotate(t*6+i); ctx.fillStyle=['#D7FF3D','#FF5FA2','#4CC9F0','#FFD23F'][i%4]; ctx.fillRect(-10,-6,20,12); ctx.restore(); } }
+function sudor(x,y,s,t,n=3){ for(let i=0;i<n;i++){ const a=-2.5+i*0.6; ctx.fillStyle='#7FD8FF'; const xx=x+Math.cos(a)*170*s, yy=y-290*s+Math.sin(a)*150*s+((t*2+i*0.3)%1)*30; ctx.beginPath(); ctx.moveTo(xx,yy-14*s*2); ctx.quadraticCurveTo(xx+10*s*2,yy,xx,yy+6*s*2); ctx.quadraticCurveTo(xx-10*s*2,yy,xx,yy-14*s*2); ctx.fill(); } }
+const dur=sc=>sc.end-sc.start;
+// v2: letrero de dos renglones, sin giro ni rebote, dentro de x 150–930; empuja el caption ≥60 px abajo.
+function L2(l1,l2,k,tam1,tam2,col2,y1=360,y2=525){ if(k<=0) return; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ocupa(150,290,930,720,3);
+  letrero(l1,540,y1,k,'panel',{tam:tam1,sinPalo:true}); if(l2) letrero(l2,540,y2,k,'panel',{tam:tam2,sinPalo:true,color:col2}); chk('letrero',170,y1-tam1*0.85,910,(l2?y2+tam2*0.85:y1+tam1*0.85)); ctx.restore(); }
+const kIn=(t,t0,d=0.22)=>t<t0?0:easeOut(prog(t,t0,d));
+function reloj(x,y,s,t){ ocupa(x-120*s,y-120*s,x+120*s,y+120*s,1.5); ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; blob(0,0,110); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,110,0,PI2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,18,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(Math.floor(t*3)*Math.PI/30*5); ctx.fillStyle='#E23D5B'; rr(-4,-90,8,96,4); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(t*0.6); ctx.fillStyle='#1E1A2E'; rr(-7,-60,14,66,7); ctx.fill(); ctx.restore(); blob(0,0,12); ctx.restore(); chk('obj',x-120*s,y-120*s,x+120*s,y+120*s); }
+function mini(x,y,s,col,t,i){ const b=Math.abs(Math.sin(t*5+i*1.3))*4*s; ctx.fillStyle=col; ctx.beginPath(); ctx.ellipse(x,y-b,16*s,20*s,0,0,PI2); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x-5*s,y-b-10*s,5*s,3*s,-0.5,0,PI2); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; blob(x-5*s,y-b-4*s,2.6*s); blob(x+5*s,y-b-4*s,2.6*s); }
+// reloj de pared con hora fija
+function relojHora(x,y,s,h,m,t,noche=false){ ocupa(x-125*s,y-125*s,x+125*s,y+125*s,1.5); ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.rotate(Math.sin(t*3)*0.04);
+  ctx.fillStyle=noche?'#2E2A44':'#FFFFFF'; blob(0,0,112); ctx.strokeStyle='#FF5FA2'; ctx.lineWidth=18; ctx.beginPath(); ctx.arc(0,0,112,0,PI2); ctx.stroke();
+  ctx.fillStyle=noche?'#FFFFFF':'#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,i%3?14:24,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate((h%12+m/60)*Math.PI/6); rr(-8,-58,16,64,8); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(m*Math.PI/30); rr(-5,-86,10,92,5); ctx.fill(); ctx.restore();
+  ctx.fillStyle='#FF5FA2'; blob(0,0,13); ctx.restore(); chk('obj',x-125*s,y-125*s,x+125*s,y+125*s); }
+function sol(x,y,r,t){ ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.4); ctx.fillStyle='rgba(255,210,63,0.5)'; for(let i=0;i<12;i++){ ctx.rotate(Math.PI/6); ctx.beginPath(); ctx.moveTo(-18,-r-10); ctx.lineTo(0,-r-60); ctx.lineTo(18,-r-10); ctx.fill(); } ctx.restore(); ctx.fillStyle='#FFD23F'; blob(x,y,r); ctx.fillStyle='#FFE88A'; blob(x-r*0.3,y-r*0.3,r*0.35); }
+function luna(x,y,r){ ctx.fillStyle='rgba(255,246,200,0.25)'; blob(x,y,r*1.4); ctx.fillStyle='#FFF4C2'; blob(x,y,r); ctx.fillStyle='#EADFA8'; blob(x+r*0.3,y-r*0.2,r*0.22); blob(x-r*0.35,y+r*0.3,r*0.16); }
+function estrellasCielo(t,n=30,y1=1000){ for(let i=0;i<n;i++){ const x=rand(i+300)*1080, y=200+rand(i+330)*(y1-200), a=0.4+0.6*Math.abs(Math.sin(t*2+i)); ctx.fillStyle=`rgba(255,255,255,${a})`; blob(x,y,3+rand(i+360)*4); } }
+function edificios(t,y,col1,col2,ventCol,seed=0){ for(let i=0;i<8;i++){ const w=110+rand(i+seed)*80, x=-40+i*150, h=220+rand(i+seed+20)*380; ctx.fillStyle=i%2?col1:col2; rr(x,y-h,w,h+200,14); ctx.fill();
+  ctx.fillStyle=ventCol; for(let r=0;r<Math.floor(h/70);r++) for(let c=0;c<2;c++){ if(rand(i*31+r*7+c+seed)>0.45) rr(x+18+c*(w/2-6),y-h+24+r*70,w/2-36,34,6), ctx.fill(); } } }
+function zzz(x,y,t,s=1){ for(let k=0;k<3;k++){ const u=((t*0.7+k/3)%1); ctx.save(); ctx.globalAlpha=1-u; ctx.fillStyle='#FFFFFF'; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8*s; ctx.font=fuente((40+k*14)*s); ctx.textAlign='center'; ctx.textBaseline='middle'; const xx=x+u*60*s+k*20*s, yy=y-u*160*s; ctx.strokeText('Z',xx,yy); ctx.fillText('Z',xx,yy); ctx.restore(); } }
+function cama(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#8A5A3A'; rr(-260,-200,40,230,14); ctx.fill(); rr(220,-130,40,160,14); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-230,-90,460,70,24); ctx.fill(); ctx.restore(); }
+function cobija(x,y,s,col='#FF8FB8'){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle=col; rr(-240,-150,480,130,50); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.35)'; for(let i=0;i<5;i++) blob(-180+i*90,-90,14); ctx.restore(); }
+// ====================== utilería de dormir ======================
+const PIL='piloto', PIY='piyama';
+const ronca=(t,r=1.7)=>Math.abs(Math.sin(t*r));              // ciclo de ronquido (0..1)
+// burbuja de moco del dormilón (clásica de caricatura), sale junto a la boca
+function burbuja(x,y,s,t,r=1.7){ const u=ronca(t,r), rad=(8+34*u)*s; ctx.save(); ctx.globalAlpha=0.85; ctx.fillStyle='rgba(190,235,255,0.75)'; ctx.beginPath(); ctx.arc(x+rad*0.8,y,rad,0,PI2); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.lineWidth=4*s; ctx.stroke(); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.ellipse(x+rad*0.5,y-rad*0.45,rad*0.28,rad*0.14,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+// burbuja en la cara de Raro (coordenadas de raro x,y,s)
+const moco=(x,y,s,t,esp=false)=>burbuja(x+(esp?-1:1)*30*s,y-226*s,s,t);
+// avión de pasajeros visto de lado, mirando a la derecha
+function avion(x,y,s,ang,col='#FFFFFF',franja='#FF5FA2',t=0){ ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(s,s);
+  ctx.fillStyle=mix(col,'#5B4B8A',0.25); ctx.beginPath(); ctx.moveTo(-40,10); ctx.lineTo(-150,120); ctx.lineTo(-90,120); ctx.lineTo(60,20); ctx.closePath(); ctx.fill(); // ala de atrás
+  ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(-250,-20); ctx.lineTo(-300,-130); ctx.lineTo(-240,-130); ctx.lineTo(-170,-30); ctx.closePath(); ctx.fill(); // cola
+  rr(-280,-48,500,96,48); ctx.fill(); ctx.beginPath(); ctx.ellipse(220,0,70,48,0,-Math.PI/2,Math.PI/2); ctx.fill();
+  ctx.fillStyle=franja; rr(-270,6,520,14,7); ctx.fill(); ctx.fillStyle='#4B6BFB'; ctx.beginPath(); ctx.ellipse(232,-14,30,16,0.2,0,PI2); ctx.fill();
+  ctx.fillStyle='#7FD8FF'; for(let i=0;i<8;i++){ blob(-190+i*48,-14,10); }
+  ctx.fillStyle=mix(col,'#5B4B8A',0.12); ctx.beginPath(); ctx.moveTo(-30,14); ctx.lineTo(-120,150); ctx.lineTo(-50,150); ctx.lineTo(80,22); ctx.closePath(); ctx.fill(); // ala de enfrente
+  ctx.fillStyle='#9AA3B5'; rr(-70,70,70,30,14); ctx.fill(); ctx.restore(); }
+// cabina de avión: parabrisas con cielo y nubes que pasan, tablero con luces y pantallas
+function cabina(t,inc=0,alarma=false,cielo='#7FD8FF'){ ctx.save(); ctx.translate(540,700); ctx.rotate(inc); ctx.translate(-540,-700);
+  const g=ctx.createLinearGradient(0,150,0,1300); g.addColorStop(0,mix(cielo,'#2B4BCB',0.55)); g.addColorStop(1,mix(cielo,'#3B8BFF',0.25)); ctx.fillStyle=g; ctx.fillRect(-400,-200,1880,1700);
+  for(let i=0;i<16;i++){ const sp=1100+rand(i)*700, x=1500-((t*sp+rand(i+3)*2200)%2200), y=280+rand(i+9)*820, r=70+rand(i+5)*90; ctx.fillStyle='rgba(255,255,255,0.92)'; blob(x,y,r); blob(x+r*0.9,y+r*0.2,r*0.7); blob(x-r*0.9,y+r*0.25,r*0.6); }
+  ctx.restore();
+  // marco del parabrisas (todo lo que no es vidrio)
+  ctx.save(); ctx.fillStyle='#3B3557'; ctx.beginPath(); ctx.rect(-400,-400,1880,2700);
+  ctx.moveTo(150,300); ctx.lineTo(500,250); ctx.lineTo(500,1060); ctx.lineTo(120,1060); ctx.closePath();
+  ctx.moveTo(580,250); ctx.lineTo(930,300); ctx.lineTo(960,1060); ctx.lineTo(580,1060); ctx.closePath(); ctx.fill('evenodd');
+  ctx.strokeStyle='#5B5480'; ctx.lineWidth=14; ctx.stroke(); ctx.restore();
+  if(alarma){ const on=Math.sin(t*16)>0; ctx.fillStyle=on?'#FF4D5E':'#7A2030'; blob(540,190,40); if(on){ ctx.fillStyle='rgba(255,77,94,0.28)'; blob(540,190,90); } }
+  // tablero
+  ctx.fillStyle='#2A2540'; rr(-300,1330,1680,900,40); ctx.fill(); ctx.fillStyle='#4B4570'; rr(-300,1330,1680,34,16); ctx.fill();
+  for(const [x,w] of [[150,200],[730,200]]){ ctx.fillStyle='#14102A'; rr(x,1395,w,105,14); ctx.fill(); ctx.strokeStyle='#5CD67A'; ctx.lineWidth=5; ctx.beginPath(); for(let k=0;k<=20;k++){ const xx=x+10+k*(w-20)/20, yy=1450+Math.sin(k*0.8+t*4+x)*22; k?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); } ctx.stroke(); }
+  for(let i=0;i<10;i++){ const on=rand(i+Math.floor(t*3)*13)>0.4; ctx.fillStyle=on?['#D7FF3D','#FF5FA2','#4CC9F0','#FFD23F'][i%4]:'#4B4570'; blob(400+i*30,1420+(i%2)*40,9); } }
+// asiento de piloto (va detrás de Raro)
+function asiento(x,y,s){ ctx.fillStyle='#5B4B8A'; rr(x-175*s,y-430*s,350*s,520*s,70*s); ctx.fill(); ctx.fillStyle='#7A68B0'; rr(x-150*s,y-405*s,300*s,120*s,50*s); ctx.fill(); }
+// volante (yoke) de avión, gira solo
+function volante(x,y,s,ang){ ctx.save(); ctx.translate(x,y); ctx.fillStyle='#1E1A2E'; rr(-14*s,0,28*s,200*s,10*s); ctx.fill(); ctx.rotate(ang); ctx.scale(s,s);
+  ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-110,-40); ctx.lineTo(-110,10); ctx.quadraticCurveTo(-110,40,-70,40); ctx.lineTo(70,40); ctx.quadraticCurveTo(110,40,110,10); ctx.lineTo(110,-40); ctx.stroke();
+  ctx.fillStyle='#FF5FA2'; blob(0,40,18); ctx.restore(); chk('obj',x-130*s,y-60*s,x+130*s,y+60*s); }
+// botón grande de PILOTO AUTOMÁTICO en el tablero
+function botonAuto(x,y,s,k,t,t0){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); const on=t>=t0, hund=on&&t<t0+0.18?8:0;
+  ctx.fillStyle='#14102A'; rr(-190,-70,380,140,40); ctx.fill(); ctx.fillStyle=on?'#D7FF3D':'#5B5480'; if(on){ ctx.shadowColor='#D7FF3D'; ctx.shadowBlur=40; } rr(-170,-52+hund,340,104,34); ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(44); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('AUTO',0,2+hund); ctx.restore(); chk('obj',x-190*s,y-70*s,x+190*s,y+70*s); }
+// ondas de ronquido que salen hacia un lado
+function ronquido(x,y,t,s=1,dir=1){ ctx.save(); ctx.lineCap='round'; for(let k=0;k<3;k++){ const u=(t*1.4+k/3)%1; ctx.globalAlpha=1-u; ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=10*s; ctx.beginPath(); ctx.arc(x,y,(40+u*170)*s,dir>0?-0.6:Math.PI-0.6,dir>0?0.6:Math.PI+0.6); ctx.stroke(); } ctx.restore(); }
+// despertador de campanas
+function despertador(x,y,s,t,suena=false){ ocupa(x-130*s,y-150*s,x+130*s,y+140*s,1.5); ctx.save(); ctx.translate(x+(suena?Math.sin(t*60)*5:0),y); ctx.rotate(suena?Math.sin(t*45)*0.12:0); ctx.scale(s,s);
+  ctx.fillStyle='#FF4D5E'; for(const sx of [-1,1]){ ctx.beginPath(); ctx.arc(sx*70,-100,42,Math.PI,0); ctx.fill(); }
+  ctx.fillStyle='#1E1A2E'; for(const sx of [-1,1]) rr(sx*70-8,90,16,40,6), ctx.fill();
+  ctx.fillStyle='#FF4D5E'; blob(0,0,118); ctx.fillStyle='#FFFFFF'; blob(0,0,92); ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-82,8,14,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(Math.PI/6*7); rr(-6,-52,12,56,6); ctx.fill(); ctx.restore(); rr(-4,-74,8,76,4); ctx.fill(); blob(0,0,10); ctx.restore();
+  if(suena){ ctx.save(); ctx.strokeStyle='#FFD23F'; ctx.lineWidth=9; ctx.lineCap='round'; for(const sx of [-1,1]) for(let k=0;k<3;k++){ const a=sx>0?-0.5+k*0.5:Math.PI+0.5-k*0.5; ctx.beginPath(); ctx.moveTo(x+Math.cos(a)*150*s,y-60*s+Math.sin(a)*150*s); ctx.lineTo(x+Math.cos(a)*200*s,y-60*s+Math.sin(a)*200*s); ctx.stroke(); } ctx.restore(); }
+  chk('obj',x-130*s,y-150*s,x+130*s,y+140*s); }
+// coche con claxon tachado
+function coche(x,y,s,col){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle=col; rr(-170,-110,340,90,36); ctx.fill(); rr(-100,-180,200,90,40); ctx.fill(); ctx.fillStyle='#BFE9FF'; rr(-80,-165,70,62,16); ctx.fill(); rr(10,-165,70,62,16); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; blob(-100,-18,36); blob(100,-18,36); ctx.fillStyle='#9AA3B5'; blob(-100,-18,14); blob(100,-18,14); ctx.fillStyle='#FFE88A'; blob(158,-80,12); ctx.restore(); chk('obj',x-170*s,y-180*s,x+170*s,y+18*s); }
+function tache(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#FFFFFF'; blob(0,0,62); ctx.strokeStyle='#FF4D5E'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(0,0,58,0,PI2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-40,40); ctx.lineTo(40,-40); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.moveTo(-26,-14); ctx.lineTo(-6,-14); ctx.lineTo(16,-32); ctx.lineTo(16,32); ctx.lineTo(-6,14); ctx.lineTo(-26,14); ctx.closePath(); ctx.fill(); ctx.restore(); }
+// camioncito del gas con el chofer dormido
+function camionGas(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; rr(-260,-200,300,170,30); ctx.fill(); ctx.fillStyle='#FF8A3D'; rr(-250,-190,280,150,70); ctx.fill();
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(70); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('GAS',-110,-112);
+  ctx.fillStyle='#4CC9F0'; rr(40,-230,170,200,36); ctx.fill(); ctx.fillStyle='#BFE9FF'; rr(70,-205,110,80,18); ctx.fill();
+  ctx.fillStyle='#FFE3A3'; blob(122,-150,30); ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=5; ctx.lineCap='round'; for(const sx of [-1,1]){ ctx.beginPath(); ctx.arc(122+sx*11,-154,6,0.1*Math.PI,0.9*Math.PI); ctx.stroke(); }
+  ctx.fillStyle='#1E1A2E'; blob(-170,-24,40); blob(130,-24,40); ctx.fillStyle='#9AA3B5'; blob(-170,-24,16); blob(130,-24,16); ctx.restore(); chk('obj',x-260*s,y-230*s,x+210*s,y+16*s); }
+// ventana de recámara de noche
+function ventanaNoche(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; rr(-150,-170,300,340,30); ctx.fill(); ctx.fillStyle='#2E2A6B'; rr(-130,-150,260,300,20); ctx.fill();
+  ctx.fillStyle='#FFF4C2'; blob(50,-70,40); ctx.fillStyle='#2E2A6B'; blob(70,-84,34); for(let i=0;i<6;i++){ ctx.fillStyle=`rgba(255,255,255,${0.5+0.5*Math.abs(Math.sin(t*2+i))})`; blob(-100+rand(i+40)*200,-130+rand(i+50)*260,4); }
+  ctx.fillStyle='#FFFFFF'; ctx.fillRect(-6,-150,12,300); ctx.fillRect(-130,-6,260,12); ctx.restore(); }
+// nube de sueño con colitas hacia (cx,cy)
+function nubeSueno(x,y,r,k,cx,cy){ if(k<=0) return; ctx.save(); ctx.fillStyle='#FFFFFF'; ctx.globalAlpha=Math.min(1,k);
+  for(let i=1;i<=3;i++){ const u=i/4; blob(lerp(cx,x,u),lerp(cy,y+r*0.6,u),(6+i*6)*k*r/120); }
+  ctx.translate(x,y); ctx.scale(k,k); blob(0,0,r); blob(-r*0.8,r*0.15,r*0.65); blob(r*0.8,r*0.15,r*0.65); blob(-r*0.4,-r*0.55,r*0.6); blob(r*0.45,-r*0.5,r*0.6); ctx.restore(); }
+// palomitas de cine
+function palomitas(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFE88A'; for(let i=0;i<7;i++) blob(-40+i*13,-62+Math.sin(i*2)*8,18);
+  ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-50,-60); ctx.lineTo(50,-60); ctx.lineTo(38,40); ctx.lineTo(-38,40); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FF4D5E'; for(const xx of [-30,0,30]){ ctx.beginPath(); ctx.moveTo(xx-8,-60); ctx.lineTo(xx+8,-60); ctx.lineTo(xx*0.8+6,40); ctx.lineTo(xx*0.8-6,40); ctx.closePath(); ctx.fill(); } ctx.restore(); }
+// taco volador del sueño
+function tacoVolador(x,y,s,t){ ctx.save(); ctx.translate(x,y+Math.sin(t*3)*12); ctx.rotate(Math.sin(t*2)*0.06); ctx.scale(s,s);
+  ctx.fillStyle='#5CD67A'; for(let i=0;i<8;i++) blob(-200+i*57,-40+Math.sin(i*1.7)*10,34); ctx.fillStyle='#FF4D5E'; for(let i=0;i<5;i++) blob(-150+i*75,-30,18);
+  ctx.fillStyle='#FFD98A'; ctx.beginPath(); ctx.ellipse(0,-30,250,150,0,0,Math.PI); ctx.fill(); ctx.fillStyle='#E9B65C'; for(let i=0;i<7;i++) blob(-160+i*55,10+rand(i)*60,8);
+  ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=10; ctx.lineCap='round'; for(let k=0;k<3;k++){ ctx.beginPath(); ctx.moveTo(-290-k*40,-20+k*40); ctx.lineTo(-380-k*60,-20+k*40); ctx.stroke(); } ctx.restore(); chk('obj',x-260*s,y-90*s,x+260*s,y+140*s); }
+// pantallita de "función" (para contar las veces de sueño REM)
+function pantalla(x,y,s,k,n,col){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#1E1A2E'; rr(-60,-46,120,92,16); ctx.fill(); ctx.fillStyle=col; rr(-50,-36,100,72,10); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(50); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n,0,3); ctx.restore(); }
+// Raro dormido en su cama (cobija encima); x,y = pies; s = escala de Raro
+function enCama(x,y,s,t,o={}){ cama(x+40*s/0.82,y+40*s/0.82,1.1*s/0.82); raro({x,y,s,t,disfraz:PIY,expr:'dormido',brazos:'idle',tilt:Math.sin(t*1.7)*0.05,...o}); cobija(x+40*s/0.82,y+70*s/0.82,1.1*s/0.82,o.cobija||'#FF8FB8'); }
+// cama que viaja por el espacio con estela
+function camaViaje(x,y,s,t,ang=0){ ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.strokeStyle='rgba(215,255,61,0.7)'; ctx.lineCap='round'; for(let k=0;k<3;k++){ ctx.lineWidth=(14-k*4)*s/0.5; ctx.beginPath(); ctx.moveTo(-220*s/0.5,(-40+k*30)*s/0.5); ctx.lineTo(-420*s/0.5,(-40+k*30)*s/0.5); ctx.stroke(); } ctx.restore();
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang); enCama(0,0,s,t); ctx.restore(); }
+// fila de camitas con gomitas dormidas
+function camitas(t,y0,y1,filas=6,s0=0.6,s1=1.6){ for(let r=0;r<filas;r++){ const u=r/(filas-1), y=y0+Math.pow(u,1.2)*(y1-y0), s=s0+u*(s1-s0), dx=80*s, n=Math.ceil(1300/dx);
+  for(let i=0;i<n;i++){ const x=-60+i*dx+(r%2)*dx/2; ctx.fillStyle='#8A5A3A'; rr(x-32*s,y-26*s,64*s,40*s,10*s); ctx.fill(); ctx.fillStyle=PASTELES[(i+r)%6]; blob(x-10*s,y-30*s,16*s);
+    ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=2.2*s; for(const sx of [-1,1]){ ctx.beginPath(); ctx.arc(x-10*s+sx*5*s,y-31*s,3*s,0.1*Math.PI,0.9*Math.PI); ctx.stroke(); }
+    ctx.fillStyle=['#FF8FB8','#8EC5FF','#FFD23F','#B5F0A0'][(i+r)%4]; rr(x-30*s,y-22*s,60*s,28*s,12*s); ctx.fill(); } } }
+
+// ====================== escenas ======================
+// S1/S25 Gancho (loop): cabina de avión; Raro PILOTO dormido en su asiento con burbuja de moco y ZZZ, el copiloto gomita también ronca;
+// el volante se mueve solo y las nubes pasan volando. Letrero ¡TODOS A / DORMIR! desde el cuadro 0. En "nadie maneja": alarma roja y el avión se ladea.
+function escenaCabina(t,alarmaT){ const al=alarmaT!=null&&t>=alarmaT, inc=al?Math.sin((t-alarmaT)*3)*0.12:Math.sin(t*2.2)*0.07;
+  const pz=(alarmaT!=null&&t>=at(3)&&t<at(7))?1.16:1; const tb=Math.sin(t*2.6)*0.035+Math.sin(t*7.3)*0.008; ctx.save(); ctx.translate(420+Math.sin(t*29)*9,1150+Math.sin(t*23+1)*7); ctx.rotate(tb); ctx.scale(pz,pz); ctx.translate(-420,-1150);
+  cabina(t,inc,al||alarmaT!=null&&t<at(3)); asiento(380,1450,0.95); asiento(745,1450,0.55);
+  const cab=Math.sin(t*1.7)*0.08; raro({x:380,y:1450,s:0.95,t,disfraz:PIL,expr:'dormido',brazos:'idle',tilt:cab,sq:Math.sin(t*3.4)*0.02}); moco(380,1450,0.95,t);
+  gomita({x:745,y:1450,s:0.55,t,color:PASTELES[0],expr:'dormido',seed:3,brazos:'idle',tilt:-Math.sin(t*1.5)*0.1}); zzz(800,1100,t,0.9); zzz(500,1020,t+0.4,1.1);
+  volante(380,1350,0.95,Math.sin(t*(al?6:2))*(al?0.5:0.15)); volante(745,1350,0.55,Math.sin(t*2+1)*0.15); ctx.restore();
+  ctx.save(); for(let i=0;i<4;i++){ const x=1400-((t*1500+i*700)%2300), y=420+i*240; ctx.fillStyle='rgba(255,255,255,0.28)'; blob(x,y,130); blob(x+150,y+30,100); blob(x-140,y+40,90); } ctx.restore();
+  L2('¡TODOS A','DORMIR!',1,104,116,'#D7FF3D',375,545); }
+function S1(t,sc){ escenaCabina(t,at(4)); }
+function S25(t,sc){ const p=pufCambio(t,sc.start+0.02); if(!p.despues){ ctx.fillStyle=PAL_ACTUAL.medio; ctx.fillRect(-300,-300,1680,2500); enCama(470,1440,0.82,t,{spin:p.spin}); nubePuf(t,sc.start+0.08,470,1240,1.2); return; }
+  escenaCabina(t,null); nubePuf(t,sc.start+0.08,380,1250,1.0); }
+// S2 "En los días más ocupados hay más de…": cielo; aviones que cruzan en cascada por todos lados; Raro piloto dormido acostado en una nube.
+function S2(t,sc){ for(let i=0;i<7;i++){ const t0=sc.start+i*0.18, u=t-t0; if(u<0) continue; const dir=i%2?-1:1, y=330+i*120+(i%3)*30, x=dir>0?-300+u*900:1380-u*900; avion(x,y,0.42+0.1*(i%3),dir>0?-0.05:Math.PI+0.05,'#FFFFFF',PASTELES[i%6]); }
+  ctx.fillStyle='#FFFFFF'; blob(540,1400,190); blob(380,1430,130); blob(700,1430,140); blob(540,1330,140);
+  raro(acostadoCfg({x:560,y:1350,s:0.62,t,disfraz:PIL,expr:'dormido',brazos:'idle',derecha:false}));
+  zzz(700,1100,t,1); L('LOS DÍAS MÁS OCUPADOS…',540,430,kIn(t,sc.start+0.03),'madera',{tam:76}); }
+// S3 "20,000 aviones volando al mismo tiempo.": la Tierra con un enjambre de aviones dando vueltas; contador +20,000; Raro piloto despierta del susto.
+function S3(t,sc){ const X=540,Y=1060,R=230; tierra(X,Y,R,t,false); const n=Math.round(lerp(6,60,easeOut(prog(t,at(16),1.2))));
+  for(let i=0;i<n;i++){ const a=rand(i+90)*PI2+t*(0.3+rand(i+70)*0.4), rr_=R+40+rand(i+80)*170, px=X+Math.cos(a)*rr_, py=Y+Math.sin(a)*rr_*0.8; ctx.save(); ctx.translate(px,py); ctx.rotate(a+Math.PI/2); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(0,-16); ctx.lineTo(10,8); ctx.lineTo(0,3); ctx.lineTo(-10,8); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  ocupa(X-R-200,Y-R-200,X+R+200,Y+R+200,0.6);
+  const b=t>=at(16)?susto(t,at(16)):{alto:0,sq:0,wob:0}; raro({x:720,y:1440,s:0.62,t,disfraz:PIL,expr:t>=at(16)?'asombro':'dormido',brazos:t>=at(16)?'arriba':'idle',ojos:t>=at(16)?1.7:1,alto:b.alto,sq:b.sq,wob:b.wob,espejo:true});
+  if(t>=at(16)) L2('+'+contador(t,at(16),1.0,0,20000),'AVIONES A LA VEZ',kIn(t,at(16)),104,70,'#D7FF3D');
+  else L('MÁS DE…',540,430,kIn(t,sc.start+0.03),'madera',{tam:100}); }
+// S4 "¿Quién los lleva? El piloto automático, derechito…": cabina en toma cerrada al tablero; Raro entreabre un ojo (sospecha);
+// botón AUTO se prende solo con click y el volante se mueve solo, derechito.
+function S4(t,sc){ cabina(t,0,false,'#9BE7FF'); asiento(400,1450,0.9);
+  const ab=t>=at(22)&&t<at(25)+0.3; raro({x:400,y:1450,s:0.9,t,disfraz:PIL,expr:ab?'sospecha':'dormido',brazos:'idle',mira:ab?{x:0.6,y:0.3}:null,tilt:ab?0.05:Math.sin(t*1.7)*0.08}); if(!ab) moco(400,1450,0.9,t);
+  volante(400,1350,0.9,Math.sin(t*1.2)*0.05);
+  botonAuto(690,1240,0.8,kIn(t,sc.start),t,at(26)); if(t>=at(26)) chispas(t,at(26),690,1240,0.8,'#D7FF3D');
+  L(t>=at(26)?'PILOTO AUTOMÁTICO':'¿QUIÉN LOS LLEVA?',540,430,kIn(t,t>=at(26)?at(26):sc.start+0.03),t>=at(26)?'panel':'madera',{tam:84,color:t>=at(26)?'#D7FF3D':undefined}); }
+// S5 "con los pilotos roncando.": toma cerrada a Raro piloto roncando con burbuja gigante; ondas de ronquido; cabina tiembla.
+function S5(t,sc){ cabina(t,Math.sin(t*20)*0.006,false,'#FFC9A8'); asiento(520,1450,1.0);
+  raro({x:520,y:1450,s:1.0,t,disfraz:PIL,expr:'dormido',brazos:'idle',tilt:Math.sin(t*1.7)*0.06,sq:Math.sin(t*3.4)*0.03}); burbuja(560,1450-226,1.6,t,2.4); ronquido(700,1180,t,1.1,1); ronquido(340,1180,t+0.3,1.1,-1);
+  L('¡PILOTOS RONCANDO!',540,430,kIn(t,sc.start+0.03),'panel',{tam:88,color:'#D7FF3D'}); }
+// S6 "Más vale que alguien ponga despertador.": puf a piyama; recámara; Raro carga un despertador gigante, lo deja en el buró… y se queda dormido encima.
+function S6(t,sc){ const p=pufCambio(t,sc.start+0.02); const dorm=t>=at(38)+0.2;
+  ctx.fillStyle='#8A5A3A'; rr(580,1260,250,200,20); ctx.fill(); ctx.fillStyle='#A8754A'; rr(565,1240,280,40,16); ctx.fill(); chk('obj',565,1240,845,1460);
+  const dx=dorm?700:lerp(560,700,easeInOut(prog(t,at(36),0.6))), dy=dorm?1150:lerp(1180,1150,easeInOut(prog(t,at(36),0.6)));
+  despertador(dx,dy,0.75,t,false);
+  raro({x:dorm?560:420,y:1440,s:0.78,t,disfraz:p.despues?PIY:PIL,spin:p.spin,expr:dorm?'dormido':'orgullo',manos:dorm?{i:[60,-160],d:[200,-170]}:{i:[150,-240],d:[230,-260]},tilt:dorm?0.18:0,sq:gelatina(t,at(38)+0.2,0.4)});
+  nubePuf(t,sc.start+0.08,420,1240,1.1); if(dorm) zzz(470,1060,t,1);
+  L(dorm?'…Y SE DURMIÓ':'¡PONGAN DESPERTADOR!',540,430,kIn(t,dorm?at(38)+0.2:sc.start+0.03),'madera',{tam:84}); }
+// S7 "Y aquí abajo, silencio total:": ciudad de noche, ventanas apagadas; Raro en piyama camina de puntitas con el dedo en la boca.
+function S7(t,sc){ estrellasCielo(t,26,900); luna(820,650,70); edificios(t,1300,'#4B3F8C','#5B4B9C','#3A3170',3);
+  const x=lerp(300,640,prog(t,sc.start,dur(sc))); raro({x,y:1440,s:0.78,t,disfraz:PIY,expr:'sospecha',piernas:'camina',manos:{i:[-140,-80],d:[20,-232]},tilt:Math.sin(t*6)*0.04,alto:Math.abs(Math.sin(t*6))*14});
+  L(t>=at(42)?'SILENCIO TOTAL':'AQUÍ ABAJO…',540,430,kIn(t,t>=at(42)?at(42):sc.start+0.03),t>=at(42)?'panel':'madera',{tam:96}); }
+// S8 "ni un claxon, ni el señor del gas.": calle de noche; coche con el claxon tachado; camión del gas con el chofer dormido; Raro hace "shhh".
+function S8(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=P.oscuro; ctx.fillRect(-300,-300,1680,2500); estrellasCielo(t,18,800); edificios(t,1180,mix(P.medio,P.oscuro,0.5),mix(P.medio,P.oscuro,0.3),'#3A3170',11);
+  ctx.fillStyle='#3B3557'; ctx.fillRect(-300,1180,1680,900); ctx.fillStyle='#FFE88A'; for(let i=0;i<6;i++) rr(-40+i*220,1300,120,16,8), ctx.fill();
+  const kc=popIn(t,at(46)), kg=popIn(t,at(51));
+  if(t<at(47)){ coche(560,1270,lerp(0.6,0.75,kc),'#FF5FA2'); tache(560,1020,1,kc); }
+  else { camionGas(560,1290,0.9,t); tache(560,980,1,kg); zzz(700,1020,t,0.9); }
+  raro({x:250,y:1440,s:0.6,t,disfraz:PIY,expr:'sospecha',manos:{i:[-120,-90],d:[20,-232]},mira:{x:0,y:0}});
+  L(t>=at(47)?'NI EL SEÑOR DEL GAS':'NI UN CLAXON',540,430,kIn(t,t>=at(47)?at(47):sc.start+0.03),'panel',{tam:84}); }
+// S9 "Pero tú no te quedas quieto.": recámara; Raro dormido en su cama; en "quieto" la cama sale disparada (líneas de velocidad).
+function S9(t,sc){ const go=t>=at(57)-0.1, dx=go?easeIn(prog(t,at(57)-0.1,0.5))*500:0; ventanaNoche(800,740,0.9,t); if(go) lineasVelocidad(t,at(57)-0.1,540,1200,'#FFFFFF');
+  enCama(430+dx*0.3,1440-dx*0.4,0.82,t,{tilt:go?-0.12:Math.sin(t*1.7)*0.05}); zzz(560,1080,t,1);
+  L(go?'¡NO TE QUEDAS QUIETO!':'PERO TÚ…',540,430,kIn(t,go?at(56):sc.start+0.03),go?'panel':'madera',{tam:84}); }
+// S10 "Mientras duermes, la Tierra te lleva alrededor del Sol": espacio; Sol grande a la izquierda, órbita punteada; la Tierra con la camita de Raro encima avanza por la órbita.
+function S10(t,sc){ const SX=230,SY=1150; ctx.save(); ctx.setLineDash([22,20]); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=6; ctx.beginPath(); ctx.ellipse(SX,SY,620,300,0,0,PI2); ctx.stroke(); ctx.restore();
+  sol(SX,SY,130,t); const a=lerp(-1.3,-0.45,easeInOut(prog(t,sc.start,dur(sc)))), ex=SX+Math.cos(a)*620, ey=SY+Math.sin(a)*300; tierra(ex,ey,110,t,false);
+  enCama(ex-10,ey-104,0.3,t); zzz(ex+60,ey-230,t,0.7); chk('obj',ex-120,ey-230,ex+120,ey+120);
+  L(t>=at(63)?'ALREDEDOR DEL SOL':'MIENTRAS DUERMES…',540,430,kIn(t,t>=at(63)?at(63):sc.start+0.03),t>=at(63)?'panel':'madera',{tam:88}); }
+// S11 "a 107,000 km por hora.": toma cerrada: Raro dormido en su cama sobre la Tierra, el viento le vuela el gorro y la cobija; velocímetro 107,000 KM/H.
+function S11(t,sc){ const X=560,Y=2050,R=700; tierra(X,Y,R,t,false); lineasVelocidad(t,sc.start,540,1100,'#FFFFFF',dur(sc)); if(t>=at(68)) ondaChoque(t,at(68),540,1100,'#D7FF3D');
+  ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=8; ctx.lineCap='round'; for(let i=0;i<7;i++){ const y=820+i*90, x=1180-((t*2200+i*400)%1500); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+180,y); ctx.stroke(); }
+  enCama(500,1440,0.82,t,{viento:1.2,tilt:-0.06+Math.sin(t*9)*0.02,cobija:'#B5F0A0'});
+  L2(contador(t,at(68),0.8,0,107000)+' KM/H','¡Y SIGUES DORMIDO!',kIn(t,sc.start+0.03),100,64,'#D7FF3D'); }
+// S12 "En 8 horas de sueño recorres más de 800,000 km.": reloj que da vueltas rapidísimo hasta 8 h; odómetro sube a 800,000 KM; la cama avanza en el espacio.
+function S12(t,sc){ estrellasCielo(t,30,1500); const h=lerp(0,8,easeInOut(prog(t,sc.start,at(76)-sc.start)));
+  ctx.save(); ctx.translate(260,980); relojHora(0,0,0.85,h,(h%1)*60,0,true); ctx.restore();
+  camaViaje(640+Math.sin(t*2)*20,1400,0.62,t,-0.04);
+  const km=t>=at(80); if(km){ ctx.save(); ctx.translate(730,1000); const k=popIn(t,at(80)); ctx.scale(k,k); ctx.fillStyle='#1E1A2E'; rr(-170,-60,340,120,26); ctx.fill(); ctx.fillStyle='#D7FF3D'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,at(80),0.6,0,800000),0,4); ctx.restore(); chk('obj',560,940,900,1060); ocupa(550,930,910,1070,1.5); }
+  L(km?'+800,000 KM':'8 HORAS DE SUEÑO',540,430,kIn(t,km?at(80):sc.start+0.03),km?'panel':'madera',{tam:100,color:km?'#D7FF3D':undefined}); }
+// S13 "¡Eso es ir a la Luna…": la cama vuela hacia la Luna y aterriza con boing; Raro sigue dormido.
+function S13(t,sc){ estrellasCielo(t,26,1400); tierra(170,1500,120,t,false); const R=330, X=600, Y=1760; luna(X,Y,R); ctx.fillStyle='#EADFA8'; blob(X-130,Y-180,40); blob(X+160,Y-120,30);
+  const u=easeOut(prog(t,sc.start,0.6)), bx=lerp(200,600,u), by=lerp(1250,Y-R+24,u)-Math.sin(u*Math.PI)*260; const b=caida(t,sc.start+0.55,0,0.2);
+  enCama(bx-30,by,0.62,t,{sq:gelatina(t,sc.start+0.6,0.35)});
+  L('¡IR A LA LUNA…',540,430,kIn(t,sc.start+0.03),'madera',{tam:96}); }
+// S14 "y regresar! Sin despertar.": la cama regresa a la Tierra con estela; Raro se rasca la panza y se voltea, dormido.
+function S14(t,sc){ estrellasCielo(t,26,1400); luna(880,620,90); ctx.save(); ctx.setLineDash([20,18]); ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(860,700); ctx.quadraticCurveTo(900,1300,420,1400); ctx.stroke(); ctx.restore();
+  tierra(420,1900,420,t,false); const u=easeInOut(prog(t,sc.start,1.1)), x=lerp(680,450,u), y=lerp(900,1400,u);
+  if(u<1) camaViaje(x,y,0.55,t,0.3*(1-u)); else enCama(430,1400,0.72,t,{manos:{i:[-80,-120],d:[60,-90]}}); if(u>=1) zzz(560,1100,t,1);
+  L(t>=at(90)?'¡SIN DESPERTAR!':'…Y REGRESAR',540,430,kIn(t,t>=at(90)?at(90):sc.start+0.03),'panel',{tam:100,color:t>=at(90)?'#D7FF3D':undefined}); }
+// S15 "Y adentro de tu cabeza, hay función de cine.": zoom a la cabeza: sala de cine; Raro en piyama sentado con palomitas, emocionado; pantalla con Raro volando.
+function S15(t,sc){ const P=PAL_ACTUAL; ctx.fillStyle=mix(P.oscuro,'#000000',0.35); ctx.fillRect(-300,-300,1680,2500);
+  const pk=kIn(t,at(97)); ctx.save(); ctx.globalAlpha=0.35+0.65*pk; ctx.fillStyle='#FFFFFF'; rr(110,560,860,480,30); ctx.fill(); ctx.restore();
+  if(pk>0){ ctx.save(); ctx.beginPath(); rr(130,580,820,440,22); ctx.clip(); ctx.fillStyle='#9BE7FF'; ctx.fillRect(130,580,820,440); for(let i=0;i<4;i++){ ctx.fillStyle='#FFFFFF'; blob(200+((t*160+i*260)%900),700+i*70,40); }
+    ctx.translate(540+Math.sin(t*2)*120,820); ctx.scale(0.3,0.3); raro({x:0,y:200,s:1,t,disfraz:PIY,expr:'risa',brazos:'arriba',piernas:'flota',tilt:0.3}); ctx.restore(); }
+  ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(540,-100); ctx.lineTo(110,560); ctx.lineTo(970,560); ctx.closePath(); ctx.fill();
+  raro({x:540,y:1500,s:0.82,t,disfraz:PIY,expr:pk>0?'asombro':'feliz',manos:{i:[-120,-300],d:[150,-200]},ojos:pk>0?1.6:1,sq:gelatina(t,at(97),0.3)}); palomitas(540+150*0.82,1500-200*0.82-10,0.9);
+  ctx.fillStyle='#B0304A'; for(let i=0;i<5;i++){ rr(-40+i*240,1390,200,200,40); ctx.fill(); } ctx.fillStyle='#8A2238'; for(let i=0;i<5;i++){ rr(-20+i*240,1440,160,40,16); ctx.fill(); }
+  L(pk>0?'FUNCIÓN DE CINE':'ADENTRO DE TU CABEZA',540,430,kIn(t,pk>0?at(97):sc.start+0.03),pk>0?'panel':'madera',{tam:84}); }
+// S16 "Cada noche pasas de cuatro a seis veces por el sueño REM,": Raro en su cama; arriba, nube de sueño con pantallitas que se prenden 1…6 (4 seguras y 2 más claritas).
+function S16(t,sc){ enCama(280,1440,0.7,t); const k=kIn(t,sc.start+0.05,0.3); nubeSueno(720,1110,165,k,420,1200);
+  if(k>0.5){ ocupa(520,950,920,1280,3); for(let i=0;i<6;i++){ const t0=lerp(at(105),at(108),i/5); pantalla(600+(i%3)*120,1060+Math.floor(i/3)*105,0.75,popIn(t,t0),String(i+1),i<4?'#D7FF3D':'#FFE3A3'); } }
+  L(t>=at(110)?'SUEÑO REM':'DE 4 A 6 VECES',540,430,kIn(t,t>=at(110)?at(110):at(104)),'panel',{tam:100,color:t>=at(110)?'#D7FF3D':undefined}); }
+// S17 "el de los sueños más locos.": sueño: Raro en piyama montado en un taco volador sobre nubes de dulce, feliz.
+function S17(t,sc){ for(let i=0;i<5;i++){ ctx.fillStyle='rgba(255,255,255,0.85)'; const x=1300-((t*300+i*330)%1700); blob(x,1300+i*40,90); blob(x+90,1320+i*40,70); }
+  const y=1330; ocupa(250,y-430,830,y+140,3); raro({x:540,y:y-60+Math.sin(t*3)*12,s:0.72,t,disfraz:PIY,expr:'risa',brazos:'arriba',piernas:'flota',viento:1,tilt:Math.sin(t*2)*0.06}); tacoVolador(540,y,0.95,t);
+  estrellitas(t,sc.start,540,y-500);
+  L('¡SUEÑOS LOCOS!',540,430,kIn(t,sc.start+0.03),'panel',{tam:110,color:'#D7FF3D'}); }
+// S18 "Somos 8,000 millones.": un mar de camitas con gomitas dormidas hasta el horizonte; Raro dormido en la primera fila.
+function S18(t,sc){ camitas(t,980,1300,6,0.6,1.6); zzz(300,1000,t,0.8); zzz(800,1060,t+0.5,0.8); enCama(520,1440,0.6,t,{cobija:'#8EC5FF'});
+  L2('8,000 MILLONES','DE DORMILONES',kIn(t,sc.start+0.03),96,70,'#D7FF3D'); }
+// S19 "¡Más de 30,000 millones de funciones en una sola noche!": la Tierra de noche llena de nubes de sueño que brotan en cascada; Raro flota con palomitas con cara de "¿neta?".
+function S19(t,sc){ const X=540,Y=1230,R=250; tierra(X,Y,R,t,false); ctx.fillStyle='rgba(20,14,60,0.45)'; ctx.beginPath(); ctx.arc(X,Y,R,0,PI2); ctx.fill(); if(t>=at(124)) lineasVelocidad(t,at(124),X,Y,'#D7FF3D');
+  for(let i=0;i<26;i++){ const a=rand(i+600)*PI2, d=R*(0.6+rand(i+630)*0.75), k=popIn(t,at(122)+i*0.06,0.25); if(k<=0) continue; const px=X+Math.cos(a)*d, py=Y+Math.sin(a)*d*0.85; ctx.save(); ctx.translate(px,py); ctx.scale(k*0.5,k*0.5); ctx.fillStyle='#FFFFFF'; blob(0,0,46); blob(-34,10,30); blob(34,10,30); ctx.fillStyle=PASTELES[i%6]; rr(-26,-18,52,36,8); ctx.fill(); ctx.restore(); }
+  ocupa(X-R-60,Y-R-60,X+R+60,Y+R+60,2);
+  raro({x:800,y:1490+Math.sin(t*2)*10,s:0.48,t,disfraz:PIY,piernas:'flota',expr:'asombro',ojos:1.8,manos:{i:[-120,-300],d:[150,-200]},espejo:true}); palomitas(800-150*0.48,1490-200*0.48-5,0.5);
+  L2(t>=at(124)?contador(t,at(124),0.9,0,30000)+' MILLONES':'¡MÁS DE…','DE FUNCIONES',kIn(t,sc.start+0.03),96,70,'#D7FF3D'); }
+// S20 "¿Y lo peor?": toma cerrada; Raro voltea a cámara con cara de sospecha (interrupción).
+function S20(t,sc){ ventanaNoche(250,800,0.6,t); enCama(560,1440,0.9,t,{expr:'sospecha',mira:{x:0,y:0},tilt:0}); L('¿Y LO PEOR?',540,430,kIn(t,sc.start+0.02),'madera',{tam:110}); }
+// S21 "Al despertar, se nos olvidaría casi todo.": el despertador suena; Raro brinca despierto y las nubes de sueño se revientan una por una.
+function S21(t,sc){ const sus=susto(t,at(135)); despertador(720,1180,0.6,t,t>=at(135)&&t<at(137)+0.4);
+  enCama(380,1440,0.8,t,{expr:t>=at(135)?'asombro':'dormido',ojos:t>=at(135)?1.7:1,brazos:t>=at(135)?'arriba':'idle',alto:sus.alto*0.4,sq:sus.sq,wob:sus.wob,tilt:0});
+  for(let i=0;i<4;i++){ const tr=at(139)+i*0.18, k=t<tr?kIn(t,sc.start+i*0.1):1-prog(t,tr,0.12); const x=[240,420,620,520][i], y=[820,720,820,980][i]; if(k>0) nubeSueno(x,y,70,k,380,1150); else if(t<tr+0.3) chispas(t,tr,x,y,0.5,'#FFFFFF'); }
+  L(t>=at(139)?'¡SE OLVIDA CASI TODO!':'AL DESPERTAR…',540,430,kIn(t,t>=at(139)?at(139):sc.start+0.03),t>=at(139)?'panel':'madera',{tam:84}); }
+// S22 REVELACIÓN "La noche más loca de la historia… y nadie se acordaría.": Raro se rasca la cabeza con una nube vacía "¿?"; gomitas despiertan bostezando con "¿?".
+function S22(t,sc){ const nad=t>=at(149); for(let k=0;k<3;k++){ const x=[230,760,680][k]; gomita({x,y:1440-(k===2?220:0),s:0.38,t,color:PASTELES[k+2],disfraz:PIY,expr:nad?'sospecha':'sopla',seed:k+4,brazos:nad?'cara':'arriba',espejo:x>540}); }
+  raro({x:470,y:1440,s:0.82,t,disfraz:PIY,expr:nad?'yavalio':'sospecha',manos:{i:[-140,-90],d:[90,-370]},tilt:Math.sin(t*2)*0.05,sq:gelatina(t,at(149),0.4)});
+  const k=kIn(t,at(149)); if(k>0){ nubeSueno(620,800,110,k,520,1000); ctx.save(); ctx.translate(620,800); ctx.scale(k,k); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('¿?',0,6); ctx.restore(); chk('obj',490,670,750,930); ocupa(480,660,760,940,1.5); }
+  if(nad) L2('Y NADIE','SE ACORDARÍA',k,96,96,'#D7FF3D'); else L('LA NOCHE MÁS LOCA',540,430,kIn(t,sc.start+0.03),'madera',{tam:88}); }
+// S23 "¿Tú qué soñarías?": Raro en piyama señala a cámara con una nube de sueño vacía arriba.
+function S23(t,sc){ const b=caida(t,sc.start+0.02); raro({x:420,y:1440,s:0.85,t,disfraz:PIY,expr:'feliz',brazos:'senala',mira:{x:0,y:0},alto:b.alto,sq:b.sq,wob:b.wob}); nubeSueno(700,900,90,kIn(t,sc.start+0.2),560,1080);
+  L('¿TÚ QUÉ SOÑARÍAS?',540,430,kIn(t,sc.start+0.03),'panel',{tam:96,color:'#D7FF3D'}); }
+// S24 "Parte 22: ¿y si todos hacemos una sola fila?": gomitas en una fila que se pierde en el horizonte; Raro al final de la fila, bostezando.
+function S24(t,sc){ for(let i=13;i>=0;i--){ const u=i/13, x=lerp(470,760,u)+Math.sin(i)*10, y=lerp(1440,1010,Math.pow(u,0.7)), s=lerp(0.42,0.08,Math.pow(u,0.6)); gomita({x,y,s,t,color:PASTELES[i%6],expr:i%3?'sospecha':'yavalio',seed:i+20,brazos:'idle'}); }
+  const pt=t>=at(158); raro({x:260,y:1430,s:0.6,t,disfraz:PIY,expr:pt?'sopla':'feliz',brazos:pt?'arriba':'saluda',sq:gelatina(t,at(158),0.3)});
+  L(pt?'¿TODOS EN FILA?':'PARTE 22',540,430,kIn(t,pt?at(158):sc.start+0.03),'panel',{tam:pt?100:130,color:pt?'#D7FF3D':undefined}); }
+
+const ORDER0=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25];
+window.SCENES=ORDER0.map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ocupa(150,330,930,665,2); ctx.restore(); f(t,sc);});
+window.CHIPS={};
+window.FONDOS={1:{pal:'cielo',tipo:'liso',pp:false},2:{pal:'magenta',tipo:'cielo',pp:false},3:{pal:'violeta',tipo:'espacio',pp:false},4:{pal:'turquesa',tipo:'liso',pp:false},5:{pal:'mandarina',tipo:'liso',pp:false},
+  6:{pal:'limon',tipo:'interior',pp:false},7:{pal:'violeta',tipo:'ciudad',pp:false},8:{pal:'magenta',tipo:'liso',pp:false},9:{pal:'cielo',tipo:'interior',pp:false},10:{pal:'violeta',tipo:'espacio',pp:false},
+  11:{pal:'magenta',tipo:'liso',pp:false},12:{pal:'turquesa',tipo:'espacio',pp:false},13:{pal:'violeta',tipo:'liso',pp:false},14:{pal:'mandarina',tipo:'espacio',pp:false},15:{pal:'magenta',tipo:'liso',pp:false},
+  16:{pal:'cielo',tipo:'interior',pp:false},17:{pal:'limon',tipo:'cielo',pp:false},18:{pal:'violeta',tipo:'interior',pp:false},19:{pal:'turquesa',tipo:'espacio',pp:false},20:{pal:'mandarina',tipo:'liso',pp:false},
+  21:{pal:'cielo',tipo:'interior',pp:false},22:{pal:'limon',tipo:'liso',pp:false},23:{pal:'violeta',tipo:'interior',pp:false},24:{pal:'mandarina',tipo:'cerros',pp:false},25:{pal:'cielo',tipo:'liso',pp:false}};
+window.TOMAS={1:{mov:'push',z:1.04,foco:[540,1000]},2:{mov:'paneo-der'},3:{mov:'pull'},4:{mov:'push',z:1.1,foco:[560,1250]},5:{mov:'push',z:1.25,foco:[520,1150]},6:{mov:'paneo-izq'},7:{mov:'paneo-der'},8:{mov:'push',z:1.06,foco:[540,1200]},
+  9:{mov:'push',z:1.08,foco:[480,1250]},10:{mov:'pull'},11:{mov:'push',z:1.15,foco:[520,1200]},12:{mov:'sube'},13:{mov:'push',z:1.06,foco:[560,1300]},14:{mov:'baja'},15:{mov:'pull'},16:{mov:'push',z:1.06,foco:[480,1100]},
+  17:{mov:'orbita'},18:{mov:'pull'},19:{mov:'push',z:1.05,foco:[540,1150]},20:{mov:'push',z:1.4,foco:[560,1180]},21:{mov:'paneo-izq'},22:{mov:'push',z:1.06,foco:[520,1150]},23:{mov:'push',z:1.08,foco:[440,1200]},24:{mov:'pull'},25:{mov:'push',z:1.04,foco:[540,1000]}};
+window.TRANS={2:'latigazo',3:'bufanda',4:'latigazo',6:'zoom',7:'latigazo',9:'bufanda',10:'zoom',12:'latigazo',13:'zoom',15:'zoom',16:'bufanda',17:'zoom',18:'latigazo',19:'zoom',21:'bufanda',22:'latigazo',24:'bufanda',25:'latigazo'};
+window.KEYWORDS=[2,7,16,27,32,38,43,46,51,57,66,68,80,87,91,100,112,118,121,124,134,141,152,155,164];
+window.SHAKES=[7,16,68,80,89,124,136];
+window.FLASHES=[[7,'#FF4D5E'],[68,'#FFFFFF'],[124,'#D7FF3D'],[136,'#FFFFFF']];
+</script></body></html>

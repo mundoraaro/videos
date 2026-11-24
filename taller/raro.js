@@ -1516,3 +1516,20 @@ function paraguas(x,y,s,t,o={}){ const ab=o.abre??1, vo=o.volteado||0; ctx.save(
   for(let i=0;i<8;i++){ const a0=-R+i*(2*R/8), a1=a0+2*R/8; ctx.fillStyle=cols[i]; ctx.beginPath(); ctx.moveTo(0,-330-hgt); ctx.lineTo(a0,-330+(vo>0.5?-30:20)); ctx.quadraticCurveTo((a0+a1)/2,-330+(vo>0.5?-60:-10),a1,-330+(vo>0.5?-30:20)); ctx.closePath(); ctx.fill(); }
   ctx.fillStyle='#3B3557'; ctx.beginPath(); ctx.arc(0,-330-hgt,12,0,Math.PI*2); ctx.fill(); ctx.restore();
   if(typeof ocupa==='function') ocupa(x-240*s,y-480*s,x+240*s,y-300*s,1.2); }
+
+// ---------- agregado con dormir-todos-001 (nov 2026): piloto de avión ----------
+DISFRACES.piloto = { // capitán de avión: saco azul marino con galones dorados en las mangas, camisa blanca con corbata y gorra de capitán con visera y alas doradas
+  cuerpo(o){ ctx.fillStyle='#24346B'; ctx.fillRect(-200,-205,400,175);
+    ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-46,-205); ctx.lineTo(0,-110); ctx.lineTo(46,-205); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.moveTo(-12,-196); ctx.lineTo(12,-196); ctx.lineTo(16,-130); ctx.lineTo(0,-112); ctx.lineTo(-16,-130); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FFD23F'; for(const y of [-150,-100]){ ctx.beginPath(); ctx.arc(-34,y,8,0,Math.PI*2); ctx.arc(34,y,8,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle='#FFD23F'; rr(70,-185,56,14,6); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(78,-182,10,8,3); ctx.fill(); // alas en el pecho
+  },
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.translate(0,-362); ctx.rotate(-0.06+w*0.06);
+    ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(10,14,120,22,0.05,0,Math.PI*2); ctx.fill(); // visera
+    ctx.fillStyle='#24346B'; rr(-104,-46,208,58,22); ctx.fill();
+    ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.ellipse(0,-50,128,36,0,0,Math.PI*2); ctx.fill(); // copa blanca
+    ctx.fillStyle='#FFD23F'; rr(-104,-8,208,12,6); ctx.fill(); // cordón dorado
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(-30,-22,26,9,-0.2,0,Math.PI*2); ctx.ellipse(30,-22,26,9,0.2,0,Math.PI*2); ctx.fill(); blob(0,-22,14); // alas de la gorra
+    ctx.restore(); }
+};
