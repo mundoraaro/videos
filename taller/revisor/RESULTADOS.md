@@ -4,6 +4,54 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 25 nov 2026 (9:55)
+Fuentes: Buffer por publicación (TikTok actualizado al 25 nov 04:50 CDMX; YouTube al 24 nov 17:32) y Metricool para Facebook (FBRE). Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (YouTube de avion salió el 24 nov 19:00 después del último corte de Buffer; agua, alberca, aplaudir, todos-mano y venus aún no salen en YouTube; Facebook de aplaudir aún sin dato).
+
+| Video | Publicado TK (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | 12 nov 16:00 | 3,971 | 20 | 168 | 2,690 | 1,006 | 12 |
+| bascula-001 | 17 nov 12:00 | 3,842 | 27.9 | 94 | 1,466 | 342 | 7 |
+| estacion-001 | 16 nov 18:00 | 3,740 | 20.97 | 97 | 1,249 | 0 | 0 |
+| gritar-001-v2 | 15 nov 09:00 | 3,528 | 24.56 | 85 | 2,629 | 1,723 | 19 |
+| laser-001-v2 | 15 nov 13:00 | 3,444 | 20.89 | 89 | 1,525 | 595 | 17 |
+| mexico-001-v2 | 14 nov 20:00 | 3,314 | 20.91 | 132 | 2,000 | 324 | 10 |
+| soplar-001-v2 | 15 nov 19:00 | 3,230 | 19.81 | 75 | 1,139 | 283 | 9 |
+| jalon-001-v2 | 14 nov 17:00 | 3,206 | 21.82 | 88 | 1,339 | 709 | 18 |
+| apolo-001-v2 | 13 nov 12:00 | 2,982 | 22.99 | 93 | 1,608 | 380 | 9 |
+| torre-001 | 12 nov 12:00 | 2,858 | 23.76 | 95 | 2,022 | 382 | 12 |
+| hielo-001-v2 | 13 nov 10:00 | 2,800 | 22.16 | 73 | 2,120 | 4,505 | 11 |
+| playa-todos-001-v2 | 22 nov 11:00 | 2,780 | 29.26 | 73 | 1,607 | 257 | 17 |
+| luna-todos-001 | 19 nov 15:00 | 2,609 | 28.32 | 73 | 9,123 | 250 | 11 |
+| mar-001-v2 | 14 nov 11:00 | 2,602 | 22.18 | 94 | 1,646 | 237 | 5 |
+| peso-001 | 18 nov 12:00 | 1,952 | 25.61 | 55 | 1,070 | 1,171 | 20 |
+| avion-todos-001-v2 | 23 nov 12:00 | 1,362 | 25.93 | 53 | sin dato | 236 | 6 |
+| taco-todos-001 | 21 nov 14:00 | 1,114 | 25.77 | 57 | 1,615 | 258 | 14 |
+| aguacate-001 | 21 nov 11:00 | 978 | 28.74 | 27 | 2,356 | 276 | 16 |
+| saturno-001 | 19 nov 19:00 | 895 | 20.35 | 28 | 1,031 | 251 | 4 |
+| colibri-001-v2 | 13 nov 18:00 | 821 | 16.95 | 18 | 1,023 | 256 | 5 |
+| rayo-001 | 18 nov 15:00 | 796 | 25.76 | 26 | 1,191 | 235 | 4 |
+| luz-todos-001-v2 | 20 nov 12:00 | 765 | 25.12 | 29 | 1,345 | 614 | 15 |
+| jupiter-001 | 17 nov 15:00 | 711 | 24.08 | 29 | 1,341 | 285 | 5 |
+| atacama-001-v2 | 16 nov 20:30 | 604 | 18.93 | 15 | 978 | 248 | 6 |
+| agua-todos-001-v2 | 23 nov 19:00 | 596 | 25.34 | 22 | sin dato | 349 | 15 |
+| aplaudir-todos-001-v2 | 24 nov 19:00 | 579 | 23.51 | 10 | sin dato | sin dato | sin dato |
+| tardigrado-001-v2 | 16 nov 12:00 | 557 | 14.49 | 13 | 1,035 | 258 | 5 |
+| cerdo-001-v2 | 17 nov 19:00 | 553 | 13.22 | 18 | 1,036 | 567 | 3 |
+| todos-mano-001-v2 | 19 nov 12:00 | 550 | 26.29 | 17 | sin dato | 253 | 9 |
+| chicxulub-001 | 11 nov 20:00 | 499 | 21.98 | 20 | 3,243 | 299 | 12 |
+| ciudad-todos-001-v2 | 20 nov 15:00 | 488 | 18.82 | 15 | 1,611 | 232 | 7 |
+| marte-001-v2 | 18 nov 19:00 | 447 | 18.12 | 22 | 944 | 239 | 3 |
+| venus-002-v2 | 22 nov 18:00 | 409 | 14.35 | 18 | sin dato | 274 | 6 |
+| alberca-todos-001-v2 | 24 nov 12:00 | 400 | 20.94 | 7 | sin dato | 226 | 4 |
+| emus-001 | 11 nov 18:40 | 217 | 12.82 | 11 | 1,225 | 229 | 6 |
+| nutrias-001 | 12 nov 10:00 | 144 | 31.01 | 4 | 1,684 | 5 | 17 |
+
+Lectura rápida (solo números):
+- luna-todos explotó en YouTube: 9,123 vistas (169 likes) a ≈1.5 días de publicado ahí (23 nov 12:00), el video con más vistas en YouTube de la cuenta. En TikTok sigue en 2,609 con 28.3 s.
+- playa-todos sube a 1,607 en YouTube y mantiene el mejor promedio de TikTok con más de 1,000 vistas (29.3 s).
+- Los arranques del 23–24 nov en TikTok son más bajos que los de la semana pasada a la misma edad: agua 596, aplaudir 579 y alberca 400 vistas (avion 1,362 en ≈2 días).
+- La serie de planetas sigue abajo en TikTok (venus 409, marte 447, saturno 895); en YouTube rinde parecido al resto (≈940–1,030).
+
 ## Corte del 24 nov 2026 (9:45)
 Fuentes: Buffer por publicación (TikTok actualizado al 24 nov 05:49 CDMX; YouTube al 23 nov 19:04) y Metricool para Facebook (FBRE). No hubo corte el 23 nov. Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (YouTube de avion, todos-mano, venus y agua aún no se publica o no trae dato; ciudad-todos salió en YT el 23 nov 19:00 y marca 0 porque el dato se tomó minutos después; Facebook de agua y avion aún sin vistas).
 
