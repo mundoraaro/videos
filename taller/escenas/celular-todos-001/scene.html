@@ -118,7 +118,7 @@ function cel(x,y,s,on,t,opts={}){ ctx.save(); const vb=opts.vib?Math.sin(t*70)*6
   ctx.fillStyle='#1E1A2E'; rr(-120,-230,240,460,40); ctx.fill(); ctx.fillStyle='#2E2A60'; rr(-110,-220,220,440,32); ctx.fill();
   ctx.fillStyle='rgba(255,255,255,0.10)'; ctx.beginPath(); ctx.moveTo(-110,-120); ctx.lineTo(-20,-220); ctx.lineTo(30,-220); ctx.lineTo(-110,-60); ctx.closePath(); ctx.fill();
   if(on>0){ ctx.globalAlpha=on; const g=ctx.createLinearGradient(0,-200,0,200); g.addColorStop(0,'#4CC9F0'); g.addColorStop(1,'#FF5FA2'); ctx.fillStyle=g; rr(-102,-205,204,410,26); ctx.fill();
-    if(!opts.txt){ const C=['#FFD51A','#5CD67A','#FFFFFF','#8D4DFF']; for(let i=0;i<3;i++) for(let j=0;j<4;j++){ ctx.fillStyle=C[(i+j)%4]; rr(-80+i*60,-160+j*70,40,40,12); ctx.fill(); } }
+    if(!opts.txt){ const C=['#FFD51A','#5CD67A','#FFFFFF','#8D4DFF']; ctx.save(); rr(-102,-205,204,410,26); ctx.clip(); const off=(t*260)%70; for(let i=0;i<3;i++) for(let j=-1;j<6;j++){ ctx.fillStyle=C[(i+j+8)%4]; rr(-80+i*60,-160+j*70-off,40,40,12); ctx.fill(); } ctx.restore(); }
     ctx.globalAlpha=1; }
   if(opts.txt){ ctx.fillStyle='#FFFFFF'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=fuente(opts.tam||46); opts.txt.split('|').forEach((l,i,a)=>ctx.fillText(l,0,(i-(a.length-1)/2)*58+40)); }
   if(opts.barras!=null){ for(let i=0;i<4;i++){ ctx.fillStyle=i<opts.barras?'#FFFFFF':'rgba(255,255,255,0.25)'; rr(-50+i*28,-110-i*22,20,30+i*22,5); ctx.fill(); }
@@ -170,12 +170,14 @@ const GC=['#B8E6FF','#FFB8D2','#C9F2B8','#FFE3A3','#D9C2FF','#FFC9A8'];
 // ====================== escenas ======================
 // S1/S28 GANCHO (loop): horizonte curvo de la Tierra con gomitas que miran su celular encendido; Raro con sudadera y audífonos al frente, con su celular gigante
 // encendido desde el cuadro 0 y letrero ¡TODOS A LA VEZ! / APAGUEN EL CELULAR. En "apagamos" ¡clic!: todos los celulares se apagan, flash y Raro se asusta. Toma: push.
-function escenaGancho(t,sc,fin){ const cy=2300, R=1080; arcoTierra(t,cy,R,1); const tc=fin?1e9:at(2)+0.1;
-  [175,285,690,795].forEach((gx,i)=>{ const y=yArco(gx,cy,R)+10, on=t<tc+i*0.05?1:0; conCel({x:gx,y,s:0.4,t,color:GC[i],expr:on?'feliz':'asombro',seed:i,alto:Math.abs(Math.sin(t*4+i))*6},on); });
-  const rx=440, ry=yArco(rx,cy,R)+12, on=t<tc?1:0; const c=fin?caida(t,sc.start+0.02,700):{alto:0,sq:0,wob:0}; const su=t>=tc?susto(t,tc):{alto:on?Math.abs(Math.sin(t*7))*18:0,sq:0};
+function escenaGancho(t,sc,fin){ const cy=2300, R=1080; ctx.save();
+  if(!fin){ const B=[0.32,at(1),at(4),at(5),at(6),at(8),at(9)]; let n=0; B.forEach(b=>{ if(t>=b) n++; }); const z=1+0.028*n+(n%2?0.025:0), fx=n%2?570:510; ctx.translate(fx,1320); ctx.scale(z,z); ctx.rotate((n%2?1:-1)*0.014*Math.min(n,1)); ctx.translate(-fx,-1320); }
+  arcoTierra(t,cy,R,1); const tc=fin?1e9:at(2)+0.1;
+  [175,285,690,795].forEach((gx,i)=>{ const y=yArco(gx,cy,R)+10, on=t<tc+i*0.05?1:0; conCel({x:gx,y,s:0.4,t,color:GC[i],expr:on?'feliz':'asombro',seed:i,alto:Math.abs(Math.sin(t*8+i*1.3))*34},on); });
+  const rx=440, ry=yArco(rx,cy,R)+12, on=t<tc?1:0; const c=fin?caida(t,sc.start+0.02,700):{alto:0,sq:0,wob:0}; const su=t>=tc?brinco(t,tc,0.4,80):{alto:on?Math.abs(Math.sin(t*8))*38:0,sq:on?-Math.cos(t*16)*0.08:0};
   raro({x:rx,y:ry,s:1.05,t,disfraz:SD,expr:on?'feliz':'terror',brazos:'idle',manos:{d:[185,-235]},sq:c.sq+(su.sq||0),alto:c.alto+(su.alto||0),wob:c.wob});
   cel(rx+215,ry-c.alto-(su.alto||0)-360,0.55,on,t,{a:0.14}); if(t>=tc){ lineasVelocidad(t,tc,rx+215,ry-360,'#FFFFFF'); chispas(t,tc,rx+215,ry-360,1.1,'#D7FF3D'); }
-  L2('¡TODOS A LA VEZ!','APAGUEN EL CELULAR',1,430,t,fin?sc.start:-1);
+  ctx.restore(); L2('¡TODOS A LA VEZ!','APAGUEN EL CELULAR',1+Math.sin(t*9)*0.03,430,t,fin?sc.start:-1);
 }
 function S1(t,sc){ escenaGancho(t,sc,false); }
 function S28(t,sc){ escenaGancho(t,sc,true); }
@@ -332,9 +334,9 @@ window.FONDOS={1:{pal:'violeta',tipo:'espacio'},2:{pal:'mandarina',tipo:'ciudad'
   16:{pal:'turquesa',tipo:'liso'},17:{pal:'mandarina',tipo:'interior'},18:{pal:'magenta',tipo:'cerros'},19:{pal:'cielo',tipo:'cerros'},20:{pal:'violeta',tipo:'cielo'},
   21:{pal:'magenta',tipo:'cerros'},22:{pal:'cielo',tipo:'cielo'},23:{pal:'mandarina',tipo:'ciudad'},24:{pal:'turquesa',tipo:'desierto'},25:{pal:'limon',tipo:'interior'},
   26:{pal:'magenta',tipo:'liso'},27:{pal:'turquesa',tipo:'selva'},28:{pal:'violeta',tipo:'espacio'}};
-window.TOMAS={1:{mov:'push',z:1.0},2:{mov:'push',z:1.08,foco:[540,1200]},3:{mov:'push',z:1.04,foco:[540,1150]},4:{mov:'push',z:1.15,foco:[450,1100]},5:{mov:'pull'},6:{mov:'paneo-izq'},7:{mov:'push'},8:{mov:'push',z:1.1,foco:[400,1150]},
+window.TOMAS={1:{mov:'push',z:1.12,foco:[540,1000]},2:{mov:'push',z:1.08,foco:[540,1200]},3:{mov:'push',z:1.04,foco:[540,1150]},4:{mov:'push',z:1.15,foco:[450,1100]},5:{mov:'pull'},6:{mov:'paneo-izq'},7:{mov:'push'},8:{mov:'push',z:1.1,foco:[400,1150]},
   9:{mov:'pull'},10:{mov:'paneo-der'},11:{mov:'push'},12:{mov:'push'},13:{mov:'push',z:1.1,foco:[540,1100]},14:{mov:'orbita'},15:{mov:'pull'},16:{mov:'push'},17:{mov:'push',z:1.15,foco:[540,1150]},18:{mov:'pull'},
-  19:{mov:'paneo-der'},20:{mov:'push'},21:{mov:'paneo-izq'},22:{mov:'push'},23:{mov:'pull'},24:{mov:'push'},25:{mov:'paneo-der'},26:{mov:'push',z:1.15,foco:[540,1100]},27:{mov:'pull'},28:{mov:'push',z:1.0}};
+  19:{mov:'paneo-der'},20:{mov:'push'},21:{mov:'paneo-izq'},22:{mov:'push'},23:{mov:'pull'},24:{mov:'push'},25:{mov:'paneo-der'},26:{mov:'push',z:1.15,foco:[540,1100]},27:{mov:'pull'},28:{mov:'push',z:1.12,foco:[540,1000]}};
 window.TRANS={2:'latigazo',4:'zoom',5:'bufanda',7:'latigazo',9:'bufanda',11:'zoom',12:'latigazo',14:'bufanda',15:'latigazo',17:'zoom',18:'bufanda',19:'latigazo',21:'latigazo',23:'zoom',24:'bufanda',25:'latigazo',27:'bufanda'};
 window.KEYWORDS=[6,10,15,23,31,37,47,53,60,70,78,83,92,94,104,110,117,127,135,143,151,160,164,172,180];
 window.SHAKES=[15,20,78,117,135,147,160,166];
