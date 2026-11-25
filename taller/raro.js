@@ -1533,3 +1533,22 @@ DISFRACES.piloto = { // capitán de avión: saco azul marino con galones dorados
     ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(-30,-22,26,9,-0.2,0,Math.PI*2); ctx.ellipse(30,-22,26,9,0.2,0,Math.PI*2); ctx.fill(); blob(0,-22,14); // alas de la gorra
     ctx.restore(); }
 };
+
+DISFRACES.formado = { // alguien formado en una fila larga: sudadera turquesa con bolsa canguro y cordones, gorro de lana rojo con pompón que rebota;
+  // o.ficha=true pone en la mano derecha una ficha de turno (papel blanco con franja roja) con el número o.num (texto corto, p. ej. '99')
+  cuerpo(o){ ctx.fillStyle='#22B8A8'; ctx.fillRect(-200,-205,400,175);
+    ctx.fillStyle='#1A9688'; rr(-95,-120,190,70,26); ctx.fill(); // bolsa canguro
+    ctx.fillStyle='#1A9688'; ctx.beginPath(); ctx.moveTo(-70,-205); ctx.quadraticCurveTo(0,-160,70,-205); ctx.closePath(); ctx.fill(); // cuello de la capucha
+    ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=7; ctx.lineCap='round'; const w=o.wob||0;
+    for(const s of [-1,1]){ ctx.beginPath(); ctx.moveTo(s*26,-192); ctx.lineTo(s*30+Math.sin((o.t||0)*3+s)*3+w*s*4,-140); ctx.stroke(); } },
+  cabeza(o){ const w=o.wob||0, t=o.t||0; ctx.save(); ctx.translate(0,-356); ctx.rotate(-0.05+w*0.06);
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.ellipse(0,0,128,70,0,Math.PI,0); ctx.fill();
+    ctx.fillStyle='#FF6B81'; rr(-136,-14,272,40,18); ctx.fill(); // doblez
+    ctx.strokeStyle='#C42E4A'; ctx.lineWidth=5; for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(i*30,-14); ctx.lineTo(i*26,-60+Math.abs(i)*6); ctx.stroke(); }
+    ctx.fillStyle='#FFFFFF'; blob(Math.sin(t*4)*6+w*14,-78-Math.abs(Math.sin(t*4))*4,30); // pompón
+    ctx.restore(); },
+  frente(o,B){ if(!o.ficha) return; const h=B[1].h; ctx.save(); ctx.translate(h[0]+6,h[1]-58); ctx.rotate(0.12+Math.sin((o.t||0)*3)*0.05);
+    ctx.fillStyle='#FFFFFF'; rr(-46,-62,92,124,10); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-46,-62,92,30,10); ctx.fill(); ctx.fillRect(-46,-44,92,12);
+    ctx.fillStyle='#1E1A2E'; ctx.font=fuente(String(o.num||'99').length>3?30:52); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(o.num||'99'),0,16);
+    ctx.restore(); }
+};

@@ -1,0 +1,295 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// fila-todos-001 — ¿Qué pasaría si TODOS hiciéramos una sola fila? (Parte 22)
+// Disfraces: formado (sudadera + gorro, ficha en la mano) → anciano (llega de abuelito) → formado (loop).
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  CH=[[0,1,2],[3,4],[5,6,7]].concat(CH.map(c=>c.filter(j=>j>=8)).filter(c=>c.length));
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(/[.?!…]$/.test(W[CH[c][0]].t) && c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; }
+    else if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) ci=0; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=ci<3?96:(window.CAPTION_SIZE||82); const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>760){size=Math.floor(size*760/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null){ let sn=0; for(let q=0;q<SC.length;q++) if(W[ch[0]].s>=SC[q].start) sn=q+1; CAPPOS[ci]=(window.CAPY&&CAPY[sn])||lugarCaption(total,size*1.25); }
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=(ci===0)?1:(t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16)));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda'||o.ficha)?300:215, izq=215;
+  let x0=-izq*s, x1=der*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-450*s],[o.x+x1,o.y-alto-450*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería general ----------
+let CUR=1;
+function L(txt,x,y,k,tipo='madera',opts={}){ let tam=opts.tam||72; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=700;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } x=clamp(x,170+w/2,910-w/2); y=clamp(y,390,520);
+  letrero(txt,x,y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',x-w/2,y-tam*0.85,x+w/2,y+tam*0.85); ctx.restore(); }
+function L2(l1,l2,k,tam1,tam2,col2,y1=370,y2=530){ if(k<=0) return; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ocupa(150,290,930,720,3);
+  for(const [txt,tam] of [[l1,tam1],[l2,tam2]]){ if(!txt) continue; ctx.font=fuente(tam); }
+  const fit=(txt,tam)=>{ ctx.font=fuente(tam); const w=ctx.measureText(txt).width+tam*1.2; return w>720?tam*720/w:tam; };
+  const a=fit(l1,tam1), b=l2?fit(l2,tam2):0;
+  letrero(l1,540,y1,k,'panel',{tam:a,sinPalo:true}); if(l2) letrero(l2,540,y2,k,'panel',{tam:b,sinPalo:true,color:col2}); chk('letrero',170,y1-a*0.85,910,(l2?y2+b*0.85:y1+a*0.85)); ctx.restore(); }
+const kIn=(t,t0,d=0.22)=>t<t0?0:easeOut(prog(t,t0,d));
+const FICHA='8,200,000,000';
+function tierra(x,y,r,t,sinGlow){ ctx.save(); if(!sinGlow){ const g=ctx.createRadialGradient(x,y,r*0.9,x,y,r*1.25); g.addColorStop(0,'rgba(127,216,255,0.8)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(x,y,r*1.25); }
+  ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.clip();
+  const sp=t*0.05*r; ctx.fillStyle='#5CD67A'; for(let i=0;i<7;i++){ const xx=x-r+(((rand(i)*2.4*r+sp)%(2.4*r))) - 0.2*r, yy=y-r*0.8+rand(i+7)*r*1.6; blob(xx,yy,r*(0.18+rand(i+3)*0.2)); blob(xx+r*0.15,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.85)'; for(let i=0;i<6;i++){ const xx=x-r+(((rand(i+20)*2.4*r+sp*1.6)%(2.4*r)))-0.2*r, yy=y-r*0.9+rand(i+27)*r*1.8; ctx.beginPath(); ctx.ellipse(xx,yy,r*0.22,r*0.05,0,0,PI2); ctx.fill(); }
+  ctx.fillStyle='rgba(30,26,80,0.25)'; ctx.beginPath(); ctx.arc(x+r*0.35,y+r*0.2,r*1.05,0,PI2); ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x-r*0.45,y-r*0.5,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+function luna(x,y,r){ ctx.fillStyle='rgba(255,246,200,0.25)'; blob(x,y,r*1.4); ctx.fillStyle='#FFF4C2'; blob(x,y,r); ctx.fillStyle='#EADFA8'; blob(x+r*0.3,y-r*0.2,r*0.22); blob(x-r*0.35,y+r*0.3,r*0.16); }
+// personita mini (frijolito pastel con ojos) — para filas lejanas
+function mini(x,y,s,col,t,i){ const b=Math.abs(Math.sin(t*5+i*1.3))*4*s; ctx.fillStyle=col; ctx.beginPath(); ctx.ellipse(x,y-20*s-b,16*s,20*s,0,0,PI2); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x-5*s,y-30*s-b,5*s,3*s,-0.5,0,PI2); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; blob(x-5*s,y-24*s-b,2.6*s); blob(x+5*s,y-24*s-b,2.6*s); }
+// anillos de fila alrededor de la Tierra: cada anillo es una elipse inclinada con personitas que avanzan.
+// cap(i) devuelve qué fracción del anillo i está dibujada (1 = completo).
+function anilloPts(X,Y,R,i){ const a=-0.62+((i*0.37)%1.24), rx=R*(1.1+(i%3)*0.05), ry=R*(0.28+(i%4)*0.04); return {a,rx,ry}; }
+function anillos(X,Y,R,n,t,parte,cap=()=>1,dotS=0.95){ const N=Math.round(30*R/250);
+  for(let i=0;i<n;i++){ const {a,rx,ry}=anilloPts(X,Y,R,i), c=cap(i); if(c<=0) continue; const ca=Math.cos(a), sa=Math.sin(a);
+    for(let j=0;j<N*c;j++){ const th=(j/N)*PI2+t*0.35*(i%2?1:-1)*0+t*0.3+i; const sn=Math.sin(th); if((parte==='atras')!==(sn<0)) continue;
+      const px=rx*Math.cos(th), py=ry*sn; const x=X+px*ca-py*sa, y=Y+px*sa+py*ca; if(parte==='atras'){ ctx.globalAlpha=0.55; } mini(x,y+8*dotS,dotS*R/250,PASTELES[(i+j)%6],t,j+i*7); ctx.globalAlpha=1; } } }
+// fila en perspectiva desde (x0,y0) cerca hasta (x1,y1) en el horizonte, con curva
+function filaPersp(t,x0,y0,x1,y1,n,s0,s1,curva=0,seed=0){ for(let i=n-1;i>=0;i--){ const u=i/(n-1), e=Math.pow(u,0.55), x=lerp(x0,x1,e)+Math.sin(u*Math.PI)*curva, y=lerp(y0,y1,e), s=lerp(s0,s1,Math.pow(u,0.45));
+  if(s>0.16) gomita({x,y,s,t,color:PASTELES[(i+seed)%6],expr:['feliz','sospecha','yavalio'][(i+seed)%3],seed:i+seed,brazos:'idle',espejo:x>540});
+  else mini(x,y,s*3.2,PASTELES[(i+seed)%6],t,i); } }
+// mar de gente hasta el horizonte (filas de personitas)
+function multitud(t,y0,y1,filas=7,s0=0.7,s1=2.2){ for(let r=0;r<filas;r++){ const u=r/(filas-1), y=y0+Math.pow(u,1.25)*(y1-y0), s=s0+u*(s1-s0), dx=44*s, n=Math.ceil(1300/dx);
+  for(let i=0;i<n;i++){ const x=-60+i*dx+(r%2)*dx/2+Math.sin(t*2+i)*2; mini(x,y,s,PASTELES[(i+r*2)%6],t,i+r*13); } } }
+// ficha de turno grande (objeto del mundo)
+function fichaGrande(x,y,s,k,num,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*3)*0.05); ctx.scale(s*k,s*k);
+  ctx.fillStyle='rgba(30,26,46,0.25)'; rr(-150,-90,310,200,20); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-160,-100,320,200,20); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-160,-100,320,54,20); ctx.fill(); ctx.fillRect(-160,-66,320,20);
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(34); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('TURNO',0,-72);
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(num.length>6?44:80); ctx.fillText(num,0,24); ctx.restore(); chk('obj',x-160*s*k,y-100*s*k,x+160*s*k,y+100*s*k); ocupa(x-170*s,y-110*s,x+170*s,y+110*s,2); }
+// regla de medio metro
+function regla(x,y,w,k,txt,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,1); ctx.fillStyle='#FFD23F'; rr(-w/2,-34,w,68,14); ctx.fill(); ctx.fillStyle='#E0A800'; rr(-w/2,16,w,18,8); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<=10;i++){ const xx=-w/2+20+i*(w-40)/10; rr(xx-3,-34,6,i%5?22:40,3); ctx.fill(); } ctx.restore();
+  if(k>0.6){ ctx.save(); ctx.fillStyle='#1E1A2E'; ctx.font=fuente(56); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.lineWidth=12; ctx.strokeStyle='#FFFFFF'; ctx.strokeText(txt,x,y-80); ctx.fillText(txt,x,y-80); ctx.restore(); }
+  chk('obj',x-w/2,y-110,x+w/2,y+34); ocupa(x-w/2,y-120,x+w/2,y+40,2); }
+// ventanilla de atención con cajera gomita
+function ventanilla(x,y,s,t,o={}){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+  ctx.fillStyle='#7A5BC9'; rr(-240,-620,480,640,30); ctx.fill(); ctx.fillStyle='#9B7FE0'; rr(-240,-620,480,70,30); ctx.fill();
+  ctx.fillStyle='#FFFFFF'; ctx.font=fuente(50); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(o.letrero||'CAJA 1',0,-585);
+  ctx.fillStyle='#BFE9FF'; rr(-180,-520,360,280,24); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.beginPath(); rr(x-180*s,y-520*s,360*s,280*s,24*s); ctx.clip(); gomita({x,y:y-150*s,s:0.5*s,t,color:'#FFC9A8',disfraz:'cobrador',expr:o.expr||'feliz',brazos:o.brazos||'saluda',seed:3}); ctx.restore();
+  ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.moveTo(-150,-510); ctx.lineTo(-90,-510); ctx.lineTo(-160,-250); ctx.lineTo(-175,-250); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#5B4B8A'; rr(-260,-250,520,50,16); ctx.fill(); ctx.restore(); chk('obj',x-260*s,y-620*s,x+260*s,y+20*s); }
+// reloj de pared
+function reloj(x,y,s,t,vel=3){ ocupa(x-120*s,y-120*s,x+120*s,y+120*s,1.5); ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; blob(0,0,110); ctx.strokeStyle='#FF5FA2'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,110,0,PI2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,18,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(t*vel); ctx.fillStyle='#E23D5B'; rr(-4,-90,8,96,4); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(t*vel/12); ctx.fillStyle='#1E1A2E'; rr(-7,-60,14,66,7); ctx.fill(); ctx.restore(); blob(0,0,12); ctx.restore(); chk('obj',x-120*s,y-120*s,x+120*s,y+120*s); }
+// calendario con hojas que vuelan y contador
+function calendario(x,y,s,k,t,t0,hasta,d,txt='AÑOS'){ ocupa(x-130*s,y-170*s,x+130*s,y+140*s,1.5); if(k<=0) return; chk('obj',x-130*s,y-160*s,x+130*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-130,-140,260,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-130,-140,260,70,22); ctx.fill(); ctx.fillRect(-130,-100,260,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-120,-60,240,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; const v=contador(t,t0,d,0,hasta); ctx.font=fuente(v.length>4?78:110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore();
+  if(t>t0 && t<t0+d) for(let i=0;i<5;i++){ const u=((t-t0)*2.2+i/5)%1; ctx.save(); ctx.globalAlpha=1-u; ctx.translate(x+(60+u*260)*(i%2?1:-1)*s,y-u*260*s); ctx.rotate(u*4+i); ctx.fillStyle='#F3EEFF'; rr(-40*s,-30*s,80*s,60*s,8*s); ctx.fill(); ctx.restore(); } }
+function sudor(x,y,s,t,n=3){ for(let i=0;i<n;i++){ const a=-2.5+i*0.6; ctx.fillStyle='#7FD8FF'; const xx=x+Math.cos(a)*170*s, yy=y-290*s+Math.sin(a)*150*s+((t*2+i*0.3)%1)*30; ctx.beginPath(); ctx.moveTo(xx,yy-14*s*2); ctx.quadraticCurveTo(xx+10*s*2,yy,xx,yy+6*s*2); ctx.quadraticCurveTo(xx-10*s*2,yy,xx,yy-14*s*2); ctx.fill(); } }
+function camino(y,col,col2){ ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(-300,2400); ctx.lineTo(470,y); ctx.lineTo(610,y); ctx.lineTo(1380,2400); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=col2; for(let i=0;i<7;i++){ const u=i/7, yy=lerp(y+20,1900,Math.pow(u,1.6)), w=lerp(4,30,u); rr(540-w/2,yy,w,lerp(10,70,u),w/2); ctx.fill(); } }
+function letreroBano(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#5B4B8A'; rr(-12,0,24,300,10); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-110,-150,220,160,24); ctx.fill();
+  ctx.fillStyle='#4B6BFB'; ctx.font=fuente(84); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('WC',0,-70); ctx.restore(); chk('obj',x-110*s*k,y-150*s*k,x+110*s*k,y+300*s*k); }
+function tacheGrande(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.strokeStyle='#FF4D5E'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-90,-90); ctx.lineTo(90,90); ctx.moveTo(90,-90); ctx.lineTo(-90,90); ctx.stroke(); ctx.restore(); }
+function telarana(x,y,s,k){ if(k<=0) return; ctx.save(); ctx.globalAlpha=0.85*k; ctx.translate(x,y); ctx.scale(s,s); ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=4;
+  for(let i=0;i<6;i++){ const a=i*Math.PI/10; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*220,Math.sin(a)*220); ctx.stroke(); }
+  for(let r=50;r<=210;r+=40){ ctx.beginPath(); for(let i=0;i<6;i++){ const a=i*Math.PI/10; const px=Math.cos(a)*r, py=Math.sin(a)*r; i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.stroke(); } ctx.restore(); }
+function banco(x,y,s,t){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#E9E4FF'; rr(-330,-560,660,560,20); ctx.fill(); ctx.fillStyle='#B9A8F0'; ctx.beginPath(); ctx.moveTo(-380,-560); ctx.lineTo(0,-760); ctx.lineTo(380,-560); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FFFFFF'; for(let i=0;i<4;i++){ rr(-270+i*170,-500,60,440,14); ctx.fill(); } ctx.fillStyle='#5B4B8A'; rr(-90,-260,180,260,16); ctx.fill();
+  ctx.fillStyle='#5B4B8A'; ctx.font=fuente(78); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('BANCO',0,-610); ctx.restore(); chk('obj',x-380*s,y-760*s,x+380*s,y); }
+function bebe(x,y,s,t,i,k){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.translate(-x,-y); mini(x,y,s,PASTELES[i%6],t,i); ctx.fillStyle='#FF5FA2'; blob(x,y-16*s,4.5*s); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.ellipse(x,y-38*s,12*s,6*s,0,0,PI2); ctx.fill(); ctx.restore(); }
+function velocimetro(x,y,s,k,val,t){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(0,0,130,Math.PI,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#5B4B8A'; ctx.lineWidth=14; ctx.stroke();
+  ctx.save(); ctx.rotate(-Math.PI/2+(-0.9+Math.sin(t*6)*0.05)); ctx.fillStyle='#E23D5B'; rr(-6,-110,12,110,6); ctx.fill(); ctx.restore(); blob(0,0,14);
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(48); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(val,0,-48); ctx.restore(); chk('obj',x-130*s,y-130*s,x+130*s,y+10*s); ocupa(x-140*s,y-140*s,x+140*s,y+20*s,2); }
+
+// ====================== escenas ======================
+// S1/S26 GANCHO: la Tierra enrollada en anillos de fila (personitas que avanzan) desde el cuadro 0; la fila baja desde la Tierra hasta
+// el primer plano y termina en Raro FORMADO con su ficha, brincando de impaciencia y estirándose para ver el frente. Letrero desde el cuadro 0.
+function escenaGancho(t,y0=0){ const X=600,Y=1170,R=210;
+  anillos(X,Y,R,6,t,'atras'); tierra(X,Y,R,t); anillos(X,Y,R,6,t,'frente');
+  ocupa(X-R*1.3,Y-R*1.0,X+R*1.3,Y+R*1.0,1.2);
+  // fila que sube desde Raro (hasta atrás) y se enrolla en la Tierra
+  for(let i=13;i>=0;i--){ const u=i/13, x=lerp(500,X+R*1.05,Math.pow(u,0.8)), y=lerp(1440,Y+R*0.2,Math.pow(u,0.9)), s=lerp(0.36,0.1,Math.pow(u,0.7));
+    if(s>0.15) gomita({x,y,s,t,color:PASTELES[(i+2)%6],expr:i%2?'sospecha':'feliz',seed:i+2,brazos:'idle'}); else mini(x,y,s*3.4,PASTELES[(i+2)%6],t,i); }
+  const b=Math.abs(Math.sin(t*5.2)); // brinquitos de impaciencia
+  raro({x:310,y:1440-y0,s:0.7,t,disfraz:'formado',ficha:true,num:'?',expr:t%2.2<1.1?'asombro':'sospecha',brazos:'idle',manos:{i:[-150,-330+b*30],d:[150,-200]},alto:b*40,sq:-b*0.04,mira:{x:700,y:1000}});
+  L2('¡TODOS EN FILA!','100 VUELTAS A LA TIERRA',1,100,74,'#D7FF3D'); }
+function S1(t,sc){ escenaGancho(t); }
+function S26(t,sc){ const c=caida(t,sc.start+0.02,700); escenaGancho(t,0); if(t<sc.start+0.4) nubePuf(t,sc.start+0.3,330,1300,0.8); }
+// S2 "Somos más de 8,000 millones.": mar de personitas hasta el horizonte; Raro brinca saludando en medio; contador.
+function S2(t,sc){ multitud(t,1000,1560,8,0.7,2.4); const b=brinco(t,sc.start+0.3,0.5,200);
+  raro({x:540,y:1440,s:0.55,t,disfraz:'formado',expr:'risa',brazos:'saluda',alto:b.alto,sq:b.sq,wob:b.wob});
+  const v=t>=at(11)?contador(t,at(11),0.8,0,8000):'…'; L2(t>=at(11)?v+' MILLONES':'SOMOS MÁS DE…','DE PERSONAS',kIn(t,sc.start+0.03),100,72,'#D7FF3D'); }
+// S3 "Si cada quien ocupa medio metro,": toma cerrada lateral: Raro y una gomita formados; Raro estira los brazos marcando el espacio; regla amarilla de 0.5 m entre los dos.
+function S3(t,sc){ ctx.fillStyle=PAL_ACTUAL.medio; rr(-300,1440,1680,600,0); ctx.fill();
+  gomita({x:820,y:1440,s:0.5,t,color:PASTELES[0],expr:'sospecha',brazos:'idle',seed:2,espejo:true});
+  const k=kIn(t,at(16),0.3); raro({x:300,y:1440,s:0.55,t,disfraz:'formado',expr:k>0?'orgullo':'feliz',brazos:k>0?'frente':'idle',sq:gelatina(t,at(16),0.3)});
+  regla(560,1060,340,k,'0.5 m',t); L('MEDIO METRO C/U',540,430,kIn(t,sc.start+0.03),'madera',{tam:84}); }
+// S4 "la fila mide 4 millones de kilómetros.": camino en perspectiva con la fila perdiéndose en el horizonte; Raro adelante, señalando; contador.
+function S4(t,sc){ camino(1020,mix(PAL_ACTUAL.claro,'#FFFFFF',0.3),PAL_ACTUAL.oscuro); filaPersp(t,600,1500,545,1030,26,0.5,0.03,40,4);
+  const k=kIn(t,at(21)); raro({x:300,y:1440,s:0.58,t,disfraz:'formado',ficha:true,num:'?',expr:k>0?'asombro':'feliz',brazos:'senala',ojos:k>0?1.5:1,sq:gelatina(t,at(21),0.3)});
+  L2(t>=at(21)?contador(t,at(21),0.7,0,4000000)+' KM':'LA FILA MIDE…','DE PERSONAS FORMADAS',kIn(t,sc.start+0.03),100,66,'#D7FF3D'); }
+// S5 "O sea, más de 100 vueltas al planeta…": la Tierra enorme se va enrollando: anillos que aparecen uno tras otro; contador de vueltas; Raro flota en el espacio con la ficha.
+function S5(t,sc){ const X=540,Y=1120,R=260; const n=t<at(28)?3:3+Math.floor(clamp((t-at(28))/0.6)*11);
+  anillos(X,Y,R,n,t,'atras'); tierra(X,Y,R,t); anillos(X,Y,R,n,t,'frente'); if(t>=at(28)) lineasVelocidad(t,at(28),X,Y,'#D7FF3D');
+  ocupa(X-R*1.3,Y-R,X+R*1.3,Y+R,1.2);
+  raro({x:860,y:1500+Math.sin(t*2)*12,s:0.42,t,disfraz:'formado',ficha:true,num:'?',piernas:'flota',expr:t>=at(28)?'asombro':'feliz',ojos:t>=at(28)?1.8:1,brazos:'idle',espejo:true,tilt:Math.sin(t*1.5)*0.1});
+  L2(t>=at(28)?'+'+contador(t,at(28),0.6,0,100)+' VUELTAS':'O SEA…','AL PLANETA',kIn(t,sc.start+0.03),100,72,'#D7FF3D'); }
+// S6 "o 10 veces de aquí a la Luna.": Tierra abajo, Luna arriba; la fila va y viene en zigzag 10 veces; Raro llega a la Luna y clava su ficha.
+function S6(t,sc){ const E=[300,1470], M=[740,1130]; tierra(E[0],E[1],150,t); luna(M[0],M[1],95);
+  const u=clamp((t-sc.start-0.1)/(sc.end-sc.start-0.6)); const tramos=Math.floor(u*10.99);
+  for(let k=0;k<=tramos && k<10;k++){ const f=k<tramos?1:(u*10.99-tramos); const dx=(k-4.5)*14; const A=k%2?[M[0]+dx,M[1]]:[E[0]+dx,E[1]], B=k%2?[E[0]+dx,E[1]]:[M[0]+dx,M[1]];
+    for(let j=0;j<=24*f;j++){ const v=j/24; mini(lerp(A[0],B[0],v),lerp(A[1],B[1],v),0.7,PASTELES[(j+k)%6],t,j+k*30); } }
+  ocupa(150,700,930,1500,1.2);
+  const hop=Math.abs(Math.sin(t*4)); raro({x:740,y:1130-88,s:0.32,t,disfraz:'formado',ficha:true,num:'?',expr:'risa',brazos:'arriba',alto:hop*40,piernas:'flota'});
+  L2('10 VECES','DE AQUÍ A LA LUNA',kIn(t,sc.start+0.03),110,72,'#D7FF3D'); }
+// S7 "Y tú quedaste hasta atrás, con tu ficha.": Raro al final de la fila (todos delante de él) recibe la ficha: número gigante; pone cara de "ya valió".
+function S7(t,sc){ filaPersp(t,620,1300,700,1000,16,0.36,0.05,-40,7);
+  const k=kIn(t,at(46),0.3); raro({x:330,y:1440,s:0.66,t,disfraz:'formado',expr:k>0?'yavalio':'feliz',brazos:k>0?'idle':'saluda',sq:gelatina(t,at(44),0.35)});
+  fichaGrande(720,1260,0.95,popIn(t,at(46)),FICHA,t);
+  L(k>0?'TU FICHA':'HASTA ATRÁS',540,430,kIn(t,k>0?at(46):sc.start+0.03),'madera',{tam:96}); }
+// S8 "¿Cuánto tardas en llegar al frente?": toma cerrada: Raro con la mano en la frente buscando el frente de la fila; ojos entrecerrados.
+function S8(t,sc){ filaPersp(t,760,1440,560,980,20,0.4,0.03,0,9);
+  raro({x:330,y:1440,s:0.78,t,disfraz:'formado',ficha:true,num:'?',expr:'sospecha',manos:{i:[-60,-330],d:[150,-200]},tilt:Math.sin(t*2)*0.06,mira:{x:600,y:900}});
+  L('¿CUÁNTO TARDAS?',540,430,kIn(t,sc.start+0.03),'panel',{tam:100,color:'#D7FF3D'}); }
+// S9 "Caminando a 5 km/h,": Raro camina junto a la fila (que pasa de derecha a izquierda); velocímetro en 5 km/h.
+function S9(t,sc){ const off=(t*260)%160; for(let i=-1;i<9;i++){ const x=i*160-off+80; gomita({x,y:1260,s:0.24,t,color:PASTELES[(i+20)%6],expr:'feliz',brazos:'idle',seed:i+30}); }
+  ctx.fillStyle=PAL_ACTUAL.oscuro; rr(-300,1440,1680,600,0); ctx.fill();
+  raro({x:480,y:1440,s:0.6,t,disfraz:'formado',ficha:true,num:'?',piernas:'camina',brazos:'idle',expr:'feliz'});
+  velocimetro(800,1060,0.8,popIn(t,at(56)),'5 KM/H',t); L('CAMINANDO…',540,430,kIn(t,sc.start+0.03),'madera',{tam:96}); }
+// S10 "sin parar ni para ir al baño…": Raro camina cruzando las piernas, sudando, pasa junto a un letrero de WC que se tacha.
+function S10(t,sc){ const off=(t-sc.start)*320; letreroBano(830-off*0.6,1140,0.9,1); tacheGrande(830-off*0.6,1077,0.7,popIn(t,at(62)));
+  ctx.fillStyle=PAL_ACTUAL.oscuro; rr(-300,1440,1680,600,0); ctx.fill();
+  const w=Math.sin(t*14); raro({x:380,y:1440,s:0.66,t,disfraz:'formado',ficha:true,num:'?',piernas:'camina',brazos:'idle',expr:'terror',tilt:w*0.06,sq:Math.abs(w)*0.03}); sudor(380,1440,0.66,t);
+  L('¡NI PARA IR AL BAÑO!',540,430,kIn(t,at(60)),'panel',{tam:88}); }
+// S11 "más de 90 años.": calendario con hojas volando hasta 90; Raro sigue caminando, cansado.
+function S11(t,sc){ calendario(720,1050,1.05,popIn(t,sc.start+0.05),t,sc.start+0.1,90,1.4,'AÑOS');
+  ctx.fillStyle=PAL_ACTUAL.oscuro; rr(-300,1440,1680,600,0); ctx.fill();
+  raro({x:300,y:1440,s:0.6,t,disfraz:'formado',ficha:true,num:'?',piernas:'camina',brazos:'idle',expr:t>=at(67)?'llanto':'asombro',tilt:0.06});
+  L('MÁS DE 90 AÑOS',540,430,kIn(t,at(67)),'panel',{tam:100,color:'#D7FF3D'}); }
+// S12 "Llegas de abuelito.": ¡puf! Raro se vuelve abuelito con bastón y bigote; llega al frente temblando.
+function S12(t,sc){ const p=pufCambio(t,sc.start+0.03); ventanilla(700,1440,0.75,t);
+  const tr=Math.sin(t*22)*0.02; raro({x:360,y:1440,s:0.66,t,disfraz:p.despues?'anciano':'formado',ficha:!p.despues,num:'?',spin:p.spin,expr:p.despues?'orgullo':'asombro',brazos:'idle',tilt:tr,piernas:'quieto'});
+  nubePuf(t,sc.start+0.11,360,1260,0.85); L('¡LLEGAS DE ABUELITO!',540,430,kIn(t,sc.start+0.1),'panel',{tam:90,color:'#D7FF3D'}); }
+// S13 "Pero lo bueno es la ventanilla.": ¡puf! de regreso: la ventanilla CAJA 1 al centro con la cajera; Raro formado al final, señalándola.
+function S13(t,sc){ const p=pufCambio(t,sc.start+0.03); ventanilla(560,1440,1.05,t,{expr:'feliz',brazos:'saluda'});
+  raro({x:250,y:1440,s:0.5,t,disfraz:p.despues?'formado':'anciano',ficha:p.despues,num:'?',spin:p.spin,expr:'sospecha',brazos:'senala'}); nubePuf(t,sc.start+0.11,250,1300,0.9);
+  L('LA VENTANILLA',540,430,kIn(t,sc.start+0.05),'madera',{tam:96}); }
+// S14 "Si atienden a cada quien en un minuto,": la cajera sella; las gomitas pasan una por una frente a la ventanilla; reloj gira; Raro espera golpeando el pie.
+function S14(t,sc){ reloj(810,960,0.6,t,6); ventanilla(540,1440,0.9,t,{expr:'feliz',brazos:Math.sin(t*10)>0?'arriba':'idle'});
+  const u=((t-sc.start)*1.6)%1; gomita({x:lerp(330,900,u),y:1440,s:0.3,t,color:PASTELES[Math.floor((t-sc.start)*1.6)%6],expr:'feliz',brazos:'saluda',seed:5});
+  const tap=Math.abs(Math.sin(t*8)); raro({x:250,y:1440,s:0.52,t,disfraz:'formado',ficha:true,num:'?',expr:'sospecha',brazos:'jarras',alto:tap*10});
+  L('UN MINUTO POR PERSONA',540,430,kIn(t,at(84)),'panel',{tam:80,color:'#D7FF3D'}); }
+// S15 "el último pasa en más de 15,000 años.": calendario disparado hasta 15,000; Raro sigue formado lleno de telarañas, llorando.
+function S15(t,sc){ calendario(740,1040,1.0,1,t,sc.start+0.1,15000,1.6,'AÑOS'); const k=kIn(t,at(92),0.5);
+  raro({x:330,y:1440,s:0.66,t,disfraz:'formado',ficha:true,num:'?',expr:t>=at(92)?'llanto':'asombro',brazos:'idle'}); telarana(330-140,1440-430,0.8,k); telarana(330+140,1440-200,0.6,k);
+  if(t>=at(92)) lineasVelocidad(t,at(92),740,1040,'#FFFFFF');
+  L2('EL ÚLTIMO PASA EN','+15,000 AÑOS',kIn(t,sc.start+0.03),76,100,'#D7FF3D'); }
+// S16 "¡Ni la fila del banco en quincena!": fachada de BANCO con fila; Raro voltea a cámara con cara de "¿neta?" (interrupción).
+function S16(t,sc){ banco(660,1400,0.68,t); filaPersp(t,520,1440,640,1300,8,0.3,0.14,0,12);
+  const b=caida(t,sc.start+0.02,900); raro({x:280,y:1440,s:0.72,t,disfraz:'formado',ficha:true,num:'?',expr:'sospecha',brazos:'jarras',mira:{x:0,y:0},alto:b.alto,sq:b.sq,wob:b.wob});
+  L2('¡NI EL BANCO','EN QUINCENA!',kIn(t,sc.start+0.05),96,96,'#D7FF3D'); }
+// S17 "Y aquí viene lo feo:": toma muy cerrada; la luz baja; Raro traga saliva, ojos al doble.
+function S17(t,sc){ ctx.fillStyle='rgba(30,10,60,0.35)'; ctx.fillRect(-300,-300,1680,2500);
+  raro({x:540,y:1440,s:0.9,t,disfraz:'formado',ficha:true,num:'?',expr:'terror',ojos:1.8,brazos:'cara',sq:gelatina(t,at(105),0.4)}); sudor(540,1440,0.9,t);
+  L('LO FEO…',540,430,kIn(t,sc.start+0.03),'piedra',{tam:110}); }
+// S18 "mientras esperas, la fila crece.": Raro formado; detrás de él llegan corriendo gomitas que se van formando (pop); la fila se alarga hacia la izquierda.
+function S18(t,sc){ filaPersp(t,520,1300,700,1000,10,0.3,0.06,0,15);
+  raro({x:690,y:1440,s:0.7,t,disfraz:'formado',ficha:true,num:'?',expr:t>=at(110)?'terror':'asombro',ojos:t>=at(110)?1.6:1,brazos:'idle',mira:{x:200,y:1300},espejo:true});
+  for(let i=0;i<5;i++){ const t0=at(106)+i*0.3, k=clamp((t-t0)/0.35); if(k<=0) continue; const tx=430-i*90; const x=k<1?lerp(-150,tx,easeOut(k)):tx;
+    gomita({x,y:1440,s:0.28,t,color:PASTELES[(i+3)%6],expr:'feliz',brazos:k<1?'corre':'idle',piernas:k<1?'corre':'quieto',seed:i+50}); if(k>=1&&t<t0+0.6) chispas(t,t0+0.35,tx,1300,0.4,'#FFFFFF'); }
+  L('¡LA FILA CRECE!',540,430,kIn(t,at(109)),'panel',{tam:100,color:'#D7FF3D'}); }
+// S19 "Cada año somos unos 70 millones más.": bebés (personitas con chupón) brotan en cascada; Raro carga a uno con cara de ternura y susto.
+function S19(t,sc){ for(let i=0;i<20;i++){ const x=200+(i%5)*170+(Math.floor(i/5)%2)*60, y=880+Math.floor(i/5)*130; if(Math.abs(x-540)<170&&y>1100) continue; bebe(x,y,2.4,t,i,popIn(t,sc.start+0.1+i*0.07)); }
+  ocupa(150,820,930,1400,1);
+  raro({x:540,y:1440,s:0.6,t,disfraz:'formado',expr:'asombro',brazos:'frente',ojos:1.4,sq:gelatina(t,at(115),0.3)}); bebe(540,1440-150*0.6/0.55,3.4,t,3,1);
+  L2(t>=at(115)?'+'+contador(t,at(115),0.6,0,70)+' MILLONES':'CADA AÑO…',t>=at(115)?'DE PERSONAS POR AÑO':null,kIn(t,sc.start+0.03),100,66,'#D7FF3D'); }
+// S20 "Son 35,000 km nuevos de fila…": carretera; la fila se estira hacia el horizonte a toda velocidad; Raro corre al lado; odómetro.
+function S20(t,sc){ camino(1000,mix(PAL_ACTUAL.claro,'#FFFFFF',0.3),PAL_ACTUAL.oscuro); const n=6+Math.floor(clamp((t-sc.start)/1.8)*24); filaPersp(t,620,1500,550,1010,n,0.45,0.03,30,18);
+  raro({x:300,y:1440,s:0.58,t,disfraz:'formado',ficha:true,num:'?',piernas:'corre',brazos:'corre',expr:'terror',viento:1});
+  L2(t>=at(119)?'+'+contador(t,at(119),0.9,0,35000)+' KM':'SON…','DE FILA NUEVA',kIn(t,sc.start+0.03),100,72,'#D7FF3D'); }
+// S21 "casi otra vuelta a la Tierra cada año.": la Tierra; un anillo nuevo se dibuja hasta el 87 % (queda un huequito); Raro flota empujando la punta.
+function S21(t,sc){ const X=540,Y=1120,R=260; const c=0.87*clamp((t-sc.start-0.1)/1.4);
+  const arco=(parte)=>{ const {a,rx,ry}=anilloPts(X,Y,R,1); ctx.save(); ctx.translate(X,Y); ctx.rotate(a); ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=14; ctx.lineCap='round'; ctx.beginPath();
+    const th0=1, th1=1+c*PI2; for(let k=0;k<=80;k++){ const th=lerp(th0,th1,k/80), sn=Math.sin(th); const front=sn>=0; const px=rx*Math.cos(th), py=ry*sn; if((parte==='frente')===front){ ctx.lineTo(px,py); } else { ctx.stroke(); ctx.beginPath(); } } ctx.stroke(); ctx.restore(); };
+  arco('atras'); tierra(X,Y,R,t); arco('frente');
+  if(c>0){ const {a,rx,ry}=anilloPts(X,Y,R,1), th=1+c*PI2, px=rx*Math.cos(th), py=ry*Math.sin(th); const hx=X+px*Math.cos(a)-py*Math.sin(a), hy=Y+px*Math.sin(a)+py*Math.cos(a); mini(hx,hy+20,1.6,PASTELES[1],t,9); }
+  ocupa(X-R*1.3,Y-R,X+R*1.3,Y+R,1.2);
+  raro({x:270,y:1490+Math.sin(t*2)*10,s:0.48,t,disfraz:'formado',ficha:true,num:'?',piernas:'flota',expr:'asombro',brazos:'arriba',tilt:-0.15});
+  L(t>=at(129)?'¡CASI 1 VUELTA MÁS POR AÑO!':'CASI OTRA VUELTA…',540,430,kIn(t,t>=at(129)?at(129):sc.start+0.03),'panel',{tam:84,color:t>=at(129)?'#D7FF3D':undefined}); }
+// S22 "O sea, con una sola ventanilla,": ventanilla chiquita a lo lejos, una fila kilométrica; Raro de jarras señalando "UNA".
+function S22(t,sc){ ventanilla(740,1300,0.58,t,{letrero:'ÚNICA',expr:'yavalio',brazos:'idle'}); filaPersp(t,300,1500,700,1260,14,0.3,0.12,-120,22);
+  const b=caida(t,sc.start+0.02,900); raro({x:240,y:1440,s:0.62,t,disfraz:'formado',ficha:true,num:'?',expr:'sospecha',brazos:'senala',alto:b.alto,sq:b.sq,wob:b.wob});
+  L('UNA SOLA VENTANILLA',540,430,kIn(t,sc.start+0.05),'madera',{tam:86}); }
+// S23 REVELACIÓN "la fila nunca se acaba.": espiral de fila que se pierde al infinito; Raro cae sentado con cara de "ya valió".
+function S23(t,sc){ const cx=540,cy=1050; for(let i=0;i<140;i++){ const a=i*0.21+t*0.8, r=20+i*3.4; mini(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.75,0.3+i*0.008,PASTELES[i%6],t,i); }
+  if(t>=at(140)) lineasVelocidad(t,at(140),cx,cy,'#D7FF3D'); ocupa(100,560,980,1500,1);
+  const b=susto(t,at(140)); raro({x:540,y:1440,s:0.62,t,disfraz:'formado',ficha:true,num:'?',expr:t>=at(140)?'yavalio':'asombro',brazos:t>=at(140)?'arriba':'idle',alto:b.alto,sq:b.sq,wob:b.wob});
+  L2('LA FILA','¡NUNCA SE ACABA!',kIn(t,sc.start+0.03),100,100,'#D7FF3D'); }
+// S24 "¿Tú en qué lugar quedarías?": Raro le ofrece su ficha a cámara; fichas que caen.
+function S24(t,sc){ for(let i=0;i<8;i++){ const u=((t-sc.start)*0.8+rand(i+90))%1; fichaGrande(200+rand(i+80)*560,560+u*900,0.32,1,String(Math.floor(rand(i+70)*900+100)),t+i); }
+  raro({x:480,y:1440,s:0.78,t,disfraz:'formado',ficha:true,num:'?',expr:'feliz',brazos:'senala',mira:{x:0,y:0},sq:gelatina(t,sc.start+0.05,0.3)});
+  L('¿TÚ EN QUÉ LUGAR?',540,430,kIn(t,sc.start+0.03),'panel',{tam:96,color:'#D7FF3D'}); }
+// S25 "Parte 23: ¿y si todos corremos hacia el mismo lado?": gomitas corriendo todas hacia la derecha por los cerros; Raro corre con ellas.
+function S25(t,sc){ for(let i=0;i<9;i++){ const x=((t*300+i*170)%1500)-200, y=1190+(i%3)*50; gomita({x,y,s:0.22+(i%3)*0.03,t,color:PASTELES[i%6],expr:'risa',brazos:'corre',piernas:'corre',seed:i+60}); }
+  raro({x:430,y:1440,s:0.62,t,disfraz:'formado',ficha:true,num:'?',piernas:'corre',brazos:'corre',expr:'risa',viento:1}); rachas&&rachas(t,1,0.5,900,1500);
+  const pt=t>=at(150); L(pt?'¿TODOS CORRIENDO?':'PARTE 23',540,430,kIn(t,pt?at(150):sc.start+0.03),'panel',{tam:pt?96:130,color:pt?'#D7FF3D':undefined}); }
+
+const ORDER0=[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24,S25,S26];
+window.SCENES=ORDER0.map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ocupa(150,330,930,665,2); ctx.restore(); f(t,sc);});
+window.CHIPS={}; window.CAPY={1:745,26:745,5:720,21:720};
+window.FONDOS={1:{pal:'violeta',tipo:'espacio',pp:false},2:{pal:'mandarina',tipo:'cerros',pp:false},3:{pal:'turquesa',tipo:'liso',pp:false},4:{pal:'limon',tipo:'desierto',pp:false},5:{pal:'violeta',tipo:'espacio',pp:false},
+  6:{pal:'magenta',tipo:'espacio',pp:false},7:{pal:'cielo',tipo:'cerros',pp:false},8:{pal:'mandarina',tipo:'desierto',pp:false},9:{pal:'turquesa',tipo:'ciudad',pp:false},10:{pal:'magenta',tipo:'cerros',pp:false},
+  11:{pal:'limon',tipo:'ciudad',pp:false},12:{pal:'cielo',tipo:'interior',pp:false},13:{pal:'mandarina',tipo:'interior',pp:false},14:{pal:'turquesa',tipo:'interior',pp:false},15:{pal:'violeta',tipo:'liso',pp:false},
+  16:{pal:'limon',tipo:'ciudad',pp:false},17:{pal:'magenta',tipo:'liso',pp:false},18:{pal:'cielo',tipo:'cerros',pp:false},19:{pal:'mandarina',tipo:'liso',pp:false},20:{pal:'turquesa',tipo:'desierto',pp:false},
+  21:{pal:'violeta',tipo:'espacio',pp:false},22:{pal:'limon',tipo:'cerros',pp:false},23:{pal:'magenta',tipo:'liso',pp:false},24:{pal:'cielo',tipo:'interior',pp:false},25:{pal:'mandarina',tipo:'cerros',pp:false},26:{pal:'violeta',tipo:'espacio',pp:false}};
+window.TOMAS={1:{mov:'push',z:1.04,foco:[500,1150]},2:{mov:'paneo-der'},3:{mov:'push',z:1.12,foco:[560,1250]},4:{mov:'pull'},5:{mov:'push',z:1.06,foco:[540,1150]},6:{mov:'sube'},7:{mov:'push',z:1.1,foco:[520,1200]},
+  8:{mov:'push',z:1.15,foco:[420,1150]},9:{mov:'paneo-izq'},10:{mov:'push',z:1.08,foco:[420,1250]},11:{mov:'pull'},12:{mov:'push',z:1.06,foco:[560,1250]},13:{mov:'pull'},14:{mov:'push',z:1.04,foco:[540,1200]},15:{mov:'push',z:1.08,foco:[540,1200]},
+  16:{mov:'push',z:1.05,foco:[540,1200]},17:{mov:'push',z:1.25,foco:[540,1150]},18:{mov:'paneo-izq'},19:{mov:'pull'},20:{mov:'push',z:1.06,foco:[480,1250]},21:{mov:'orbita'},22:{mov:'pull'},23:{mov:'push',z:1.06,foco:[540,1150]},
+  24:{mov:'push',z:1.1,foco:[480,1150]},25:{mov:'paneo-der'},26:{mov:'push',z:1.04,foco:[500,1150]}};
+window.TRANS={2:'latigazo',3:'bufanda',4:'latigazo',5:'zoom',6:'latigazo',7:'bufanda',9:'latigazo',11:'zoom',13:'latigazo',15:'zoom',16:'bufanda',18:'latigazo',19:'zoom',20:'latigazo',21:'zoom',22:'bufanda',23:'zoom',24:'latigazo',25:'bufanda',26:'latigazo'};
+window.KEYWORDS=[2,3,11,16,21,28,33,41,47,53,56,64,67,71,77,85,92,100,105,110,115,119,126,137,140,146,153,160];
+window.SHAKES=[3,21,28,67,92,110,140];
+window.FLASHES=[[3,'#FFFFFF'],[28,'#D7FF3D'],[92,'#FFFFFF'],[140,'#D7FF3D']];
+</script></body></html>
