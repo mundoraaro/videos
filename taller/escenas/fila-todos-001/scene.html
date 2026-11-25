@@ -87,7 +87,7 @@ function mini(x,y,s,col,t,i){ const b=Math.abs(Math.sin(t*5+i*1.3))*4*s; ctx.fil
 function anilloPts(X,Y,R,i){ const a=-0.62+((i*0.37)%1.24), rx=R*(1.1+(i%3)*0.05), ry=R*(0.28+(i%4)*0.04); return {a,rx,ry}; }
 function anillos(X,Y,R,n,t,parte,cap=()=>1,dotS=0.95){ const N=Math.round(30*R/250);
   for(let i=0;i<n;i++){ const {a,rx,ry}=anilloPts(X,Y,R,i), c=cap(i); if(c<=0) continue; const ca=Math.cos(a), sa=Math.sin(a);
-    for(let j=0;j<N*c;j++){ const th=(j/N)*PI2+t*0.35*(i%2?1:-1)*0+t*0.3+i; const sn=Math.sin(th); if((parte==='atras')!==(sn<0)) continue;
+    for(let j=0;j<N*c;j++){ const th=(j/N)*PI2+t*0.6+i; const sn=Math.sin(th); if((parte==='atras')!==(sn<0)) continue;
       const px=rx*Math.cos(th), py=ry*sn; const x=X+px*ca-py*sa, y=Y+px*sa+py*ca; if(parte==='atras'){ ctx.globalAlpha=0.55; } mini(x,y+8*dotS,dotS*R/250,PASTELES[(i+j)%6],t,j+i*7); ctx.globalAlpha=1; } } }
 // fila en perspectiva desde (x0,y0) cerca hasta (x1,y1) en el horizonte, con curva
 function filaPersp(t,x0,y0,x1,y1,n,s0,s1,curva=0,seed=0){ for(let i=n-1;i>=0;i--){ const u=i/(n-1), e=Math.pow(u,0.55), x=lerp(x0,x1,e)+Math.sin(u*Math.PI)*curva, y=lerp(y0,y1,e), s=lerp(s0,s1,Math.pow(u,0.45));
@@ -147,6 +147,9 @@ function velocimetro(x,y,s,k,val,t){ if(k<=0) return; ctx.save(); ctx.translate(
 // S1/S26 GANCHO: la Tierra enrollada en anillos de fila (personitas que avanzan) desde el cuadro 0; la fila baja desde la Tierra hasta
 // el primer plano y termina en Raro FORMADO con su ficha, brincando de impaciencia y estirándose para ver el frente. Letrero desde el cuadro 0.
 function escenaGancho(t,y0=0){ const X=600,Y=1170,R=210;
+  // rayos que giran detrás de la Tierra (energía del gancho)
+  ctx.save(); ctx.translate(X,Y); ctx.rotate(t*1.6); for(let i=0;i<14;i++){ ctx.rotate(PI2/14); ctx.fillStyle=i%2?'rgba(215,255,61,0.22)':'rgba(255,95,162,0.22)'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-160,-1400); ctx.lineTo(160,-1400); ctx.closePath(); ctx.fill(); } ctx.restore();
+  for(let i=0;i<18;i++){ const u=((t*0.9+rand(i+400))%1), a=rand(i+410)*PI2, d=R*1.3+u*700; ctx.fillStyle=`rgba(255,255,255,${1-u})`; blob(X+Math.cos(a)*d,Y+Math.sin(a)*d,5+u*10); }
   anillos(X,Y,R,6,t,'atras'); tierra(X,Y,R,t); anillos(X,Y,R,6,t,'frente');
   ocupa(X-R*1.3,Y-R*1.0,X+R*1.3,Y+R*1.0,1.2);
   // fila que sube desde Raro (hasta atrás) y se enrolla en la Tierra
@@ -268,7 +271,7 @@ function S23(t,sc){ const cx=540,cy=1050; for(let i=0;i<140;i++){ const a=i*0.21
   const b=susto(t,at(140)); raro({x:540,y:1440,s:0.62,t,disfraz:'formado',ficha:true,num:'?',expr:t>=at(140)?'yavalio':'asombro',brazos:t>=at(140)?'arriba':'idle',alto:b.alto,sq:b.sq,wob:b.wob});
   L2('LA FILA','¡NUNCA SE ACABA!',kIn(t,sc.start+0.03),100,100,'#D7FF3D'); }
 // S24 "¿Tú en qué lugar quedarías?": Raro le ofrece su ficha a cámara; fichas que caen.
-function S24(t,sc){ for(let i=0;i<8;i++){ const u=((t-sc.start)*0.8+rand(i+90))%1; fichaGrande(200+rand(i+80)*560,560+u*900,0.32,1,String(Math.floor(rand(i+70)*900+100)),t+i); }
+function S24(t,sc){ for(let i=0;i<6;i++){ const u=((t-sc.start)*0.8+rand(i+90))%1; fichaGrande(200+rand(i+80)*560,780+u*640,0.4,1,'?',t+i); }
   raro({x:480,y:1440,s:0.78,t,disfraz:'formado',ficha:true,num:'?',expr:'feliz',brazos:'senala',mira:{x:0,y:0},sq:gelatina(t,sc.start+0.05,0.3)});
   L('¿TÚ EN QUÉ LUGAR?',540,430,kIn(t,sc.start+0.03),'panel',{tam:96,color:'#D7FF3D'}); }
 // S25 "Parte 23: ¿y si todos corremos hacia el mismo lado?": gomitas corriendo todas hacia la derecha por los cerros; Raro corre con ellas.
