@@ -1,0 +1,6 @@
+- Worldometer, 'World Population' (24 nov 2026, con estimaciones de la ONU): "The current world population is 8,328,402,701"; "The current population increase is estimated at around 70 million people per year". ONU, World Population Prospects 2024: casi 8,200 millones a mediados de 2024. → 'más de ocho mil millones'; cálculos con 8,200 M (conservador).
+- Our World in Data, 'Births and deaths': 132 millones de nacimientos y 63 millones de muertes en 2025; "the world population increased by 69 million people in 2024". → 'unos setenta millones más cada año'; 70 M × 0.5 m = 35,000 km por año.
+- Supuesto del video: medio metro por persona en la fila. 8,200 M × 0.5 m = 4,100,000 km.
+- Universe Today, 'Circumference of the Earth': ecuador ≈ 40,075 km → 4,100,000 / 40,075 ≈ 102 vueltas ('más de cien'); 35,000 km ≈ 0.87 vueltas ('casi otra vuelta').
+- NASA Space Place, 'How Far Away Is the Moon?': distancia media ≈ 384,400 km → 4,100,000 / 384,400 ≈ 10.7 ('diez veces').
+- Cálculos (supuestos dichos en voz): 4,100,000 km ÷ 5 km/h = 820,000 h ≈ 93.6 años ('más de noventa años'); 8,200 M minutos ÷ 525,960 min/año ≈ 15,600 años ('más de quince mil años'). Con una ventanilla se atienden ≈525,960 personas al año (≈263 km de fila) contra ≈35,000 km nuevos: la fila nunca se acaba.
