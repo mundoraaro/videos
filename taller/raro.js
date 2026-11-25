@@ -128,6 +128,8 @@ const EXPR = {
   yavalio:  {ojos:0.95,cejas:[[4,0],[4,0]],          boca:'recta', lid:0.55, sudor:1},
   apenado:  {ojos:1.1, cejas:[[-6,0.35],[-6,0.35]],  boca:'temblorosa', rubor:1},
   dormido:  {ojos:1,   cejas:[[10,0.1],[10,0.1]],     boca:'o', ojosCerrados:1, sueno:1},   // ojos cerrados ‿ ‿ (dormir, torpor)
+  estornudo:{ojos:1,   cejas:[[14,0.35],[14,0.35]],   boca:'grito', ojosCerrados:1, apriete:1, rubor:0.9}, // ¡achú!: ojos apretados > < (estornudo-todos-001)
+  preachu:  {ojos:0.8, cejas:[[-30,0.4],[-30,0.4]],  boca:'o', lid:0.6, rubor:0.7},       // "aaa…" antes del estornudo: párpados a media asta, cejas arriba
   sopla:    {ojos:0.9, cejas:[[-4,0.2],[-4,0.2]],    boca:'sopla', lid:0.35, rubor:1, cachetes:1}, // cachetes inflados soplando (soplar-001); o.cachetes (0..1) controla cuánto se inflan
 };
 
@@ -150,6 +152,7 @@ function cara(o,base,sombra){
     const ex=s*50+mira.x*9, ey=-290+mira.y*8;
     if(e.ojosCerrados){ // ^ ^ de risa
       ctx.strokeStyle=RARO.tinta; ctx.lineWidth=9; ctx.lineCap='round';
+      if(e.apriete){ ctx.beginPath(); ctx.moveTo(ex-s*20,ey-16); ctx.lineTo(ex+s*14,ey); ctx.lineTo(ex-s*20,ey+16); ctx.stroke(); continue; } // > <
       if(e.sueno){ ctx.beginPath(); ctx.moveTo(ex-20,ey-4); ctx.quadraticCurveTo(ex,ey+18,ex+20,ey-4); ctx.stroke(); continue; }
       ctx.beginPath(); ctx.moveTo(ex-18,ey+6); ctx.quadraticCurveTo(ex,ey-20,ex+18,ey+6); ctx.stroke(); continue;
     }
