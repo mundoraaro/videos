@@ -1,7 +1,0 @@
-- Walpole et al. 2012, "The weight of nations", BMC Public Health (vía ScienceDaily, 18 jun 2012): población adulta ≈ 287 millones de toneladas; masa promedio 62 kg (datos WHO 2005) → "casi trescientos millones de toneladas".
-- Masa de la Tierra 5.97×10^24 kg (NASA Earth Fact Sheet): 5.97e24 / 2.87e11 ≈ 2.1×10^13 → "como veinte billones de veces".
-- Illinois Physics Van (Univ. of Illinois, "Ask the Van" 10686): si todos caminan al este a la vez, sí se frena la rotación por conservación del momento angular; al detenerse se recupera.
-- Cálculo propio (conservación del momento angular): ~8,200 M personas, 300–410 millones de t, trote 2.8 m/s (10 km/h), radio de giro medio ~5,700 km; momento de inercia de la Tierra 8.04×10^37 kg·m², ω=7.29×10^-5 rad/s → ΔT/T ≈ 0.8–1.1×10^-15 → ΔT ≈ 0.07–0.1 ns ("como una décima de nanosegundo").
-- Velocidad de rotación: 40,075 km / 23.93 h ≈ 1,674 km/h en el ecuador; × cos(19–26°) ≈ 1,500–1,580 km/h en México → "más de mil quinientos kilómetros por hora".
-- NASA (Benjamin Fong Chao, Goddard), presa de las Tres Gargantas: alarga el día 0.06 µs = 60 ns (vía LADbible, 30 abr 2025) → 600–850 veces más que 0.07–0.1 ns → "cientos de veces más".
-- Space.com (13 mar 2011), Richard Gross (NASA JPL): el terremoto de Japón 2011 acortó el día 1.8 µs → 18,000–25,000 veces → "más de diez mil veces más".
