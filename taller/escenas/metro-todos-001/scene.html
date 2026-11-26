@@ -198,10 +198,11 @@ function L3(a,b,c,k,y=410,t=0,t0=-1){ if(k<=0) return; ctx.save(); ctx.setTransf
 // ====================== escenas ======================
 // S1/S26 GANCHO (loop): horizonte curvo de la Tierra con UN tren naranja larguísimo atiborrado de gomitas que la rodea; Raro despachador, al frente,
 // empuja a una gomita a la puerta y pita el silbato. Letrero desde el cuadro 0: ¡TODOS AL METRO! / 20 VUELTAS A LA TIERRA. En "20" chispas y el tren acelera.
-function escenaGancho(t,sc,fin){ const cy=2380, R=1080; arcoTierra(t,cy,R,1.5);
-  const a0=0.66+((t*0.06)%0.118); trenArco(t,cy,R,a0,13,{apriete:0.9,techo:true});
+function escenaGancho(t,sc,fin){ const cy=2380, R=1080; arcoTierra(t,cy,R,6);
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.75)'; ctx.lineCap='round'; for(let i=0;i<14;i++){ const y=620+rand(i+70)*560, Lg=160+rand(i+5)*300, x=1400-((t*2200+rand(i)*1800)%2000); ctx.lineWidth=6+rand(i+3)*10; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+Lg,y); ctx.stroke(); } ctx.restore();
+  const a0=0.66+((t*0.4)%0.118); trenArco(t,cy,R,a0,13,{apriete:0.9,techo:true});
   const rx=330, ry=cy-Math.cos(Math.asin((rx-540)/R))*R+40; const tw=fin?sc.start:at(8);
-  const emp=Math.sin(t*7);
+  const emp=Math.sin(t*9);
   gomita({x:rx+190,y:ry-14,s:0.5,t,color:'#FFB3D9',expr:'terror',brazos:'arriba',tilt:0.3+emp*0.08,sq:0.15+emp*0.05,seed:3});
   const c=fin?caida(t,sc.start+0.02,600):{alto:0,sq:0,wob:0};
   raro({x:rx,y:ry,s:0.95,t,disfraz:DESP,pita:true,expr:t>=tw?'asombro':'orgullo',manos:{i:[120,-150],d:[150+emp*14,-220]},piernas:'quieto',tilt:0.12,alto:c.alto,sq:c.sq+emp*0.03,wob:c.wob||wobble(t,tw,0.6)});
@@ -285,9 +286,9 @@ function S15(t,sc){ bolaDisco(760,720,t,popIn(t,sc.start,0.35)); const b=Math.si
   for(let i=0;i<5;i++){ ctx.fillStyle=['#FF5FA2','#D7FF3D','#4CC9F0','#FFD23F','#B79BFF'][i]; ctx.globalAlpha=0.35; ctx.beginPath(); ctx.ellipse(160+i*180,1460,90,24,0,0,PI2); ctx.fill(); } ctx.globalAlpha=1;
   const k=popIn(t,at(98)); if(k>0) L('AÑOS 70',540,430,k,'pergamino',{tam:110,t,t0:at(98)}); }
 // S16 "los trenes iban a más del doble de su capacidad.": barras 100 % vs 221 %; el vagón se abomba y tiembla; Raro empujador suda. Letrero ¡MÁS DEL DOBLE!
-function S16(t,sc){ barra(330,1300,170,200,'#4CC9F0','CAPACIDAD',popIn(t,sc.start,0.3)); barra(620,1300,170,440,'#FF5FA2','EN LOS 70',prog(t,at(103),0.5));
+function S16(t,sc){ barra(330,1300,170,200,'#4CC9F0','CAPACIDAD',popIn(t,sc.start,0.3)); barra(620,1300,170,440,'#FF5FA2','EN LOS 70',0.15+0.85*prog(t,at(100),at(105)-at(100)));
   if(t>=at(105)) lineasVelocidad(t,at(105),620,800,'#FFFFFF');
-  raro({x:820,y:1440,s:0.5,t,disfraz:'oshiya',expr:t<at(105)?'asombro':'terror',brazos:'arriba',piernas:'quieto',alto:t>=at(105)?susto(t,at(105)).alto:0}); sudor(820,1440,0.5,t,3);
+  raro({x:800,y:1440,s:0.55,t,disfraz:'oshiya',expr:t<at(105)?'asombro':'terror',brazos:'arriba',piernas:'quieto',alto:t>=at(105)?susto(t,at(105)).alto:0}); sudor(800,1440,0.55,t,3);
   const k=popIn(t,at(105)); if(k>0) L('¡MÁS DEL DOBLE!',540,430,k,'panel',{tam:100,t,t0:at(105)}); }
 // S17 "Y aquí viene lo feo: el metro de verdad": puf de regreso a despachador en el andén vacío; reloj; Raro se asoma con terror. Letrero LO FEO…
 function S17(t,sc){ const p=pufCambio(t,sc.start+0.03); reloj(780,820,0.9,t,2); raro({x:420,y:1440,s:0.95,t,disfraz:p.despues?DESP:'oshiya',spin:p.spin,expr:t<at(113)?'sospecha':'terror',mira:t<at(113)?{x:0,y:0}:undefined,brazos:t<at(113)?'jarras':'cara',piernas:'quieto',wob:wobble(t,at(113),0.7)});
@@ -341,6 +342,6 @@ window.TOMAS={1:{mov:'push',z:1.0},2:{mov:'push',z:1.2,foco:[500,1100]},3:{mov:'
   19:{mov:'pull'},20:{mov:'push'},21:{mov:'paneo-der'},22:{mov:'push',z:1.1,foco:[400,1200]},23:{mov:'pull'},24:{mov:'push',z:1.05,foco:[400,1150]},25:{mov:'pull'},26:{mov:'push',z:1.0}};
 window.TRANS={2:'latigazo',3:'bufanda',5:'zoom',6:'latigazo',7:'zoom',8:'bufanda',10:'zoom',11:'latigazo',12:'bufanda',13:'latigazo',15:'zoom',16:'bufanda',17:'latigazo',18:'bufanda',20:'zoom',21:'latigazo',23:'bufanda',24:'latigazo',25:'bufanda'};
 window.KEYWORDS=[8,15,26,30,34,40,49,58,62,69,75,79,89,98,105,113,120,133,137,144,152,159,163,173,177];
-window.SHAKES=[8,40,62,71,94,105,113,137,152,173];
-window.FLASHES=[[8,'#FFFFFF'],[62,'#FFFFFF'],[105,'#FFFFFF'],[137,'#FFFFFF']];
+window.SHAKES=[4,8,40,62,71,94,105,113,137,152,173];
+window.FLASHES=[[4,'#D7FF3D'],[8,'#FFFFFF'],[62,'#FFFFFF'],[105,'#FFFFFF'],[137,'#FFFFFF']];
 </script></body></html>
