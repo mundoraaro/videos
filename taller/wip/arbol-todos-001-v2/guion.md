@@ -1,0 +1,12 @@
+# arbol-todos-001-v2 (idea-89, Parte 26)
+Gancho: ¡Si todos plantamos un árbol hoy, el planeta casi ni lo nota!
+
+## Guion (voz con etiquetas)
+[excited] ¡Si todos plantamos un árbol hoy, el planeta casi ni lo nota! Y eso que serían ocho mil millones de arbolitos. A tres metros uno de otro… ¡un bosque casi del tamaño de Zacatecas! [curious] ¿Cómo que no se nota? La Tierra ya tiene unos tres billones de árboles. Como trescientos setenta por persona. Tu arbolito sería… uno más de tus trescientos setenta. [whispers] Y aquí viene lo feo: [surprised] cada año, el mundo tala unos quince mil millones de árboles. En poco más de medio año, tumbamos lo mismo que plantamos. Y no todos llegan: en un estudio con ciento setenta y seis bosques plantados en Asia, ¡casi la mitad de los arbolitos murió en cinco años! [curious] ¿Y el aire? Un árbol adulto se traga unos veintidós kilos de dióxido de carbono al año. Ocho mil millones de árboles adultos… ni medio por ciento de lo que echamos en un año. Y para ser adultos, ¡tardan años! [curious] Entonces, ¿no sirve? [excited] Sí sirve… pero el chiste no es plantarlo. ¡Es que llegue a viejo… [laughs softly] como tú, abuelito! ¿Tú qué árbol plantarías? Parte veintisiete: ¿y si todos nos subiéramos al metro? Porque si todos plantamos un árbol hoy…
+
+## Fuentes
+- Crowther et al., "Mapping tree density at a global scale", Nature 525 (2015); Mongabay, "How many trees are cut down every year?" (sep 2015): "the planet has 3.04 trillion trees"; "15.3 billion trees are chopped down every year". 3.04 billones / 8.2 mil millones de personas ≈ 370 por persona (cálculo). 8 mil millones / 15.3 mil millones por año ≈ 0.52 años (poco más de medio año).
+- Universidad de Aberdeen, "Half of replanted tropical trees don't survive, study finds" (14 nov 2022), Banin et al., Phil. Trans. R. Soc. B: 176 sitios de restauración en Asia tropical y subtropical; "18% of planted saplings died within the first year, rising to 44% after five years".
+- Agencia Europea de Medio Ambiente (EEA), "Trees help tackle climate change": "Over one year a mature tree will take up about 22 kilograms of carbon dioxide" (citado por One Tree Planted, "How much CO2 does a tree absorb?", 2023). 8e9 × 22 kg = 176 millones de t.
+- Global Carbon Project, "Fossil fuel CO2 emissions hit record high in 2025" (13 nov 2025): 38.1 mil millones de t de CO2 fósil en 2025 → 176 Mt / 38,100 Mt ≈ 0.46 % (ni medio por ciento).
+- Superficie: 8e9 árboles × 9 m² (3 m × 3 m) = 72,000 km²; Zacatecas mide ≈75,300 km² (INEGI) → "casi del tamaño de Zacatecas".
