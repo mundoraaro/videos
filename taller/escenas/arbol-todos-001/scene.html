@@ -220,7 +220,7 @@ function S9(t,sc){ for(let r=0;r<4;r++){ const n=7-r, s=0.5+r*0.18, y=1010+r*130
 // S10 "En poco más de medio año, tumbamos lo mismo que plantamos.": calendario que pasa ENE→JUL; a la derecha la fila de "nuestros" arbolitos;
 // en "tumbamos" se vuelven tocones con golpe y polvo; Raro con pala, cara de "ya valió".
 function S10(t,sc){ const M=['ENE','FEB','MAR','ABR','MAY','JUN','JUL']; const u=prog(t,at(74),at(80)-at(74)); const mi=Math.min(6,Math.floor(u*7)); const tf=at(74)+(mi/7)*(at(80)-at(74));
-  calendario(300,900,0.85,M[mi],popIn(t,sc.start+0.05),t,mi>0?tf:-1,'MES');
+  calendario(300,1000,0.8,M[mi],popIn(t,sc.start+0.05),t,mi>0?tf:-1,'MES');
   const tb=at(80); for(let i=0;i<4;i++){ const x=540+i*100, y=1440; if(t<tb+i*0.08) arbol(x,y,0.42,1,t,i%3); else { tocon(x,y,0.7,1); if(t<tb+i*0.08+0.5) chispas(t,tb+i*0.08,x,y-60,0.6,'#FFFFFF'); } }
   raro({x:250,y:1440,s:0.62,t,disfraz:JD,pala:true,expr:t<tb?'asombro':'yavalio',brazos:'idle',sq:gelatina(t,tb,0.35)});
   if(t>=tb) ondaChoque(t,tb,720,1400,'#FFFFFF');
