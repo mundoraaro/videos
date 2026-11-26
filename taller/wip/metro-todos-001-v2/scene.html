@@ -1,0 +1,358 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="../../engine.js"></script>
+<script src="../../raro.js"></script>
+<script>
+// metro-todos-001 — ¿Qué pasaría si TODOS nos subiéramos al metro al mismo tiempo? (serie "¿Qué pasaría si TODOS…?", Parte 27)
+// Disfraz: despachador del metro (gorra y chaleco naranja, silbato) → astronauta (Luna) → empujador de Tokio → pasajero → anciano → bolsa de basura (adelanto) → despachador (loop).
+// Encuadre: Raro completo dentro de x≈20–940; letreros en y 390–520 (helper L); verificador CHECK en coordenadas de pantalla.
+const PI2=Math.PI*2;
+window.HIDE_CAPTIONS_LAST=false;
+window.CAPTION_POP_MIN=0.85;
+
+// ---------- captions en bloques de 2–3 palabras (v2: nunca una palabra vacía sola en pantalla) ----------
+const _corta=w=>w.replace(/[¡!¿?.,:…"]/g,'').length<=3;
+function buildChunks(){
+  CH=[]; let cur=[];
+  const len=c=>c.map(j=>W[j].t).join(' ').length;
+  W.forEach((w,i)=>{ if(cur.length>=2 && (cur.map(j=>W[j].t).join(' ')+' '+w.t).length>17){ CH.push(cur); cur=[]; } cur.push(i); const fin=/[.,?!:…]$/.test(w.t);
+    if(fin||cur.length>=3||len(cur)>16){
+      // no cerrar un bloque con una palabra corta sin puntuación: pasa al siguiente
+      if(!fin && cur.length>1 && _corta(w.t)){ cur.pop(); CH.push(cur); cur=[i]; }
+      else { CH.push(cur); cur=[]; } } });
+  if(cur.length) CH.push(cur);
+  // un bloque de una sola palabra corta se une con el siguiente (o con el anterior)
+  for(let c=0;c<CH.length;c++){ if(CH[c].length===1 && _corta(W[CH[c][0]].t)){
+    if(c+1<CH.length && CH[c+1].length<=3){ CH[c+1]=CH[c].concat(CH[c+1]); CH.splice(c,1); c--; }
+    else if(c>0 && CH[c-1].length<=3){ CH[c-1]=CH[c-1].concat(CH[c]); CH.splice(c,1); c--; } } }
+}
+// Igual que captions() del motor, pero las 2 primeras palabras de cada bloque aparecen juntas.
+function captions(t){
+  let ci=-1; for(let c=0;c<CH.length;c++){ if(W[CH[c][0]].s-0.05<=t) ci=c; }
+  if(ci<0) return; const ch=CH[ci]; const last=W[ch[ch.length-1]];
+  if(t>last.e+0.6 && (ci+1>=CH.length || t<W[CH[ci+1][0]].s-0.05)) return;
+  const KW=window.KEYWORDS||[];
+  let size=window.CAPTION_SIZE||80; const words=ch.map(i=>W[i].t.toUpperCase());
+  const big=i=>KW.includes(i)?1.22:1;
+  const widths=()=>ch.map((i,n)=>{ctx.font=fuente(size*big(i));return ctx.measureText(words[n]).width;});
+  ctx.font=fuente(size); let sp=ctx.measureText(' ').width, ws=widths(), total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);
+  if(total>800){size=Math.floor(size*800/total); ctx.font=fuente(size); sp=ctx.measureText(' ').width; ws=widths(); total=ws.reduce((a,b)=>a+b,0)+sp*1.25*(ch.length-1);}
+  if(CAPPOS[ci]==null) CAPPOS[ci]=lugarCaption(total,size*1.25);
+  const y=CAPPOS[ci]; let x=540-total/2; const s0=W[ch[0]].s-0.05;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.lineJoin='round';
+  ch.forEach((i,n)=>{const w=words[n], wd=ws[n], kw=KW.includes(i); const ws_=n<2?Math.max(0,s0):W[i].s;
+    const k=t<ws_?0:(kw?popIn(t,ws_,0.22):back((t-ws_)/0.16));
+    if(k>0){ const sz=size*big(i); ctx.save(); ctx.translate(x+wd/2,y); const sc=lerp(window.CAPTION_POP_MIN??0.6,1,k); ctx.scale(sc,sc); if(kw) ctx.rotate(Math.sin(t*5+i)*0.03);
+      ctx.font=fuente(sz); ctx.fillStyle='rgba(20,14,40,0.45)'; ctx.fillText(w,0,sz*0.09);
+      ctx.lineWidth=sz*0.19; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(w,0,0);
+      ctx.fillStyle=kw?COL.lime:'#FFFFFF'; ctx.fillText(w,0,0); ctx.restore(); }
+    x+=wd+sp*1.25;});
+}
+
+// ---------- verificador de encuadre (cajas en pantalla) ----------
+window.CHECK=[];
+const _raro=raro;
+raro=function(o){ const s=o.s??1, m=ctx.getTransform(), alto=o.alto||0; const der=(o.brazos==='senala'||o.brazos==='saluda')?320:215, izq=215;
+  const ex=(o.disfraz==='tardigrado'&&!(o.bolita>0.5))?255:0; let x0=-Math.max(izq,ex)*s, x1=Math.max(der,ex)*s; if(o.espejo){ const a=-x1; x1=-x0; x0=a; }
+  const pts=[[o.x+x0,o.y-alto-470*s],[o.x+x1,o.y-alto-470*s],[o.x+x0,o.y-alto],[o.x+x1,o.y-alto]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([o.color?'npc':'raro',Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+  return _raro(o); };
+function chk(tag,x0,y0,x1,y1){ const m=ctx.getTransform(); const P=[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  CHECK.push([tag,Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))]); }
+
+// ---------- utilería ----------
+let CUR=1;
+// Letrero en coordenadas de PANTALLA, compensando el zoom de la toma (soplar-001-v2).
+function L(txt,x,y,k,tipo='madera',opts={}){ let tam=opts.tam||72; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.font=fuente(tam); let w=ctx.measureText(txt).width+tam*1.2; const maxW=700;
+  if(w>maxW){ tam*=maxW/w; w=maxW; } x=clamp(x,170+w/2,910-w/2); y=clamp(y,390,520);
+  letrero(txt,x,y,k,tipo,{sinPalo:!opts.palo,...opts,tam}); if(k>0.5) chk('letrero',x-w/2,y-tam*0.85,x+w/2,y+tam*0.85); ctx.restore(); }
+function calendario(x,y,s,k,t,t0,hasta,d,txt='DÍAS'){ if(k<=0) return; ocupa(x-120*s,y-150*s,x+120*s,y+140*s,1.1); chk('obj',x-120*s,y-160*s,x+120*s,y+140*s); ctx.save(); ctx.translate(x,y); ctx.scale(s*k,s*k);
+  ctx.fillStyle='#FFFFFF'; rr(-120,-140,240,280,22); ctx.fill(); ctx.fillStyle='#FF4D5E'; rr(-120,-140,240,70,22); ctx.fill(); ctx.fillRect(-120,-100,240,30);
+  ctx.fillStyle='#8E8AA3'; for(const xx of [-60,60]){ rr(xx-10,-160,20,50,10); ctx.fill(); }
+  const fl=((t-t0)*8)%1; if(t>t0 && t<t0+d){ ctx.save(); ctx.transform(1,0,0,1-fl,0,0); ctx.fillStyle='#F3EEFF'; rr(-110,-60,220,190,14); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='#1E1A2E'; ctx.font=fuente(110); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(contador(t,t0,d,0,hasta),0,30);
+  ctx.font=fuente(40); ctx.fillStyle='#FFFFFF'; ctx.fillText(txt,0,-104); ctx.restore(); }
+function tierra(x,y,r,t,sinGlow){ ctx.save(); if(!sinGlow){ const g=ctx.createRadialGradient(x,y,r*0.9,x,y,r*1.25); g.addColorStop(0,'rgba(127,216,255,0.8)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(x,y,r*1.25); }
+  ctx.fillStyle='#3AB6FF'; blob(x,y,r); ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.clip();
+  const sp=t*0.05*r; ctx.fillStyle='#5CD67A'; for(let i=0;i<7;i++){ const xx=x-r+(((rand(i)*2.4*r+sp)%(2.4*r))) - 0.2*r, yy=y-r*0.8+rand(i+7)*r*1.6; blob(xx,yy,r*(0.18+rand(i+3)*0.2)); blob(xx+r*0.15,yy+r*0.1,r*0.14); }
+  ctx.fillStyle='rgba(255,255,255,0.85)'; for(let i=0;i<6;i++){ const xx=x-r+(((rand(i+20)*2.4*r+sp*1.6)%(2.4*r)))-0.2*r, yy=y-r*0.9+rand(i+27)*r*1.8; ctx.beginPath(); ctx.ellipse(xx,yy,r*0.22,r*0.05,0,0,PI2); ctx.fill(); }
+  ctx.fillStyle='rgba(30,26,80,0.25)'; ctx.beginPath(); ctx.arc(x+r*0.35,y+r*0.2,r*1.05,0,PI2); ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x-r*0.45,y-r*0.5,r*0.25,r*0.1,-0.6,0,PI2); ctx.fill(); ctx.restore(); }
+
+// multitud de gomitas mini apretadas sobre un platillo
+function multitud(x,y,w,filas,t,sq=0){ for(let r=0;r<filas;r++){ const n=Math.max(2,Math.round(w/44)-r); for(let i=0;i<n;i++){ const xx=x-(n-1)*22+i*44+(r%2)*6, yy=y-14-r*30*(1-sq*0.4)-Math.abs(Math.sin(t*6+i*1.7+r))*6;
+  ctx.fillStyle=PASTELES[(i*3+r)%6]; ctx.beginPath(); ctx.ellipse(xx,yy,22*(1+sq*0.3),24*(1-sq*0.3),0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(xx-7,yy-5,3.5); blob(xx+7,yy-5,3.5); } }
+  ocupa(x-w/2,y-filas*32,x+w/2,y,0.8); }
+function flecha(x,y,ang,k,c='#D7FF3D'){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(k,k); ctx.fillStyle=c; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(90,0); ctx.lineTo(20,-60); ctx.lineTo(20,-22); ctx.lineTo(-80,-22); ctx.lineTo(-80,22); ctx.lineTo(20,22); ctx.lineTo(20,60); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+function confeti(t,t0,n=26){ if(t<t0) return; for(let i=0;i<n;i++){ const u=(t-t0)*0.9+rand(i)*0.3; const x=80+rand(i+3)*920+Math.sin(t*3+i)*30, y=-40+u*900%1700; ctx.save(); ctx.translate(x,y); ctx.rotate(t*6+i); ctx.fillStyle=['#D7FF3D','#FF5FA2','#4CC9F0','#FFD23F'][i%4]; ctx.fillRect(-10,-6,20,12); ctx.restore(); } }
+function sudor(x,y,s,t,n=3){ for(let i=0;i<n;i++){ const a=-2.5+i*0.6; ctx.fillStyle='#7FD8FF'; const xx=x+Math.cos(a)*170*s, yy=y-290*s+Math.sin(a)*150*s+((t*2+i*0.3)%1)*30; ctx.beginPath(); ctx.moveTo(xx,yy-14*s*2); ctx.quadraticCurveTo(xx+10*s*2,yy,xx,yy+6*s*2); ctx.quadraticCurveTo(xx-10*s*2,yy,xx,yy-14*s*2); ctx.fill(); } }
+const dur=sc=>sc.end-sc.start;
+function reloj(x,y,s,t,vel=3){ ocupa(x-120*s,y-120*s,x+120*s,y+120*s,1.5); ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#FFFFFF'; blob(0,0,110); ctx.strokeStyle='#FF5FA2'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(0,0,110,0,PI2); ctx.stroke();
+  ctx.fillStyle='#1E1A2E'; for(let i=0;i<12;i++){ ctx.save(); ctx.rotate(i*Math.PI/6); rr(-4,-96,8,18,4); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.rotate(t*vel); ctx.fillStyle='#E23D5B'; rr(-4,-90,8,96,4); ctx.fill(); ctx.restore(); ctx.save(); ctx.rotate(t*vel/12); ctx.fillStyle='#1E1A2E'; rr(-7,-60,14,66,7); ctx.fill(); ctx.restore(); blob(0,0,12); ctx.restore(); chk('obj',x-120*s,y-120*s,x+120*s,y+120*s); }
+// letrero de 2 renglones (en pantalla, dentro de la zona segura)
+function L2(a,b,k,y=430,t=0,t0=-1,tipo='panel'){ if(k<=0) return; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.translate(540,y); const sw=wobble(t,t0,0.2); ctx.rotate(sw); ctx.scale(k,k);
+  ctx.font=fuente(88); const w1=ctx.measureText(a).width; ctx.font=fuente(66); const w2=ctx.measureText(b).width; let w=Math.max(w1,w2)+90; let sc=1; if(w>740){ sc=740/w; w=740; }
+  const h=200*sc; ctx.fillStyle='#1E1A2E'; rr(-w/2+8,-h/2+10,w,h,30); ctx.fill(); ctx.fillStyle=tipo==='panel'?'#2E2A60':'#B97A3E'; rr(-w/2,-h/2,w,h,30); ctx.fill();
+  ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=7; rr(-w/2+10,-h/2+10,w-20,h-20,24); ctx.stroke();
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=fuente(88*sc); ctx.fillStyle='#FFFFFF'; ctx.fillText(a,0,-40*sc); ctx.font=fuente(66*sc); ctx.fillStyle='#D7FF3D'; ctx.fillText(b,0,48*sc);
+  ocupa(-w/2,-h/2,w/2,h/2,3); chk('letrero',-w/2,-h/2,w/2,h/2); ctx.restore(); }
+// Tierra vista como horizonte curvo enorme (centro muy abajo). El terreno se desliza hacia la izquierda (oeste) bajo los corredores.
+function arcoTierra(t,cy,R,vel=1){ const cx=540; ctx.save(); const g=ctx.createRadialGradient(cx,cy,R*0.98,cx,cy,R*1.08); g.addColorStop(0,'rgba(127,216,255,0.9)'); g.addColorStop(1,'rgba(127,216,255,0)'); ctx.fillStyle=g; blob(cx,cy,R*1.08);
+  ctx.fillStyle='#3AB6FF'; blob(cx,cy,R); ctx.beginPath(); ctx.arc(cx,cy,R,0,PI2); ctx.clip(); const rot=-t*0.06*vel;
+  for(let i=0;i<16;i++){ const a=rot+i*PI2/16+rand(i)*0.2; const x=cx+Math.sin(a)*R*0.93, y=cy-Math.cos(a)*R*0.93; ctx.fillStyle=i%3?'#5CD67A':'#43B866'; blob(x,y,R*(0.1+rand(i+4)*0.07)); blob(x+R*0.08,y+R*0.03,R*0.08); }
+  ctx.fillStyle='rgba(255,255,255,0.8)'; for(let i=0;i<10;i++){ const a=rot*1.3+i*PI2/10+0.3; const x=cx+Math.sin(a)*R*0.86, y=cy-Math.cos(a)*R*0.86; ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0,0,R*0.09,R*0.02,0,0,PI2); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle='rgba(30,26,80,0.22)'; ctx.beginPath(); ctx.arc(cx+R*0.25,cy+R*0.15,R,0,PI2); ctx.fill(); ctx.restore(); }
+// flecha curva de giro alrededor de un globo
+function flechaGiro(x,y,r,t,k=1,col='#D7FF3D',dir=1,vel=1){ if(k<=0) return; ctx.save(); ctx.translate(x,y); ctx.scale(dir,1); ctx.rotate(t*vel); ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=30; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(0,0,r,-0.4,-0.4+2.2*k); ctx.stroke(); ctx.strokeStyle=col; ctx.lineWidth=18; ctx.beginPath(); ctx.arc(0,0,r,-0.4,-0.4+2.2*k); ctx.stroke();
+  const a=-0.4+2.2*k; ctx.translate(Math.cos(a)*r,Math.sin(a)*r); ctx.rotate(a+Math.PI/2); ctx.fillStyle=col; ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(30,0); ctx.lineTo(-22,-30); ctx.lineTo(-22,30); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+function polvo(t,x,y,dir=-1,n=6,s=1){ ctx.fillStyle='rgba(255,255,255,0.75)'; for(let i=0;i<n;i++){ const ph=((t*3+i/n)%1); ctx.globalAlpha=0.8*(1-ph); blob(x+dir*ph*170*s,y-ph*50*s-rand(i)*20*s,(12+ph*30)*s); } ctx.globalAlpha=1; }
+function nubePufCorto(t,t0,x,y,s=1){ // confeti del cambio de disfraz que dura solo 0.3 s
+  const u=(t-t0)/0.3; if(u<0||u>1) return; ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+  for(let i=0;i<18;i++){ const a=i/18*Math.PI*2+rand(i)*0.3, d=(190+rand(i+1)*60)+170*easeOut(u), r=(26+rand(i+2)*26)*(1-0.7*u);
+    ctx.globalAlpha=0.95*(1-easeIn(u)); ctx.fillStyle=DULCES[i%DULCES.length]; ctx.beginPath(); ctx.arc(Math.cos(a)*d*0.9,Math.sin(a)*d*1.15-170,r,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); }
+function barra(x,y,w,h,col,lab,k=1,ft=44){ if(k<=0) return; const hh=h*easeOut(k); ctx.fillStyle='#1E1A2E'; rr(x-w/2+8,y-hh+8,w,hh,18); ctx.fill(); ctx.fillStyle=col; rr(x-w/2,y-hh,w,hh,18); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.35)'; rr(x-w/2+14,y-hh+14,16,Math.max(0,hh-28),8); ctx.fill();
+  ctx.font=fuente(ft); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.lineWidth=10; ctx.strokeStyle='#1E1A2E'; ctx.strokeText(lab,x,y+46); ctx.fillStyle='#FFFFFF'; ctx.fillText(lab,x,y+46); chk('obj',x-w/2,y-hh,x+w/2,y+70); }
+
+// ====================== disfraces ======================
+const NAR='#FF8A1F', NAR2='#E06A00', AZM='#2B3A8C';
+DISFRACES.despachador={ // despachador del metro: uniforme azul marino, chaleco naranja reflejante, gorra naranja con visera y silbato al cuello
+  cuerpo(o){ ctx.fillStyle=AZM; ctx.fillRect(-200,-215,400,200); ctx.fillStyle=NAR; ctx.fillRect(-200,-215,120,170); ctx.fillRect(80,-215,120,170);
+    ctx.fillStyle='#FFF3A6'; ctx.fillRect(-200,-120,120,18); ctx.fillRect(80,-120,120,18); ctx.fillStyle='#22307A'; ctx.fillRect(-200,-40,400,25); },
+  cabeza(o){ const w=o.wob||0; ctx.save(); ctx.rotate(Math.sin((o.t||0)*3)*0.02+w*0.04); ctx.fillStyle=NAR; ctx.beginPath(); ctx.ellipse(0,-372,150,52,0,Math.PI,0); ctx.fill(); ctx.fillRect(-150,-374,300,22);
+    ctx.fillStyle=NAR2; ctx.beginPath(); ctx.ellipse(70,-352,120,20,0.08,0,PI2); ctx.fill(); ctx.fillStyle='#FFFFFF'; blob(0,-400,20); ctx.fillStyle=NAR; blob(0,-400,12); ctx.restore(); },
+  frente(o,B){ ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-40,-205); ctx.quadraticCurveTo(0,-150,40,-205); ctx.stroke();
+    if(o.pita){ const h=[30,-226]; ctx.fillStyle='#C9C3D6'; rr(h[0]-6,h[1]-14,56,28,12); ctx.fill(); ctx.fillStyle='#8E8AA3'; blob(h[0]+40,h[1],10);
+      ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=7; const u=((o.t||0)*4)%1; for(let i=0;i<3;i++){ ctx.globalAlpha=1-u; ctx.beginPath(); ctx.arc(h[0]+60,h[1],30+i*22+u*20,-0.6,0.6); ctx.stroke(); } ctx.globalAlpha=1; }
+    else { ctx.fillStyle='#C9C3D6'; rr(-18,-168,44,22,10); ctx.fill(); } }
+};
+DISFRACES.oshiya={ // empujador de Tokio: saco azul oscuro, gorra azul con franja blanca y guantes blancos
+  cuerpo(o){ ctx.fillStyle='#1E2A5A'; ctx.fillRect(-200,-215,400,200); ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(-40,-215); ctx.lineTo(0,-150); ctx.lineTo(40,-215); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.beginPath(); ctx.moveTo(-12,-200); ctx.lineTo(12,-200); ctx.lineTo(8,-120); ctx.lineTo(0,-108); ctx.lineTo(-8,-120); ctx.fill(); ctx.fillStyle='#FFD23F'; blob(-60,-90,9); blob(-60,-50,9); },
+  cabeza(o){ ctx.save(); ctx.rotate(Math.sin((o.t||0)*3)*0.02+(o.wob||0)*0.04); ctx.fillStyle='#1E2A5A'; ctx.beginPath(); ctx.ellipse(0,-372,148,50,0,Math.PI,0); ctx.fill(); ctx.fillRect(-148,-374,296,24);
+    ctx.fillStyle='#FFFFFF'; ctx.fillRect(-148,-372,296,9); ctx.fillStyle='#111833'; ctx.beginPath(); ctx.ellipse(70,-350,118,18,0.08,0,PI2); ctx.fill(); ctx.fillStyle='#FFD23F'; blob(0,-398,14); ctx.restore(); },
+  frente(o,B){ ctx.fillStyle='#FFFFFF'; for(const k of [-1,1]){ const h=B[k].h; blob(h[0],h[1],27); ctx.fillStyle='#E9E5F2'; blob(h[0]+4,h[1]+6,14); ctx.fillStyle='#FFFFFF'; } }
+};
+DISFRACES.pasajero={ // pasajero con mochila y audífonos
+  atras(o){ ctx.fillStyle='#4CC9F0'; rr(-200,-260,90,170,30); ctx.fill(); },
+  cuerpo(o){ ctx.fillStyle='#7B5CFF'; ctx.fillRect(-200,-215,400,200); ctx.fillStyle='#4CC9F0'; ctx.fillRect(-150,-215,26,190); ctx.fillRect(124,-215,26,190); },
+  cabeza(o){ ctx.strokeStyle='#1E1A2E'; ctx.lineWidth=14; ctx.beginPath(); ctx.arc(0,-290,150,Math.PI*1.08,Math.PI*1.92); ctx.stroke(); ctx.fillStyle='#FF5FA2'; blob(-146,-262,30); blob(146,-262,30); }
+};
+DISFRACES.bolsa={ // adelanto Parte 28: Raro dentro de una bolsa de basura negra con moño amarillo
+  cuerpo(o){ ctx.fillStyle='#3A3550'; ctx.fillRect(-210,-260,420,260); ctx.fillStyle='#5A5570'; ctx.fillRect(-120,-240,30,220); ctx.fillRect(60,-230,24,200); },
+  cabeza(o){ ctx.fillStyle='#FFD23F'; ctx.save(); ctx.translate(0,-388); ctx.rotate(Math.sin((o.t||0)*5)*0.15); ctx.beginPath(); ctx.ellipse(-40,0,46,22,0.4,0,PI2); ctx.ellipse(40,0,46,22,-0.4,0,PI2); ctx.fill(); blob(0,0,16); ctx.restore(); }
+};
+const DESP='despachador';
+
+// ====================== utilería del metro ======================
+// vagón naranja visto de lado; gente: n de gomitas en ventanas; apriete 0..1 (abombado); puerta 0 abierta → 1 cerrada
+function vagon(x,y,w,h,t,o={}){ const ap=o.apriete||0, gente=o.gente??1, cab=o.cabina; ctx.save(); ctx.translate(x,y);
+  const bx=ap*14*Math.sin(t*9);
+  ctx.fillStyle='rgba(30,26,46,0.25)'; rr(-w/2+10,-h+16,w,h,h*0.18); ctx.fill();
+  ctx.fillStyle=NAR; ctx.beginPath(); ctx.moveTo(-w/2,-h*0.15); ctx.quadraticCurveTo(-w/2-ap*30,-h*0.6,-w/2+(cab==='izq'?h*0.35:0),-h); ctx.lineTo(w/2-(cab==='der'?h*0.35:0),-h); ctx.quadraticCurveTo(w/2+ap*30+bx,-h*0.6,w/2,-h*0.15); ctx.quadraticCurveTo(w/2,0,w/2-20,0); ctx.lineTo(-w/2+20,0); ctx.quadraticCurveTo(-w/2,0,-w/2,-h*0.15); ctx.fill();
+  ctx.fillStyle=NAR2; ctx.fillRect(-w/2+8,-h*0.18,w-16,h*0.1); ctx.fillStyle='#FFF4DC'; ctx.fillRect(-w/2+8,-h*0.36,w-16,h*0.06);
+  const nv=Math.max(2,Math.round(w/(h*0.75))), vw=w/nv*0.66;
+  for(let i=0;i<nv;i++){ const cx=-w/2+(i+0.5)*w/nv; ctx.fillStyle='#BFE9FF'; rr(cx-vw/2,-h*0.88,vw,h*0.42,h*0.08); ctx.fill();
+    if(gente>0){ ctx.save(); rr(cx-vw/2,-h*0.88,vw,h*0.42,h*0.08); ctx.clip(); const m=2+Math.round(ap*2); for(let j=0;j<m;j++){ const gx=cx-vw/2+(j+0.5)*vw/m, gy=-h*0.56+Math.sin(t*6+i+j)*3; ctx.fillStyle=PASTELES[(i*3+j)%6]; ctx.beginPath(); ctx.ellipse(gx,gy,vw/m*0.48*(1+ap*0.15),h*0.2,0,0,PI2); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(gx-h*0.035,gy-h*0.05,h*0.018); blob(gx+h*0.035,gy-h*0.05,h*0.018); if(ap>0.5){ ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(gx-vw/m*0.4,-h*0.52,vw/m*0.8,3); } } ctx.restore(); }
+    ctx.fillStyle='rgba(255,255,255,0.45)'; rr(cx-vw/2+6,-h*0.86,vw*0.18,h*0.36,6); ctx.fill(); }
+  ctx.fillStyle='#3A3550'; for(const s of [-1,1]){ blob(s*w*0.32,4,h*0.11); blob(s*w*0.32-h*0.25,4,h*0.11); }
+  ctx.restore(); }
+// andén de metro (fondo propio, 3 capas): muro de azulejo lejano, columnas y anuncios, borde amarillo y vía con riel cerca de cámara
+EXTRA_FONDOS.anden=function(t,P,px){ ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
+  ctx.fillStyle=mix(P.claro,'#FFFFFF',0.35); for(let r=0;r<16;r++) for(let i=0;i<18;i++){ if((r+i)%2) continue; ctx.fillRect(-200+i*90+px(0.15)%90,220+r*60,86,56); }
+  ctx.fillStyle=P.medio; ctx.fillRect(-300,880,1680,46); for(let i=0;i<5;i++){ rr(-120+i*360+px(0.35)%360,240,90,1060,30); ctx.fill(); }
+  ctx.fillStyle=mix(P.oscuro,'#000000',0.25); ctx.fillRect(-300,1300,1680,160); ctx.fillStyle='#8E8AA3'; ctx.fillRect(-300,1330,1680,14); ctx.fillRect(-300,1400,1680,14);
+  ctx.fillStyle=P.oscuro; ctx.fillRect(-300,1440,1680,700); ctx.fillStyle='#FFD23F'; ctx.fillRect(-300,1440,1680,26); ctx.fillStyle=mix(P.oscuro,'#FFFFFF',0.15); for(let i=0;i<9;i++){ rr(-200+i*200+px(1.1)%200,1560,150,40,20); ctx.fill(); } };
+// interior de vagón: ventanas con túnel que pasa, barras y asientos
+EXTRA_FONDOS.vagon=function(t,P,px){ ctx.fillStyle=P.claro; ctx.fillRect(-300,-300,1680,2520);
+  for(let i=0;i<4;i++){ const x=-140+i*360; ctx.fillStyle='#2E2A50'; rr(x,420,300,330,40); ctx.fill(); ctx.save(); rr(x,420,300,330,40); ctx.clip(); ctx.fillStyle='rgba(255,255,255,0.6)'; for(let j=0;j<3;j++){ const lx=x+((t*1800+j*140)%440)-80; ctx.fillRect(lx,520+j*80,90,10); } ctx.restore(); }
+  ctx.fillStyle=P.medio; ctx.fillRect(-300,820,1680,40); ctx.fillStyle='#C9C3D6'; ctx.fillRect(-300,300,1680,18);
+  for(let i=0;i<5;i++){ ctx.fillStyle='#E9E5F2'; rr(40+i*250+px(0.4)%250,300,16,1150,8); ctx.fill(); }
+  ctx.fillStyle=P.oscuro; ctx.fillRect(-300,1440,1680,700); ctx.fillStyle=mix(P.oscuro,'#FFFFFF',0.12); ctx.fillRect(-300,1440,1680,20); };
+// torniquetes de entrada
+function torniquete(x,y,s,t,abre){ ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.fillStyle='#8E8AA3'; rr(-60,-260,120,260,24); ctx.fill(); ctx.fillStyle='#C9C3D6'; rr(-50,-250,100,40,14); ctx.fill();
+  ctx.fillStyle=abre?'#5CD67A':'#E23D5B'; blob(0,-230,12); ctx.strokeStyle='#E9E5F2'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.save(); ctx.translate(60,-150); ctx.rotate(abre?-1.2:0); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(120,0); ctx.stroke(); ctx.restore(); ctx.restore(); }
+function cinta(x0,x1,y,k,t){ if(k<=0) return; const x=lerp(x0,x1,k); ctx.fillStyle='#FFD23F'; rr(x0,y-18,x-x0,36,10); ctx.fill(); ctx.fillStyle='#1E1A2E'; for(let xx=x0+20;xx<x;xx+=40) ctx.fillRect(xx,y-18,4,xx%200<40?24:14);
+  ctx.fillStyle='#E23D5B'; blob(x0,y,34); ctx.fillStyle='#FFFFFF'; blob(x0,y,12); chk('obj',x0-34,y-34,x,y+34); }
+function luna(x,y,r){ ctx.fillStyle='#E9E5F2'; blob(x,y,r); ctx.fillStyle='#C9C3D6'; blob(x-r*0.3,y-r*0.2,r*0.22); blob(x+r*0.35,y+r*0.25,r*0.16); blob(x+r*0.1,y-r*0.5,r*0.1); }
+// trencito orange mini (para cascadas)
+function trencito(x,y,k,i){ ctx.save(); ctx.translate(x,y); ctx.scale(k,k); vagon(0,0,130,54,TL_T,{gente:1,cab:i%2?'der':'izq'}); ctx.restore(); }
+let TL_T=0;
+// tren que sigue el arco del horizonte (centro cx=540, cy), de derecha a izquierda la cola; a0 = ángulo del frente
+function trenArco(t,cy,R,a0,n,o={}){ for(let i=n-1;i>=0;i--){ const a=a0-i*0.118; ctx.save(); ctx.translate(540+Math.sin(a)*(R+2),cy-Math.cos(a)*(R+2)); ctx.rotate(a); vagon(0,0,124,98,t,{gente:1,apriete:o.apriete||0.8,cab:i===0?'der':undefined}); if(o.techo){ for(let j=0;j<2;j++){ const yy=-98-22-Math.abs(Math.sin(t*7+i*1.3+j*2))*10; ctx.fillStyle=PASTELES[(i*2+j)%6]; ctx.beginPath(); ctx.ellipse(-28+j*56,yy,22,25,0,0,PI2); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(-35+j*56,yy-5,3.5); blob(-21+j*56,yy-5,3.5); } } ctx.restore(); } }
+function anillosTren(X,Y,Rr,t,k,front){ const N=5; for(let i=0;i<N;i++){ const kk=clamp(k*N-i); if(kk<=0) continue; const tilt=-0.5+i*0.25, rx=Rr+50+i*26, ry=(Rr+50+i*26)*0.28;
+    ctx.save(); ctx.translate(X,Y); ctx.rotate(tilt); const a0=front?0:Math.PI, a1=a0+Math.PI*kk;
+    ctx.lineCap='butt'; ctx.strokeStyle=NAR2; ctx.lineWidth=30; ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,a0,a1); ctx.stroke(); ctx.strokeStyle=NAR; ctx.lineWidth=22; ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,a0,a1); ctx.stroke();
+    ctx.setLineDash([14,18]); ctx.lineDashOffset=-t*60; ctx.strokeStyle='#BFE9FF'; ctx.lineWidth=8; ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,a0,a1); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); } }
+function letreroEstacion(txt,x,y,k){ if(k<=0) return; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.translate(x,y); ctx.scale(k,k); ctx.font=fuente(92); const w=Math.min(760,ctx.measureText(txt).width+120);
+  ctx.fillStyle='#1E1A2E'; rr(-w/2+8,-72,w,150,24); ctx.fill(); ctx.fillStyle='#FFFFFF'; rr(-w/2,-80,w,150,24); ctx.fill(); ctx.fillStyle=NAR; rr(-w/2,-80,w,28,12); ctx.fill();
+  ctx.fillStyle='#1E1A2E'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,0,8); ocupa(-w/2,-80,w/2,70,3); chk('letrero',-w/2,-80,w/2,70); ctx.restore(); }
+function bolaDisco(x,y,t,k){ if(k<=0) return; ctx.strokeStyle='#8E8AA3'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(x,600); ctx.lineTo(x,y-70*k); ctx.stroke(); ctx.save(); ctx.translate(x,y); ctx.scale(k,k); ctx.rotate(t*1.5); ctx.fillStyle='#C9C3D6'; blob(0,0,70);
+  for(let i=0;i<14;i++){ ctx.fillStyle=(i+Math.floor(t*6))%3?'#FFFFFF':'#7FD8FF'; ctx.fillRect(-55+(i%4)*30,-50+Math.floor(i/4)*30,24,24); } ctx.restore(); chk('obj',x-70,y-70,x+70,y+70); }
+function bolsas(x,y,n,t,k){ for(let i=0;i<n;i++){ const kk=popIn(t,k+i*0.08,0.25); if(kk<=0) continue; const bx=x+(i%5-2)*100+(Math.floor(i/5)%2)*50, by=y-Math.floor(i/5)*80; ctx.save(); ctx.translate(bx,by); ctx.scale(kk,kk); ctx.fillStyle='#3A3550'; blob(0,0,58); ctx.fillStyle='#5A5570'; blob(-18,-18,14); ctx.fillStyle='#FFD23F'; blob(0,-56,12); ctx.restore(); } }
+
+// letrero de 3 renglones (gancho y adelanto): blanco, lima grande, blanco
+function L3(a,b,c,k,y=410,t=0,t0=-1){ if(k<=0) return; ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.translate(540,y); ctx.rotate(wobble(t,t0,0.2)); ctx.scale(k,k);
+  const F=[[a,78,'#FFFFFF'],[b,116,'#D7FF3D'],[c,78,'#FFFFFF']]; let w=0; for(const [s,z] of F){ ctx.font=fuente(z); w=Math.max(w,ctx.measureText(s).width); } w+=90; let sc=1; if(w>760){ sc=760/w; w=760; }
+  const h=330*sc; ctx.fillStyle='#1E1A2E'; rr(-w/2+8,-h/2+10,w,h,30); ctx.fill(); ctx.fillStyle='#2E2A60'; rr(-w/2,-h/2,w,h,30); ctx.fill(); ctx.strokeStyle='#D7FF3D'; ctx.lineWidth=7; rr(-w/2+10,-h/2+10,w-20,h-20,24); ctx.stroke();
+  ctx.textAlign='center'; ctx.textBaseline='middle'; const Y=[-98,4,104]; F.forEach(([s,z,col],i)=>{ ctx.font=fuente(z*sc); ctx.fillStyle=col; ctx.fillText(s,0,Y[i]*sc); });
+  ocupa(-w/2,-h/2,w/2,h/2,3); chk('letrero',-w/2,-h/2,w/2,h/2); ctx.restore(); }
+// ====================== escenas ======================
+// S1/S26 GANCHO (loop): horizonte curvo de la Tierra con UN tren naranja larguísimo atiborrado de gomitas que la rodea; Raro despachador, al frente,
+// empuja a una gomita a la puerta y pita el silbato. Letrero desde el cuadro 0: ¡TODOS AL METRO! / 20 VUELTAS A LA TIERRA. En "20" chispas y el tren acelera.
+function escenaGancho(t,sc,fin){ const cy=2380, R=1080; arcoTierra(t,cy,R,6);
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.75)'; ctx.lineCap='round'; for(let i=0;i<14;i++){ const y=620+rand(i+70)*560, Lg=160+rand(i+5)*300, x=1400-((t*2200+rand(i)*1800)%2000); ctx.lineWidth=6+rand(i+3)*10; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+Lg,y); ctx.stroke(); } ctx.restore();
+  const a0=0.66+((t*0.4)%0.118); trenArco(t,cy,R,a0,13,{apriete:0.9,techo:true});
+  const rx=330, ry=cy-Math.cos(Math.asin((rx-540)/R))*R+40; const tw=fin?sc.start:at(8);
+  const emp=Math.sin(t*9);
+  gomita({x:rx+190,y:ry-14,s:0.5,t,color:'#FFB3D9',expr:'terror',brazos:'arriba',tilt:0.3+emp*0.08,sq:0.15+emp*0.05,seed:3});
+  const c=fin?caida(t,sc.start+0.02,600):{alto:0,sq:0,wob:0};
+  raro({x:rx,y:ry,s:0.95,t,disfraz:DESP,pita:true,expr:t>=tw?'asombro':'orgullo',manos:{i:[120,-150],d:[150+emp*14,-220]},piernas:'quieto',tilt:0.12,alto:c.alto,sq:c.sq+emp*0.03,wob:c.wob||wobble(t,tw,0.6)});
+  if(t>=tw){ chispas(t,tw,620,1010,1.2,'#D7FF3D'); estrellitas(t,tw+0.1,540,960); }
+  flechaGiro(540,cy,R+150,0,0.45,'#D7FF3D',-1,0);
+  L3('¡TODOS AL METRO!','20 VUELTAS','A LA TIERRA',1,410,t,fin?sc.start:-1);
+}
+function S1(t,sc){ escenaGancho(t,sc,false); }
+function S26(t,sc){ const p=pufCambio(t,sc.start+0.02); escenaGancho(t,sc,true); if(t<sc.start+0.6) nubePuf(t,sc.start+0.06,330,1180,0.9); }
+// S2 "¿Cómo que 20?": plano cerrado a Raro despachador que mira a cámara con sospecha y saca la libreta de cuentas; letrero ¿20 VUELTAS?
+function S2(t,sc){ const g=gelatina(t,sc.start+0.05,0.5); raro({x:500,y:1440,s:1.12,t,disfraz:DESP,expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',piernas:'quieto',sq:g,tilt:-0.08});
+  const k=popIn(t,at(13)); if(k>0) L('¿20 VUELTAS?',540,430,k,'madera',{tam:100,t,t0:at(13)}); estrellitas(t,at(15),760,820); }
+// S3 "Un tren del metro de la Ciudad de México lleva": andén; el tren entra desde la derecha con latigazo y frena; Raro pita en el andén. Letrero 1 TREN = 9 VAGONES.
+function S3(t,sc){ const u=easeOut(prog(t,sc.start,0.9)); const tx=lerp(2400,760,u); for(let i=0;i<3;i++) vagon(tx+i*560,1300,540,300,t,{cab:i===0?'izq':undefined,gente:1});
+  if(u<1) polvo(t,tx-280,1290,1,6,1.3);
+  raro({x:300,y:1440,s:0.85,t,disfraz:DESP,pita:t<at(19),expr:t<at(19)?'orgullo':'feliz',brazos:t<at(19)?'idle':'senala',piernas:'quieto',alto:brinco(t,at(19),0.45,120).alto,sq:brinco(t,at(19),0.45,120).sq});
+  const k=popIn(t,at(19)); if(k>0) L('1 TREN = 9 VAGONES',540,430,k,'panel',{tam:80,t,t0:at(19)}); }
+// S4 "1,530 personas…": gomitas brincan en cascada dentro del vagón (ventanas se llenan); Raro las empuja con la panza. Letrero 1,530 PERSONAS completo desde la palabra.
+function S4(t,sc){ vagon(560,1330,900,420,t,{gente:1,apriete:0.4});
+  for(let i=0;i<7;i++){ const t0=sc.start+0.1+i*0.22; if(t>t0+0.5) continue; const u=prog(t,t0,0.5); if(u<=0) continue; gomita({x:lerp(120,300+i*80,u),y:1440-Math.sin(u*Math.PI)*420,s:0.32,t,color:PASTELES[i%6],expr:'risa',brazos:'arriba',seed:i,sinSombra:true}); }
+  raro({x:230,y:1440,s:0.75,t,disfraz:DESP,pita:true,expr:'orgullo',manos:{i:[130,-170],d:[170,-230]},piernas:'quieto',tilt:0.15});
+  const k=popIn(t,at(26)); if(k>0) L('1,530 PERSONAS',540,430,k,'panel',{tam:96,t,t0:at(26)}); }
+// S5 "y casi 1,200 van paradas.": dentro del vagón: gomitas paradas agarradas de las barras, pocas sentadas; Raro apretado en medio con cara de "ya valió".
+function S5(t,sc){ ctx.fillStyle='#7B5CFF'; for(let i=0;i<4;i++) rr(60+i*250,1300,170,140,30), ctx.fill();
+  for(let i=0;i<4;i++) gomita({x:145+i*250,y:1330,s:0.3,t,color:PASTELES[(i+2)%6],expr:'feliz',seed:i+7,piernas:'quieto'});
+  const sq=0.18+Math.sin(t*8)*0.04; for(let i=0;i<6;i++){ if(i===2||i===3) continue; gomita({x:130+i*145,y:1440,s:0.55,t,color:PASTELES[i%6],expr:i%2?'sospecha':'asombro',brazos:'carga',seed:i,sq,tilt:Math.sin(t*3+i)*0.05}); }
+  raro({x:520,y:1440,s:0.62,t,disfraz:DESP,expr:t<at(32)?'apenado':'yavalio',brazos:'carga',piernas:'quieto',sq:0.25+Math.sin(t*8)*0.05,rubor:1});
+  const k=popIn(t,at(30)); if(k>0) L('CASI 1,200 DE PIE',540,430,k,'madera',{tam:86,t,t0:at(30)}); }
+// S6 "Somos 8,200 millones.": mar de gomitas que llena el andén hasta el fondo; Raro surfea arriba de la multitud. Letrero 8,200 MILLONES.
+function S6(t,sc){ for(let r=0;r<7;r++){ const y=980+r*75, s=0.45+r*0.14, n=Math.ceil(1300/(46*s*1.9)); for(let i=0;i<n;i++){ const x=-60+i*46*s*1.9+(r%2)*30, yy=y-Math.abs(Math.sin(t*6+i*1.3+r))*10;
+    ctx.fillStyle=PASTELES[(i+r*2)%6]; ctx.beginPath(); ctx.ellipse(x,yy,40*s,44*s,0,0,PI2); ctx.fill(); ctx.fillStyle='#1E1A2E'; blob(x-12*s,yy-8*s,6*s); blob(x+12*s,yy-8*s,6*s); } }
+  ocupa(0,960,1080,1500,0.3); const sx=lerp(250,700,prog(t,sc.start,dur(sc)));
+  raro({x:sx,y:1230+Math.sin(t*5)*16,s:0.62,t,disfraz:DESP,expr:'risa',brazos:'arriba',piernas:'flota',tilt:Math.sin(t*4)*0.18,sinSombra:true});
+  const k=popIn(t,at(34)); if(k>0) L('8,200 MILLONES',540,430,k,'panel',{tam:100,t,t0:at(34)}); }
+// S7 "O sea… ¡más de 5 millones de trenes!": puf de cuentas: cascada de trencitos que tapizan la pantalla; Raro asoma con terror. Letrero +5 MILLONES DE TRENES.
+function S7(t,sc){ TL_T=t; cascada(t,at(38),15,trencito,{x0:200,y0:810,cols:5,dx:165,dy:100,cada:0.05});
+  raro({x:540,y:1440,s:0.8,t,disfraz:DESP,expr:t<at(38)?'sospecha':'terror',brazos:t<at(38)?'jarras':'cara',piernas:'quieto',alto:t>=at(40)?susto(t,at(40)).alto:0,sq:t>=at(40)?susto(t,at(40)).sq:0});
+  ocupa(130,740,940,1020,1.5); const k=popIn(t,at(40)); if(k>0) L2('+5 MILLONES','DE TRENES',k,430,t,at(40)); }
+// S8 "Y cada tren mide unos 150 metros.": Raro jala una cinta métrica amarilla a lo largo de un tren completo, corriendo; letrero 150 METROS.
+function S8(t,sc){ for(let i=0;i<3;i++) vagon(260+i*330,1200,320,170,t,{cab:i===0?'izq':(i===2?'der':undefined),gente:1});
+  const u=easeOut(prog(t,sc.start+0.2,dur(sc)*0.7)); cinta(110,lerp(150,930,u),1270,1,t);
+  raro({x:lerp(170,720,u),y:1440,s:0.6,t,disfraz:DESP,expr:'orgullo',piernas:u<1?'corre':'quieto',brazos:'frente',tilt:u<1?0.12:0,alto:u<1?Math.abs(Math.sin(t*9))*16:0});
+  const k=popIn(t,at(49)); if(k>0) L('150 METROS',540,430,k,'madera',{tam:100,t,t0:at(49)}); }
+// S9 "Pon uno detrás de otro y te sale": trenes que se enganchan con "click" y la fila se va hasta el horizonte; Raro corre arriba del techo.
+function S9(t,sc){ const n=1+Math.floor(prog(t,sc.start,dur(sc)*0.8)*6); for(let i=0;i<n;i++){ const s=Math.pow(0.72,i); const x=300+ (1-Math.pow(0.72,i))*620, y=1350-(1-s)*420; vagon(x,y,420*s,190*s,t,{gente:1,cab:i===0?'izq':undefined}); }
+  chispas(t,sc.start+0.3,520,1250,0.8,'#FFD23F'); chispas(t,sc.start+0.8,700,1150,0.7,'#FFD23F');
+  raro({x:260,y:1160,s:0.42,t,disfraz:DESP,expr:'feliz',piernas:'corre',brazos:'corre',tilt:0.15,alto:Math.abs(Math.sin(t*9))*14});
+  const k=popIn(t,at(53)); if(k>0) L('UNO TRAS OTRO…',540,430,k,'madera',{tam:84,t,t0:at(53)}); }
+// S10 "un tren de 800,000 kilómetros.": la Tierra en el espacio; el tren naranja la enrolla en 5 anillos que se dibujan solos. Letrero 800,000 KM.
+function S10(t,sc){ const X=540,Y=1060,Rr=230, k=prog(t,sc.start,dur(sc)*0.8); anillosTren(X,Y,Rr,t,k,false); tierra(X,Y,Rr,t); anillosTren(X,Y,Rr,t,k,true);
+  raro({x:X+Rr+40,y:Y+60,s:0.22,t,disfraz:DESP,expr:'asombro',brazos:'arriba',sinSombra:true,tilt:Math.sin(t*3)*0.2});
+  ocupa(X-Rr-180,Y-Rr-120,X+Rr+180,Y+Rr+120,1.2); chk('obj',X-Rr-180,Y-Rr-120,X+Rr+180,Y+Rr+120); lineasVelocidad(t,at(62),X,Y,'#FFFFFF');
+  const kl=popIn(t,at(62)); if(kl>0) L('800,000 KM',540,430,kl,'panel',{tam:110,t,t0:at(62)}); }
+// S11 "¡Más que ir a la Luna… y regresar!": puf a astronauta montado en el frente del tren que viaja de la Tierra a la Luna y regresa. Letrero LUNA: IDA Y VUELTA.
+function S11(t,sc){ const p=pufCambio(t,sc.start+0.03); const E=[260,1300], M=[780,760]; tierra(E[0],E[1],150,t); luna(M[0],M[1],95);
+  const u=prog(t,sc.start+0.2,dur(sc)-0.4); const ida=Math.min(1,u*2), vu=Math.max(0,u*2-1);
+  const P=(s,a,b,c)=>[ (1-s)*(1-s)*a[0]+2*s*(1-s)*c[0]+s*s*b[0], (1-s)*(1-s)*a[1]+2*s*(1-s)*c[1]+s*s*b[1] ];
+  const C1=[280,700], C2=[820,1300]; ctx.lineCap='round';
+  for(const [seg,a,b,c] of [[ida,E,M,C1],[vu,M,E,C2]]){ if(seg<=0) continue; ctx.strokeStyle=NAR; ctx.lineWidth=24; ctx.beginPath(); for(let s=0;s<=seg+1e-6;s+=0.02){ const q=P(Math.min(s,seg),a,b,c); s===0?ctx.moveTo(q[0],q[1]):ctx.lineTo(q[0],q[1]); } ctx.stroke(); ctx.setLineDash([12,14]); ctx.strokeStyle='#BFE9FF'; ctx.lineWidth=8; ctx.stroke(); ctx.setLineDash([]); }
+  const q=vu>0?P(vu,M,E,C2):P(ida,E,M,C1); raro({x:q[0],y:q[1]+20,s:0.3,t,disfraz:p.despues?'astronauta':DESP,spin:p.spin,expr:'risa',brazos:'arriba',sinSombra:true,tilt:Math.sin(t*6)*0.2});
+  nubePuf(t,sc.start+0.1,q[0],q[1]-60,0.6); ocupa(150,640,900,1460,1); chk('obj',110,650,900,1460);
+  const k=popIn(t,at(69)); if(k>0) L('LUNA: IDA Y VUELTA',540,430,k,'panel',{tam:84,t,t0:at(69)}); }
+// S12 "¿Y quién nos mete a todos?": andén; Raro despachador (puf) empuja una bola de gomitas a la puerta y rebotan hacia afuera; mira a cámara. Letrero ¿QUIÉN NOS METE?
+function S12(t,sc){ const p=pufCambio(t,sc.start+0.03); vagon(700,1300,700,330,t,{gente:1,apriete:1});
+  const reb=Math.max(0,Math.sin((t-sc.start)*6))*60; for(let i=0;i<5;i++) gomita({x:600+(i%3)*80-reb*(i%2?1:0.6),y:1440-Math.floor(i/3)*90,s:0.38,t,color:PASTELES[i%6],expr:'terror',brazos:'arriba',seed:i,sq:0.2,tilt:-0.2});
+  raro({x:330-reb*0.8,y:1440,s:0.8,t,disfraz:p.despues?DESP:'astronauta',spin:p.spin,expr:t<at(75)?'sospecha':'yavalio',mira:{x:0,y:0},manos:{i:[140,-170],d:[160,-240]},piernas:'quieto',tilt:0.12});
+  nubePuf(t,sc.start+0.08,330,1200,1.0); const k=popIn(t,at(73)); if(k>0) L('¿QUIÉN NOS METE?',540,430,k,'madera',{tam:90,t,t0:at(73)}); }
+// S13 "En Tokio eso ya es un trabajo:": latigazo a una ciudad de noche; puf a empujador de Tokio con guantes blancos que se los acomoda orgulloso. Letrero TOKIO.
+function S13(t,sc){ const p=pufCambio(t,at(79)); raro({x:520,y:1440,s:0.95,t,disfraz:p.despues?'oshiya':DESP,spin:p.spin,expr:p.despues?'orgullo':'sospecha',brazos:p.despues?'jarras':'idle',piernas:'quieto',sq:gelatina(t,at(79)+0.3,0.4)});
+  nubePuf(t,at(79)+0.05,520,1200,1.2); if(p.despues) chispas(t,at(84),700,950,1,'#FFFFFF');
+  const k=popIn(t,at(79)); if(k>0) L('TOKIO',540,430,k,'piedra',{tam:110,t,t0:at(79)}); }
+// S14 "hay empleados que te empujan para que cierren la puerta.": Raro empujador empuja con ambas manos a tres gomitas al vagón; en "puerta" la puerta se cierra con click.
+function S14(t,sc){ const tc=at(94); vagon(760,1310,700,360,t,{gente:1,apriete:1}); const push=Math.min(1,prog(t,at(89),tc-at(89)));
+  for(let i=0;i<3;i++) gomita({x:560+i*50-push*40,y:1440,s:0.42,t,color:PASTELES[(i+1)%6],expr:'terror',brazos:'arriba',seed:i,sq:0.2+push*0.2,tilt:0.15});
+  if(t>=tc){ const d=easeOut(prog(t,tc,0.2)); ctx.fillStyle=NAR; rr(430,1310-330,lerp(0,160,d),300,10); ctx.fill(); ctx.fillStyle='#BFE9FF'; rr(450,1310-300,lerp(0,110,d),120,10); ctx.fill(); chispas(t,tc,520,1150,1,'#FFD23F'); }
+  raro({x:330+push*40,y:1440,s:0.85,t,disfraz:'oshiya',expr:t<tc?'orgullo':'risa',manos:{i:[150,-170],d:[170,-250]},piernas:'quieto',tilt:0.16,sq:Math.sin(t*10)*0.03});
+  const k=popIn(t,at(86)); if(k>0) L('EMPUJADORES',540,430,k,'madera',{tam:96,t,t0:at(86)}); }
+// S15 "Allá, en los setentas,": bola disco baja; Raro empujador baila; letrero AÑOS 70.
+function S15(t,sc){ bolaDisco(760,720,t,popIn(t,sc.start,0.35)); const b=Math.sin(t*10);
+  raro({x:430,y:1440,s:0.9,t,disfraz:'oshiya',expr:'risa',brazos:b>0?'saluda':'senala',piernas:'quieto',tilt:b*0.12,alto:Math.abs(b)*30});
+  for(let i=0;i<5;i++){ ctx.fillStyle=['#FF5FA2','#D7FF3D','#4CC9F0','#FFD23F','#B79BFF'][i]; ctx.globalAlpha=0.35; ctx.beginPath(); ctx.ellipse(160+i*180,1460,90,24,0,0,PI2); ctx.fill(); } ctx.globalAlpha=1;
+  const k=popIn(t,at(98)); if(k>0) L('AÑOS 70',540,430,k,'pergamino',{tam:110,t,t0:at(98)}); }
+// S16 "los trenes iban a más del doble de su capacidad.": barras 100 % vs 221 %; el vagón se abomba y tiembla; Raro empujador suda. Letrero ¡MÁS DEL DOBLE!
+function S16(t,sc){ barra(215,1300,170,200,'#4CC9F0','CAPACIDAD',popIn(t,sc.start,0.3),40); const g=0.15+0.85*prog(t,at(100),at(105)-at(100)); barra(470,1300,170,440,'#FF5FA2','EN LOS 70',g,40);
+  if(t>=at(105)) lineasVelocidad(t,at(105),470,800,'#FFFFFF');
+  // Raro oshiya grande a la derecha de la barra rosa, empujándola con las dos manos para que crezca (sin tapar etiquetas)
+  const emp=t<at(105)? Math.abs(Math.sin(t*9))*14 : 0, sus=t>=at(105)?susto(t,at(105)):{alto:0,sq:0};
+  raro({x:770+emp*0.4,y:1440,s:0.8,t,espejo:true,disfraz:'oshiya',expr:t<at(105)?'sospecha':'terror',manos:{d:[270-emp,-280],i:[255-emp,-200]},piernas:t<at(105)?'corre':'quieto',tilt:-0.14,alto:sus.alto,sq:sus.sq}); sudor(770,1440,0.8,t,3);
+  const k=popIn(t,at(105)); if(k>0) L('¡MÁS DEL DOBLE!',540,430,k,'panel',{tam:100,t,t0:at(105)}); }
+// S17 "Y aquí viene lo feo: el metro de verdad": puf de regreso a despachador en el andén vacío; reloj; Raro se asoma con terror. Letrero LO FEO…
+function S17(t,sc){ const p=pufCambio(t,sc.start+0.03); reloj(780,820,0.9,t,2); raro({x:420,y:1440,s:0.95,t,disfraz:p.despues?DESP:'oshiya',spin:p.spin,expr:t<at(113)?'sospecha':'terror',mira:t<at(113)?{x:0,y:0}:undefined,brazos:t<at(113)?'jarras':'cara',piernas:'quieto',wob:wobble(t,at(113),0.7)});
+  nubePuf(t,sc.start+0.08,420,1200,1.1); const k=popIn(t,at(110)); if(k>0) L('Y AQUÍ VIENE LO FEO…',540,430,k,'madera',{tam:80,t,t0:at(110)}); }
+// S18 "mueve unos 3 millones y medio de personas al día.": torniquetes con gomitas pasando sin parar; Raro despachador pita y cuenta con el dedo. Letrero 3.5 MILLONES AL DÍA.
+function S18(t,sc){ for(let j=0;j<3;j++) torniquete(560+j*170,1440,0.9,t,Math.sin(t*8+j)>0);
+  for(let i=0;i<9;i++){ const x=1200-((t*420+i*150)%1400); if(x<440) continue; const lane=i%3; gomita({x,y:1440,s:0.32,t,color:PASTELES[i%6],expr:'feliz',piernas:'corre',brazos:'corre',espejo:true,seed:i,alto:Math.abs(Math.sin(t*9+i))*12}); }
+  raro({x:250,y:1440,s:0.78,t,disfraz:DESP,pita:true,expr:'orgullo',brazos:'senala',piernas:'quieto',sq:gelatina(t,at(120),0.3)});
+  const k=popIn(t,at(120)); if(k>0) L2('3.5 MILLONES','DE PERSONAS AL DÍA',k,430,t,at(120)); }
+// S19 "Para subir a toda la humanidad…": fila infinita de gomitas que serpentea hasta el horizonte rumbo a la entrada; Raro las mira con binoculares (manos a la cara).
+function S19(t,sc){ for(let i=0;i<40;i++){ const u=i/40; const x=820-Math.sin(u*9)*260*(1-u*0.6), y=1440-u*600, s=0.4*(1-u*0.75); gomita({x,y,s,t,color:PASTELES[i%6],expr:'sospecha',seed:i,sinSombra:i>3,alto:Math.abs(Math.sin(t*4+i))*4}); }
+  ocupa(500,820,1080,1500,0.5); raro({x:250,y:1440,s:0.75,t,disfraz:DESP,expr:'asombro',brazos:'cara',piernas:'quieto',tilt:Math.sin(t*2)*0.05});
+  const k=popIn(t,at(130)); if(k>0) L('TODA LA HUMANIDAD',540,430,k,'madera',{tam:84,t,t0:at(130)}); }
+// S20 "¡tardaría más de 6 años!": calendario con hojas que vuelan rápido; Raro brinca del susto. Letrero +6 AÑOS.
+function S20(t,sc){ calendario(700,1060,1.25,popIn(t,sc.start,0.3),t,sc.start,6,0.3,'AÑOS');
+  const s=susto(t,at(137)); raro({x:280,y:1440,s:0.8,t,disfraz:DESP,expr:t<at(137)?'asombro':'terror',brazos:'arriba',piernas:t<at(137)?'quieto':'corre',alto:s.alto,sq:s.sq,wob:wobble(t,at(137),1)});
+  const k=popIn(t,at(137)); if(k>0) L('¡MÁS DE 6 AÑOS!',540,430,k,'panel',{tam:100,t,t0:at(137)}); }
+// S21 "Tú te formas hoy en Pantitlán…": puf a pasajero con mochila; Raro se forma al final de una fila en el andén; letrero de estación PANTITLÁN.
+function S21(t,sc){ const p=pufCambio(t,sc.start+0.03,0.24); for(let i=0;i<4;i++) gomita({x:850-i*90,y:1440,s:0.4,t,color:PASTELES[i%6],expr:'sospecha',seed:i+3,espejo:true});
+  // Raro pasajero grande al final de la fila: bosteza estirándose y luego ve el reloj gigante de la estación (la espera se nota)
+  const bost=t>=sc.start+0.3 && t<at(144), rel=popIn(t,at(144)-0.15);
+  if(rel>0) reloj(730,1010,1.0*easeOut(Math.min(1,rel)),t,6);
+  raro({x:300,y:1440,s:1.0,t,disfraz:p.despues?'pasajero':DESP,spin:p.spin,expr:bost?'preachu':(t<at(144)?'feliz':'yavalio'),ojos:bost?0.7:undefined,mira:t>=at(144)?{x:1,y:-0.6}:undefined,
+    manos:bost?{d:[150,-430+Math.sin(t*6)*10],i:[-150,-430+Math.sin(t*6+1)*10]}:undefined,brazos:bost?'idle':'jarras',piernas:'quieto',sq:bost?-0.08:0,tilt:t>=at(144)?0.06:0});
+  nubePufCorto(t,sc.start+0.05,300,1200,1.0); letreroEstacion('PANTITLÁN',540,440,popIn(t,at(144))); }
+// S22 "y te toca subir por ahí del 2033.": puf a anciano con bastón, sigue en la fila (le salió barba); letrero 2033 en el calendario.
+function S22(t,sc){ const p=pufCambio(t,at(152)-0.2,0.24); for(let i=0;i<3;i++) gomita({x:840-i*120,y:1440,s:0.4,t,color:PASTELES[(i+2)%6],expr:'yavalio',seed:i,espejo:true,disfraz:p.despues?'anciano':undefined});
+  raro({x:380,y:1440,s:0.82,t,disfraz:p.despues?'anciano':'pasajero',spin:p.spin,expr:p.despues?'yavalio':'feliz',brazos:'idle',piernas:'quieto',tilt:p.despues?0.08:0});
+  nubePufCorto(t,at(152)-0.18,380,1200,1.1); const k=popIn(t,at(152)); if(k>0) L('AÑO 2033',540,430,k,'panel',{tam:110,t,t0:at(152)}); }
+// S23 "Seis años de fila… para ir parado.": dentro del vagón: todos los asientos ocupados por gomitas; Raro anciano de pie colgado de la barra, llorando.
+function S23(t,sc){ ctx.fillStyle='#7B5CFF'; for(let i=0;i<4;i++) rr(60+i*250,1300,170,140,30), ctx.fill();
+  for(let i=0;i<4;i++) gomita({x:145+i*250,y:1330,s:0.3,t,color:PASTELES[(i+1)%6],expr:'risa',seed:i+2,piernas:'quieto'});
+  raro({x:540,y:1440,s:0.78,t,disfraz:'anciano',expr:t<at(157)?'sospecha':'llanto',brazos:'carga',piernas:'quieto',tilt:Math.sin(t*4)*0.06});
+  const k=popIn(t,at(157)); if(k>0) L('…PARA IR PARADO',540,430,k,'madera',{tam:96,t,t0:at(157)}); }
+// S24 "¿Tú en qué estación te bajarías?": Raro pasajero (puf) junto a letreros de estación que cambian; señala a cámara.
+function S24(t,sc){ const p=pufCambio(t,sc.start+0.03); const b=brinco(t,sc.start+0.1,0.45,150);
+  raro({x:300,y:1440,s:0.8,t,disfraz:p.despues?'pasajero':'anciano',spin:p.spin,expr:'sospecha',mira:{x:0,y:0},brazos:'senala',piernas:'quieto',alto:b.alto,sq:b.sq,wob:b.wob});
+  nubePuf(t,sc.start+0.1,300,1200,1.0); const names=['¿EN QUÉ ESTACIÓN?']; letreroEstacion(names[0],540,440,popIn(t,at(161))); }
+// S25 "Parte 28: ¿y si todos juntáramos nuestra basura?": puf a bolsa de basura; detrás crece una montaña de bolsas con gomitas encima.
+function S25(t,sc){ const p=pufCambio(t,sc.start+0.03); bolsas(680,1400,15,t,sc.start+0.15);
+  for(let i=0;i<3;i++) gomita({x:560+i*130,y:1440-170-(i%2)*40,s:0.3,t,color:PASTELES[i%6],expr:'asco',seed:i,alto:t>=at(173)?susto(t,at(173)+i*0.05).alto:0});
+  raro({x:260,y:1440,s:0.78,t,disfraz:p.despues?'bolsa':'pasajero',spin:p.spin,expr:t<at(173)?'sospecha':'asco',brazos:'cara',piernas:'quieto'});
+  nubePuf(t,sc.start+0.1,260,1200,1.0); const k=popIn(t,at(166)); if(k>0) L3('PARTE 28','¿Y SI JUNTAMOS','TODA LA BASURA?',k,410,t,at(166)); }
+
+const NS=26;
+window.SCENES=Array.from({length:NS},(_,i)=>eval('S'+(i+1))).map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; f(t,sc);});
+window.CHIPS={};
+window.FONDOS={1:{pal:'violeta',tipo:'espacio'},2:{pal:'mandarina',tipo:'anden'},3:{pal:'turquesa',tipo:'anden'},4:{pal:'cielo',tipo:'anden'},5:{pal:'limon',tipo:'vagon'},
+  6:{pal:'magenta',tipo:'anden'},7:{pal:'cielo',tipo:'cerros'},8:{pal:'limon',tipo:'ciudad'},9:{pal:'mandarina',tipo:'cerros'},10:{pal:'violeta',tipo:'espacio'},
+  11:{pal:'magenta',tipo:'espacio'},12:{pal:'turquesa',tipo:'anden'},13:{pal:'violeta',tipo:'ciudad'},14:{pal:'cielo',tipo:'anden'},15:{pal:'magenta',tipo:'interior'},
+  16:{pal:'limon',tipo:'cielo'},17:{pal:'mandarina',tipo:'anden'},18:{pal:'turquesa',tipo:'interior'},19:{pal:'cielo',tipo:'cerros'},20:{pal:'magenta',tipo:'interior'},
+  21:{pal:'limon',tipo:'anden'},22:{pal:'violeta',tipo:'interior'},23:{pal:'mandarina',tipo:'vagon'},24:{pal:'cielo',tipo:'anden'},25:{pal:'limon',tipo:'ciudad'},26:{pal:'violeta',tipo:'espacio'}};
+window.TOMAS={1:{mov:'push',z:1.0},2:{mov:'push',z:1.2,foco:[500,1100]},3:{mov:'paneo-der'},4:{mov:'pull'},5:{mov:'push',z:1.1,foco:[540,1200]},6:{mov:'paneo-der'},7:{mov:'pull'},8:{mov:'paneo-der'},
+  9:{mov:'push'},10:{mov:'orbita'},11:{mov:'pull'},12:{mov:'push',z:1.1,foco:[450,1200]},13:{mov:'push',z:1.15,foco:[520,1150]},14:{mov:'paneo-izq'},15:{mov:'orbita'},16:{mov:'push',z:1.04,foco:[540,1100]},17:{mov:'push',z:1.15,foco:[420,1150]},18:{mov:'paneo-der'},
+  19:{mov:'pull'},20:{mov:'push'},21:{mov:'paneo-der'},22:{mov:'push',z:1.1,foco:[400,1200]},23:{mov:'pull'},24:{mov:'push',z:1.05,foco:[400,1150]},25:{mov:'pull'},26:{mov:'push',z:1.0}};
+window.TRANS={2:'latigazo',3:'bufanda',5:'zoom',6:'latigazo',7:'zoom',8:'bufanda',10:'zoom',11:'latigazo',12:'bufanda',13:'latigazo',15:'zoom',16:'bufanda',17:'latigazo',18:'bufanda',20:'zoom',21:'latigazo',23:'bufanda',24:'latigazo',25:'bufanda'};
+window.KEYWORDS=[8,15,26,30,34,40,49,58,62,69,75,79,89,98,105,113,120,133,137,144,152,159,163,173,177];
+window.SHAKES=[4,8,40,62,71,94,105,113,137,152,173];
+window.FLASHES=[[4,'#D7FF3D'],[8,'#FFFFFF'],[62,'#FFFFFF'],[105,'#FFFFFF'],[137,'#FFFFFF']];
+</script></body></html>
