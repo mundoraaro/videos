@@ -221,14 +221,14 @@ function S5(t,sc){ for(let i=0;i<12;i++){ const x=150+(i%4)*170, y=1000+Math.flo
   const u=prog(t,sc.start,dur(sc)); raro({x:lerp(140,800,u),y:1440,s:0.6,t,disfraz:'cocinero',expr:'risa',brazos:'arriba',piernas:'corre',tilt:0.15,alto:Math.abs(Math.sin(t*10))*26}); polvo(t,lerp(120,780,u),1430,-1,5,0.8);
   L('1 POR CASA',540,430,popIn(t,at(34)),'madera',{tam:100}); }
 // S6 "¡son más de 30,000 megawatts de golpe!": todas las licuadoras se prenden: rayos gigantes, contador que vuela a 30,000 MW, Raro sale volando del susto.
-function S6(t,sc){ for(let i=0;i<8;i++){ const k=popIn(t,at(40)+i*0.05,0.25); rayo(150+(i%4)*220,820+Math.floor(i/4)*250,0.9+0.1*Math.sin(t*12+i),k,AMAR,Math.sin(t*10+i)*0.12); }
+function S6(t,sc){ for(let i=0;i<12;i++) casita(150+(i%4)*170,1000+Math.floor(i/4)*150,0.85,1,true,1,t); for(let i=0;i<8;i++){ const k=popIn(t,at(40)+i*0.05,0.25); rayo(150+(i%4)*220,820+Math.floor(i/4)*250,0.9+0.1*Math.sin(t*12+i),k,AMAR,Math.sin(t*10+i)*0.12); }
   lineasVelocidad(t,at(40),540,900,'#FFFFFF'); const s=susto(t,at(43)); raro({x:540,y:1440,s:0.8,t,disfraz:'cocinero',expr:'terror',brazos:'arriba',piernas:'quieto',alto:s.alto,sq:s.sq,wob:s.wob,viento:0.6});
   const kl=popIn(t,at(40)); if(kl>0) L('+'+contador(t,at(40),0.6,0,30000)+' MW',540,430,kl,'panel',{tam:110}); if(t>=at(43)) ondaChoque(t,at(43),540,1300,'#FFFFFF'); }
 // S7 "¿Y eso es mucho?": Raro mira a cámara con sospecha, con la cara chamuscada (estrellitas), plano cerrado.
 function S7(t,sc){ raro({x:520,y:1440,s:1.2,t,disfraz:'cocinero',expr:'sospecha',mira:{x:0,y:0},brazos:'jarras',piernas:'quieto',sq:gelatina(t,sc.start+0.05,0.35),tilt:0.06});
   L('¿ES MUCHO?',540,430,popIn(t,sc.start+0.05),'madera',{tam:120}); estrellitas(t,sc.start,560,860); }
 // S8 "El récord de todo el país fue de 54,300 megawatts,": barra gigante del récord que sube con trofeo arriba; Raro cocinero escala la barra.
-function S8(t,sc){ const k=clamp(prog(t,sc.start+0.1,dur(sc)*0.75)); barra(700,1440,240,720,'#FF5FA2','RÉCORD',k);
+function S8(t,sc){ const k=clamp(prog(t,at(48)+0.1,2.6)); barra(700,1440,240,720,'#FF5FA2','RÉCORD',k);
   const top=1440-720*easeOut(k); ctx.save(); ctx.translate(700,top-60); ctx.scale(popIn(t,at(56)),popIn(t,at(56))); ctx.fillStyle='#FFD23F'; rr(-60,-60,120,90,20); ctx.fill(); rr(-20,30,40,30,6); ctx.fill(); rr(-50,56,100,20,8); ctx.fill(); ctx.restore();
   raro({x:330,y:1440,s:0.75,t,disfraz:'cocinero',expr:t<at(56)?'asombro':'terror',brazos:'senala',piernas:'quieto',tilt:0.08,wob:wobble(t,at(56),0.6)});
   const kl=popIn(t,at(56)); if(kl>0) L2('RÉCORD DEL PAÍS','54,300 MW',kl,430,t,at(56)); else L('RÉCORD',540,430,popIn(t,at(49)),'madera',{tam:100}); if(t>=at(56)) chispas(t,at(56),700,top-80,1,'#FFFFFF'); }
@@ -266,8 +266,8 @@ function S15(t,sc){ const n=Math.min(7,1+Math.floor(prog(t,at(107),1.2)*7)); con
 function S16(t,sc){ const b=brinco(t,at(120),0.4,80); raro({x:500,y:1440,s:1.1,t,disfraz:'electricista',expr:t<at(119)?'sospecha':'yavalio',mira:{x:0,y:0},brazos:t<at(119)?'jarras':'senala',piernas:'quieto',alto:b.alto,sq:b.sq,wob:b.wob});
   const k=popIn(t,at(119)); if(k>0) L('CON MUCHO MENOS',540,430,k,'madera',{tam:96}); else L('¿YA PASÓ?',540,430,popIn(t,sc.start+0.05),'madera',{tam:120}); }
 // S17 "El 7 de mayo de 2024, en plena ola de calor,": puf a piyama; sol enorme sonriente, termómetro que sube al rojo; Raro suda y se abanica.
-function S17(t,sc){ const p=pufCambio(t,sc.start+0.03); sol(700,880,100,t); termometro(170,1150,0.9,lerp(0.4,0.97,easeOut(prog(t,at(130),0.8))));
-  raro({x:500,y:1440,s:0.8,t,disfraz:p.despues?'piyama':'electricista',spin:p.spin,expr:t<at(130)?'asombro':'llanto',brazos:'cara',piernas:'quieto',sq:0.12+Math.sin(t*5)*0.04,rubor:1}); if(p.despues) sudor(500,1440,0.8,t,3); nubePuf(t,sc.start+0.08,500,1150,1.1);
+function S17(t,sc){ const p=pufCambio(t,at(122)-0.09); sol(700,880,100,t); termometro(170,1150,0.9,lerp(0.4,0.97,easeOut(prog(t,at(130),0.8))));
+  raro({x:500,y:1440,s:0.8,t,disfraz:p.despues?'piyama':'electricista',spin:p.spin,expr:t<at(130)?'asombro':'llanto',brazos:'cara',piernas:'quieto',sq:0.12+Math.sin(t*5)*0.04,rubor:1}); if(p.despues) sudor(500,1440,0.8,t,3); nubePuf(t,at(122)-0.04,500,1150,1.1);
   const k=popIn(t,at(130)); if(k>0) L2('7 DE MAYO DE 2024','OLA DE CALOR',k,430,t,at(130)); else L('7 DE MAYO DE 2024',540,430,popIn(t,at(123)),'pergamino',{tam:90}); }
 // S18 "el sistema se quedó sin reserva.": batería de RESERVA que se vacía hasta el rojo y parpadea; Raro en piyama la abraza.
 function S18(t,sc){ const v=lerp(0.6,0.05,easeOut(prog(t,sc.start+0.05,dur(sc)*0.8))); bateria(700,1130,0.85,v,t);
@@ -282,7 +282,7 @@ function S20(t,sc){ const off=clamp(prog(t,at(145),1.2))*0.62; edificios(t,1300,
   raro({x:300,y:1440,s:0.78,t,disfraz:'electricista',expr:'terror',brazos:'arriba',piernas:'quieto',tilt:Math.sin(t*4)*0.06,wob:wobble(t,at(145),0.6)});
   const k=popIn(t,at(145)); if(k>0) L2('APAGONES EN MÁS','DE LA MITAD DEL PAÍS',k,430,t,at(145)); }
 // S21 "¡Nosotros pediríamos casi 12 veces eso!": puf a cocinero; 12 rayos caen en cascada y lo rodean; Raro con terror pega el brinco.
-function S21(t,sc){ const p=pufCambio(t,sc.start+0.03); cascada(t,at(156)-0.1,12,(x,y,k,i)=>rayo(x,y,0.55,k,AMAR,Math.sin(t*8+i)*0.15),{x0:200,y0:760,cols:4,dx:220,dy:170,cada:0.05});
+function S21(t,sc){ const p=pufCambio(t,sc.start+0.03); cascada(t,at(153)+0.05,12,(x,y,k,i)=>rayo(x,y,0.55,k,AMAR,Math.sin(t*8+i)*0.15),{x0:200,y0:760,cols:4,dx:220,dy:170,cada:0.14});
   const s=susto(t,at(156)+0.2); raro({x:540,y:1440,s:0.78,t,disfraz:p.despues?'cocinero':'electricista',spin:p.spin,expr:'terror',brazos:'arriba',piernas:'quieto',alto:s.alto,sq:s.sq,wob:s.wob}); nubePuf(t,sc.start+0.08,540,1150,1.1);
   const k=popIn(t,at(156)); if(k>0) L('¡CASI 12 VECES!',540,430,k,'panel',{tam:110}); }
 // S22 "Imagínate: 8 de la noche, la casa a oscuras…": cocina; reloj marca las 8; en "oscuras" se va la luz: todo se oscurece y solo se ve Raro (blanco) con los ojos enormes.
@@ -301,19 +301,22 @@ function S25(t,sc){ const ta=at(183); const on=t<ta; interruptor(740,1060,1.4,on
   const b=brinco(t,ta-0.35,0.35,140); raro({x:380,y:1440,s:0.85,t,disfraz:'cocinero',expr:on?'feliz':'asombro',brazos:on?'idle':'senala',piernas:'quieto',alto:b.alto,sq:b.sq,wob:b.wob});
   oscuridad(off*0.7); const k=popIn(t,sc.start+0.12); if(k>0) L3('PARTE 30','¿Y SI TODOS','APAGAMOS LA LUZ?',k,410,t,sc.start+0.12); }
 
-const NS=26;
-window.SCENES=Array.from({length:NS},(_,i)=>eval('S'+(i+1))).map((f,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; f(t,sc);});
+const ORDEN=[1,2,3,3,4,5,6,7,8,8,9,10,11,12,13,14,15,16,17,17,18,19,20,21,22,23,24,25,26];
+const PARTE2={4:{pal:'violeta',tipo:'interior'},10:{pal:'limon',tipo:'cielo'},20:{pal:'magenta',tipo:'desierto'}};
+window.SCENES=ORDEN.map((n,i)=>(t,sc)=>{CUR=i+1; CHECK=[]; eval('S'+n)(t,sc);});
 window.CHIPS={};
-window.FONDOS={1:{pal:'violeta',tipo:'ciudad'},2:{pal:'magenta',tipo:'interior'},3:{pal:'turquesa',tipo:'interior'},4:{pal:'limon',tipo:'cerros'},5:{pal:'cielo',tipo:'cerros'},
+const F0={1:{pal:'violeta',tipo:'ciudad'},2:{pal:'magenta',tipo:'interior'},3:{pal:'turquesa',tipo:'interior'},4:{pal:'limon',tipo:'cerros'},5:{pal:'cielo',tipo:'cerros'},
   6:{pal:'magenta',tipo:'cielo'},7:{pal:'mandarina',tipo:'interior'},8:{pal:'turquesa',tipo:'cielo'},9:{pal:'violeta',tipo:'ciudad'},10:{pal:'limon',tipo:'interior'},
   11:{pal:'cielo',tipo:'cielo'},12:{pal:'magenta',tipo:'interior'},13:{pal:'mandarina',tipo:'desierto'},14:{pal:'turquesa',tipo:'cerros'},15:{pal:'violeta',tipo:'interior'},
   16:{pal:'limon',tipo:'interior'},17:{pal:'mandarina',tipo:'desierto'},18:{pal:'cielo',tipo:'interior'},19:{pal:'magenta',tipo:'cielo'},20:{pal:'violeta',tipo:'ciudad'},
   21:{pal:'turquesa',tipo:'cielo'},22:{pal:'mandarina',tipo:'interior'},23:{pal:'violeta',tipo:'interior'},24:{pal:'limon',tipo:'interior'},25:{pal:'magenta',tipo:'interior'},26:{pal:'violeta',tipo:'ciudad'}};
-window.TOMAS={1:{mov:'push',z:1.0},2:{mov:'push',z:1.2,foco:[500,1100]},3:{mov:'paneo-der'},4:{mov:'paneo-izq'},5:{mov:'paneo-der'},6:{mov:'pull'},7:{mov:'push',z:1.25,foco:[520,1100]},8:{mov:'sube'},
+const T0={1:{mov:'push',z:1.0},2:{mov:'push',z:1.2,foco:[500,1100]},3:{mov:'paneo-der'},4:{mov:'paneo-izq'},5:{mov:'paneo-der'},6:{mov:'pull'},7:{mov:'push',z:1.25,foco:[520,1100]},8:{mov:'sube'},
   9:{mov:'pull'},10:{mov:'paneo-der'},11:{mov:'push'},12:{mov:'push',z:1.25,foco:[520,1100]},13:{mov:'paneo-der'},14:{mov:'pull'},15:{mov:'push'},16:{mov:'push',z:1.15,foco:[500,1100]},17:{mov:'orbita'},
   18:{mov:'push'},19:{mov:'pull'},20:{mov:'paneo-izq'},21:{mov:'push'},22:{mov:'paneo-der'},23:{mov:'push',z:1.1,foco:[500,1150]},24:{mov:'push',z:1.15,foco:[440,1100]},25:{mov:'pull'},26:{mov:'push',z:1.0}};
-window.TRANS={2:'zoom',3:'latigazo',4:'bufanda',5:'latigazo',6:'zoom',7:'bufanda',8:'latigazo',9:'bufanda',10:'latigazo',11:'zoom',12:'bufanda',13:'latigazo',14:'bufanda',15:'latigazo',16:'zoom',17:'bufanda',
+const R0={2:'zoom',3:'latigazo',4:'bufanda',5:'latigazo',6:'zoom',7:'bufanda',8:'latigazo',9:'bufanda',10:'latigazo',11:'zoom',12:'bufanda',13:'latigazo',14:'bufanda',15:'latigazo',16:'zoom',17:'bufanda',
   18:'latigazo',19:'zoom',20:'bufanda',21:'latigazo',22:'bufanda',23:'latigazo',24:'zoom',25:'bufanda',26:'latigazo'};
+window.FONDOS={}; window.TOMAS={}; window.TRANS={};
+ORDEN.forEach((n,i)=>{ const k=i+1, dup=i>0&&ORDEN[i-1]===n; window.FONDOS[k]=dup?PARTE2[k]:F0[n]; window.TOMAS[k]=dup?{mov:'push',z:1.15,foco:[540,1100]}:T0[n]; if(!dup && R0[n]) window.TRANS[k]=R0[n]; });
 window.KEYWORDS=[7,10,21,28,34,40,47,56,65,75,80,91,99,103,115,120,127,138,141,150,156,167,174,177,183,195];
 window.SHAKES=[7,40,43,85,115,141,156,167,183];
 window.FLASHES=[[7,'#24124F'],[40,'#FFE14D'],[141,'#FFFFFF'],[156,'#FFE14D']];
