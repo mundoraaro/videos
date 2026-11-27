@@ -4,6 +4,57 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 27 nov 2026 (10:00)
+Fuentes: Buffer por publicación (métricas actualizadas entre el 26 nov 21:41 y el 27 nov 02:52 CDMX) y Metricool para Facebook (FBRE). Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (hierro, dormir, venus, alberca y fila aún no salen en YouTube; fila aún sin dato en Facebook).
+
+| Video | Publicado TK (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | 12 nov 16:03 | 3,971 | 19.99 | 168 | 2,690 | 1,007 | 12 |
+| bascula-001 | 17 nov 12:06 | 3,843 | 24.01 | 94 | 1,479 | 342 | 7 |
+| estacion-001 | 16 nov 18:04 | 3,740 | 18.08 | 97 | 1,259 | 0 | 0 |
+| gritar-001-v2 | 15 nov 09:05 | 3,529 | 24.53 | 85 | 2,633 | 1,723 | 19 |
+| laser-001-v2 | 15 nov 13:03 | 3,445 | 20.87 | 89 | 1,532 | 595 | 17 |
+| mexico-001-v2 | 14 nov 20:01 | 3,315 | 20.9 | 132 | 2,002 | 324 | 10 |
+| soplar-001-v2 | 15 nov 19:01 | 3,251 | 19.76 | 77 | 1,146 | 283 | 9 |
+| jalon-001-v2 | 14 nov 17:02 | 3,207 | 21.8 | 88 | 1,339 | 709 | 18 |
+| apolo-001-v2 | 13 nov 12:04 | 2,989 | 22.95 | 93 | 1,608 | 380 | 9 |
+| torre-001 | 12 nov 12:03 | 2,859 | 23.74 | 95 | 2,022 | 383 | 12 |
+| hielo-001-v2 | 13 nov 10:05 | 2,810 | 22.08 | 75 | 2,121 | 4,505 | 11 |
+| playa-todos-001-v2 | 22 nov 11:06 | 2,784 | 29.2 | 73 | 1,812 | 258 | 17 |
+| luna-todos-001 | 19 nov 15:03 | 2,615 | 28.27 | 73 | 19,999 | 250 | 11 |
+| mar-001-v2 | 14 nov 11:05 | 2,602 | 22.16 | 94 | 1,647 | 237 | 5 |
+| peso-001 | 18 nov 12:07 | 1,952 | 25.61 | 55 | 1,098 | 1,177 | 19 |
+| avion-todos-001-v2 | 23 nov 12:06 | 1,368 | 25.84 | 55 | 2,191 | 237 | 6 |
+| taco-todos-001 | 21 nov 14:03 | 1,118 | 25.73 | 57 | 1,673 | 258 | 14 |
+| aguacate-001 | 21 nov 11:05 | 979 | 28.87 | 28 | 2,412 | 276 | 16 |
+| saturno-001 | 19 nov 19:03 | 898 | 20.34 | 28 | 1,063 | 251 | 4 |
+| colibri-001-v2 | 13 nov 18:03 | 821 | 16.92 | 18 | 1,023 | 256 | 5 |
+| aplaudir-todos-001-v2 | 24 nov 19:02 | 816 | 28.82 | 19 | 889 | 236 | 6 |
+| rayo-001 | 18 nov 15:03 | 802 | 25.74 | 26 | 1,225 | 237 | 4 |
+| luz-todos-001-v2 | 20 nov 12:04 | 767 | 25.09 | 29 | 1,380 | 614 | 15 |
+| jupiter-001 | 17 nov 15:04 | 714 | 20.16 | 29 | 1,355 | 285 | 5 |
+| atacama-001-v2 | 16 nov 20:30 | 604 | 16.59 | 15 | 991 | 248 | 6 |
+| agua-todos-001-v2 | 23 nov 19:03 | 600 | 25.48 | 22 | 1,633 | 353 | 15 |
+| tardigrado-001-v2 | 16 nov 12:05 | 558 | 12.22 | 13 | 1,045 | 258 | 5 |
+| cerdo-001-v2 | 17 nov 19:03 | 554 | 11.69 | 18 | 1,056 | 567 | 3 |
+| todos-mano-001-v2 | 19 nov 12:05 | 552 | 26.26 | 17 | 764 | 253 | 9 |
+| chicxulub-001 | 11 nov 20:02 | 499 | 21.9 | 20 | 3,244 | 299 | 12 |
+| ciudad-todos-001-v2 | 20 nov 15:03 | 488 | 18.82 | 15 | 2,318 | 232 | 7 |
+| hierro-001-v2 | 26 nov 12:07 | 460 | 18.96 | 13 | sin dato | 225 | 4 |
+| marte-001-v2 | 18 nov 19:04 | 447 | 18.11 | 22 | 968 | 239 | 3 |
+| dormir-todos-001-v2 | 25 nov 12:04 | 425 | 19.77 | 14 | sin dato | 302 | 12 |
+| venus-002-v2 | 22 nov 18:03 | 410 | 14.28 | 18 | sin dato | 274 | 6 |
+| alberca-todos-001-v2 | 24 nov 12:01 | 405 | 21.05 | 7 | sin dato | 231 | 4 |
+| fila-todos-001-v2 | 26 nov 19:01 | 308 | 18.72 | 22 | sin dato | sin dato | sin dato |
+| emus-001 | 11 nov 18:41 | 217 | 12.77 | 11 | 1,225 | 229 | 6 |
+| nutrias-001 | 12 nov 10:05 | 144 | 30.42 | 4 | 1,685 | 5 | 17 |
+
+Lectura rápida (solo números):
+- luna-todos llega a 19,999 vistas en YouTube (17,932 ayer): sigue creciendo, pero más lento (+2,067 en un día contra +8,809 el día anterior).
+- Los "TODOS" que ya salieron en YouTube siguen arriba de la media ahí: ciudad 2,318, avion 2,191, playa 1,812, taco 1,673, agua 1,633; los más recientes, más abajo (aplaudir 889, todos-mano 764).
+- En TikTok los arranques siguen bajos: fila 308 vistas en ≈15 h, hierro 460 y dormir 425; ningún video publicado desde el 23 nov pasa de 1,000 vistas en TikTok salvo avion (1,368).
+- La serie de planetas sigue abajo en TikTok (hierro 460 con 19.0 s, venus 410 con 14.3 s).
+
 ## Corte del 26 nov 2026 (10:05)
 Fuentes: Buffer por publicación (métricas actualizadas entre el 25 nov 18:08 y el 26 nov 03:51 CDMX) y Metricool para Facebook (FBRE). Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (aplaudir, todos-mano, dormir, venus y alberca aún no salen en YouTube).
 
