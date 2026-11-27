@@ -273,9 +273,9 @@ function S9(t,sc){ const parte2=t>=at(64)-0.05;
   if(!parte2){ cascada(t,at(58),19,(x,y,k,i)=>{ if(k>0) planta(x,y,0.26*k,t,0); },{x0:190,y0:830,cols:5,dx:170,dy:125,cada:0.07});
     const u=prog(t,sc.start,dur(sc)); raro({x:lerp(780,300,u),y:1440,s:0.7,t,disfraz:'electricista',expr:t<at(61)?'asombro':'terror',brazos:'arriba',piernas:'corre',espejo:true,tilt:-0.12,alto:Math.abs(Math.sin(t*10))*22}); polvo(t,lerp(800,320,u),1430,1,5,0.8);
     const k=popIn(t,at(61)); if(k>0) L2('×'+contador(t,at(61),0.5,0,19),'LAGUNA VERDES',k,430,t,at(61)); else L('NECESITARÍAMOS…',540,430,popIn(t,at(58)),'madera',{tam:96}); }
-  else { for(let i=0;i<10;i++){ const x=170+(i%5)*175, y=810+Math.floor(i/5)*120; planta(x,y,0.24,t,1); }
-    licuadora(620,1440,0.8,t,true); for(let i=0;i<6;i++){ const u=((t-at(64))*1.8+i/6)%1; rayo(lerp(170+(i%5)*175,620,u),lerp(780,1080,u),0.35,1,AMAR,u*5); }
-    raro({x:260,y:1440,s:0.78,t,disfraz:'electricista',expr:'terror',manos:{i:[-200,-240],d:[330,-220]},piernas:'quieto',tilt:-0.1,sq:Math.sin(t*30)*0.03}); sudor(260,1440,0.78,t,3);
+  else { for(const x of [215,395,870]) planta(x,1060,0.24,t,1);
+    licuadora(620,1440,0.8,t,true); for(let i=0;i<6;i++){ const u=((t-at(64))*1.8+i/6)%1; rayo(lerp([215,395,870][i%3],620,u),lerp(960,1100,u),0.35,1,AMAR,u*5); }
+    raro({x:300,y:1440,s:0.78,t,disfraz:'electricista',expr:'terror',manos:{i:[-200,-240],d:[290,-220]},piernas:'quieto',tilt:-0.1,sq:Math.sin(t*30)*0.03}); sudor(300,1440,0.78,t,3);
     L2('¡NOMÁS PARA','EL LICUADO!',popIn(t,at(64)),430,t,at(64),'madera'); } }
 // S16 "¿Y ya pasó algo así? Con mucho menos.": Raro se asoma nervioso detrás de una pared (temblando, sudando, mirando a cámara);
 // en "Con mucho menos" sale de un brinco y hace "chiquito" señalando.
