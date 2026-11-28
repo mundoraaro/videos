@@ -4,6 +4,60 @@ Lo actualiza el revisor una vez al día. Nunca inventes números: si una red no 
 Fuentes en Metricool (brandId 7811837): Facebook Reels `FBRE02,FBRE05,FBRE10,FBRE13` (fecha, texto, vistas, segundos promedio vistos); TikTok `TKPO02,TKPO05,TKPO07,TKPO13,TKPO15`; YouTube por canal `YTEV01,YTEV02` (por video devuelve vacío).
 Los videos se identifican por el texto del caption.
 
+## Corte del 28 nov 2026 (09:50)
+Fuentes: Buffer por publicación (métricas actualizadas entre el 27 nov 21:07 y el 28 nov 01:53 CDMX) y Metricool para Facebook (FBRE). Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (hierro, dormir, alberca, fila, correr y estornudo aún no salen en YouTube; estornudo aún sin dato en Facebook).
+
+| Video | Publicado TK (CDMX) | Vistas TikTok | Seg. prom. TK | Likes TK | Vistas YT | Vistas FB | Seg. vistos FB |
+|---|---|---|---|---|---|---|---|
+| mosquitos-001-v2 | 12 nov 16:03 | 3,971 | 19.99 | 168 | 2,691 | 1,007 | 12 |
+| bascula-001 | 17 nov 12:06 | 3,849 | 24.01 | 94 | 1,480 | 342 | 7 |
+| estacion-001 | 16 nov 18:04 | 3,740 | 18.08 | 97 | 1,264 | 0 | 0 |
+| gritar-001-v2 | 15 nov 09:05 | 3,529 | 24.52 | 85 | 2,633 | 1,723 | 19 |
+| laser-001-v2 | 15 nov 13:03 | 3,445 | 20.86 | 89 | 1,535 | 595 | 17 |
+| mexico-001-v2 | 14 nov 20:01 | 3,315 | 20.9 | 132 | 2,002 | 324 | 10 |
+| soplar-001-v2 | 15 nov 19:01 | 3,274 | 19.73 | 77 | 1,149 | 283 | 9 |
+| jalon-001-v2 | 14 nov 17:02 | 3,208 | 21.8 | 88 | 1,339 | 709 | 18 |
+| apolo-001-v2 | 13 nov 12:04 | 2,994 | 22.93 | 94 | 1,608 | 380 | 9 |
+| torre-001 | 12 nov 12:03 | 2,860 | 23.71 | 95 | 2,022 | 383 | 12 |
+| hielo-001-v2 | 13 nov 10:05 | 2,818 | 22.08 | 75 | 2,124 | 4,505 | 11 |
+| playa-todos-001-v2 | 22 nov 11:06 | 2,787 | 29.15 | 73 | 1,817 | 258 | 17 |
+| luna-todos-001 | 19 nov 15:03 | 2,617 | 28.27 | 73 | 20,297 | 250 | 11 |
+| mar-001-v2 | 14 nov 11:05 | 2,602 | 22.16 | 94 | 1,647 | 237 | 5 |
+| correr-todos-001 | 27 nov 12:04 | 2,412 | 24.8 | 78 | sin dato | 230 | 11 |
+| peso-001 | 18 nov 12:07 | 1,953 | 19.31 | 55 | 1,098 | 1,177 | 19 |
+| avion-todos-001-v2 | 23 nov 12:06 | 1,372 | 25.81 | 55 | 2,562 | 237 | 6 |
+| taco-todos-001 | 21 nov 14:03 | 1,121 | 25.75 | 57 | 1,676 | 258 | 14 |
+| aguacate-001 | 21 nov 11:05 | 980 | 28.84 | 28 | 2,412 | 276 | 16 |
+| saturno-001 | 19 nov 19:03 | 898 | 20.34 | 28 | 1,063 | 251 | 4 |
+| aplaudir-todos-001-v2 | 24 nov 19:02 | 826 | 28.86 | 19 | 1,256 | 236 | 6 |
+| colibri-001-v2 | 13 nov 18:03 | 821 | 16.92 | 18 | 1,023 | 256 | 5 |
+| rayo-001 | 18 nov 15:03 | 803 | 14.68 | 26 | 1,225 | 237 | 4 |
+| luz-todos-001-v2 | 20 nov 12:04 | 768 | 25.09 | 29 | 1,385 | 614 | 15 |
+| estornudo-todos-001 | 27 nov 19:02 | 715 | 23.65 | 21 | sin dato | sin dato | sin dato |
+| jupiter-001 | 17 nov 15:04 | 714 | 20.09 | 29 | 1,356 | 285 | 5 |
+| atacama-001-v2 | 16 nov 20:30 | 604 | 16.59 | 15 | 991 | 248 | 6 |
+| agua-todos-001-v2 | 23 nov 19:03 | 603 | 25.41 | 22 | 1,701 | 354 | 15 |
+| tardigrado-001-v2 | 16 nov 12:05 | 559 | 12.22 | 13 | 1,045 | 258 | 5 |
+| cerdo-001-v2 | 17 nov 19:03 | 554 | 11.69 | 18 | 1,056 | 567 | 3 |
+| todos-mano-001-v2 | 19 nov 12:05 | 552 | 26.26 | 17 | 1,529 | 253 | 9 |
+| chicxulub-001 | 11 nov 20:02 | 499 | 21.9 | 20 | 3,246 | 299 | 12 |
+| ciudad-todos-001-v2 | 20 nov 15:03 | 488 | 18.82 | 15 | 2,422 | 232 | 7 |
+| hierro-001-v2 | 26 nov 12:07 | 479 | 18.97 | 13 | sin dato | 226 | 4 |
+| marte-001-v2 | 18 nov 19:04 | 447 | 9.63 | 22 | 968 | 239 | 3 |
+| dormir-todos-001-v2 | 25 nov 12:04 | 430 | 19.75 | 14 | sin dato | 302 | 12 |
+| venus-002-v2 | 22 nov 18:03 | 413 | 14.22 | 18 | 1,088 | 274 | 6 |
+| alberca-todos-001-v2 | 24 nov 12:01 | 410 | 21.05 | 7 | sin dato | 231 | 4 |
+| fila-todos-001-v2 | 26 nov 19:01 | 366 | 19.86 | 23 | sin dato | 277 | 5 |
+| emus-001 | 11 nov 18:41 | 217 | 12.77 | 11 | 1,225 | 229 | 6 |
+| nutrias-001 | 12 nov 10:05 | 144 | 30.42 | 4 | 1,686 | 5 | 17 |
+
+Lectura rápida (solo números):
+- correr-todos arrancó fuerte en TikTok: 2,412 vistas en ≈1 día (24.8 s prom., 78 likes), el mejor arranque desde el 22 nov; estornudo-todos 715 en ≈9 h.
+- luna-todos llega a 20,297 vistas en YouTube (+298 en un día): ya casi se estancó.
+- En YouTube suben todos-mano (764 → 1,529), aplaudir (889 → 1,256) y venus ya salió (1,088); avion 2,562 y ciudad 2,422 siguen arriba de la media.
+- Facebook sigue plano (≈230–350 vistas por reel); fila 277 y correr 230.
+- Buffer ahora reporta un promedio visto en TikTok menor para algunos videos viejos que en el corte anterior (marte 9.63 s contra 18.11; rayo 14.68 contra 25.74; peso 19.31 contra 25.61); se anota tal como lo devuelve.
+
 ## Corte del 27 nov 2026 (10:00)
 Fuentes: Buffer por publicación (métricas actualizadas entre el 26 nov 21:41 y el 27 nov 02:52 CDMX) y Metricool para Facebook (FBRE). Seg. prom. TK = averageTimeWatched de Buffer. "sin dato": la red todavía no lo devuelve (hierro, dormir, venus, alberca y fila aún no salen en YouTube; fila aún sin dato en Facebook).
 
