@@ -130,6 +130,7 @@ const EXPR = {
   dormido:  {ojos:1,   cejas:[[10,0.1],[10,0.1]],     boca:'o', ojosCerrados:1, sueno:1},   // ojos cerrados ‿ ‿ (dormir, torpor)
   estornudo:{ojos:1,   cejas:[[14,0.35],[14,0.35]],   boca:'grito', ojosCerrados:1, apriete:1, rubor:0.9}, // ¡achú!: ojos apretados > < (estornudo-todos-001)
   preachu:  {ojos:0.8, cejas:[[-30,0.4],[-30,0.4]],  boca:'o', lid:0.6, rubor:0.7},       // "aaa…" antes del estornudo: párpados a media asta, cejas arriba
+  bostezo:  {ojos:1,   cejas:[[-22,0.4],[-22,0.4]],   boca:'bostezo', ojosCerrados:1, sueno:1, rubor:0.5}, // bostezo enorme (bostezar-todos-001); o.abre (0..1) controla cuánto abre la boca
   sopla:    {ojos:0.9, cejas:[[-4,0.2],[-4,0.2]],    boca:'sopla', lid:0.35, rubor:1, cachetes:1}, // cachetes inflados soplando (soplar-001); o.cachetes (0..1) controla cuánto se inflan
 };
 
@@ -194,6 +195,9 @@ function cara(o,base,sombra){
     case 'sonrisilla': ctx.strokeStyle=RARO.tinta; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(-18,by); ctx.quadraticCurveTo(6,by+10,24,by-10); ctx.stroke(); break;
     case 'linea': ctx.strokeStyle=RARO.tinta; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(4,by+2); ctx.lineTo(26,by-2); ctx.stroke(); break;
     case 'recta': ctx.strokeStyle=RARO.tinta; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(-18,by); ctx.lineTo(18,by); ctx.stroke(); break;
+    case 'bostezo': { const a=o.abre??1, w=24+18*a, h=14+58*a; ctx.fillStyle=oscuro; ctx.beginPath(); ctx.ellipse(0,by+h*0.35,w,h,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=RARO.lengua; ctx.beginPath(); ctx.ellipse(0,by+h*0.35+h*0.62,w*0.62,h*0.28,0,0,Math.PI*2); ctx.fill();
+      if(a>0.6){ ctx.fillStyle=RARO.lagrima; for(const sd of [-1,1]){ ctx.beginPath(); ctx.ellipse(sd*76,-272,7,10,0,0,Math.PI*2); ctx.fill(); } } break; }
     case 'temblorosa': ctx.strokeStyle=RARO.tinta; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(-20,by);
       for(let x=-20;x<=20;x+=5) ctx.lineTo(x,by+((x/5)%2?4:-2)); ctx.stroke(); break;
   }
@@ -1555,3 +1559,23 @@ DISFRACES.formado = { // alguien formado en una fila larga: sudadera turquesa co
     ctx.fillStyle='#1E1A2E'; ctx.font=fuente(String(o.num||'99').length>3?30:52); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(o.num||'99'),0,16);
     ctx.restore(); }
 };
+
+// ---------- perrito y bebé (bostezar-todos-001) ----------
+const DISFRAZ_PERRO = { // perrito: orejas caídas que se bambolean, manchas, nariz negra arriba de la boca y cola que se menea
+  atras(o){ const t=o.t||0, w=o.wob||0; ctx.save(); ctx.translate(132,-110); ctx.rotate(-0.9+Math.sin(t*14)*0.35+w*0.4); ctx.strokeStyle='#B07A4E'; ctx.lineWidth=26; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(40,-30,70,-90); ctx.stroke(); ctx.restore(); },
+  cuerpo(o){ ctx.fillStyle='#B07A4E'; ctx.beginPath(); ctx.ellipse(-70,-120,70,56,0.3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(90,-300,58,48,-0.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#E23D5B'; ctx.fillRect(-200,-196,400,26); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(0,-160,16,0,Math.PI*2); ctx.fill(); },
+  cabeza(o){ const t=o.t||0, w=o.wob||0; ctx.fillStyle='#8A5A36'; for(const sd of [-1,1]){ ctx.save(); ctx.translate(sd*128,-330); ctx.rotate(sd*(0.35+Math.sin(t*6+sd)*0.12+w*0.3));
+      ctx.beginPath(); ctx.ellipse(sd*14,70,44,92,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } },
+  frente(o){ ctx.fillStyle='#1E1A2E'; ctx.beginPath(); ctx.ellipse(0,-262,24,16,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(-7,-267,7,4,0,0,Math.PI*2); ctx.fill(); }
+};
+function perro(o){ return gomita({color:'#F3D9B8', expr:'feliz', ...o, disfraz:DISFRAZ_PERRO}); }
+const DISFRAZ_BEBE = { // bebé: gorrito con listón, pañal y chupón (o.sinChupon=true lo quita para reír o bostezar)
+  cuerpo(o){ ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.ellipse(0,-40,190,90,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#BFE9FF'; ctx.beginPath(); ctx.arc(-110,-110,14,0,Math.PI*2); ctx.arc(110,-110,14,0,Math.PI*2); ctx.fill(); },
+  cabeza(o){ const t=o.t||0; ctx.save(); ctx.translate(0,-330); ctx.fillStyle='#FFE3F0'; ctx.beginPath(); ctx.ellipse(0,-10,150,70,0,Math.PI,0); ctx.fill();
+    ctx.fillStyle='#FF9EC7'; rr(-150,-14,300,26,13); ctx.fill(); ctx.strokeStyle='#FF9EC7'; ctx.lineWidth=10; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(140,6); ctx.quadraticCurveTo(170,40+Math.sin(t*5)*8,150,80); ctx.stroke(); ctx.restore(); },
+  frente(o){ if(o.sinChupon) return; ctx.fillStyle='#FF5FA2'; ctx.beginPath(); ctx.ellipse(0,-226,38,24,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.arc(0,-226,13,0,Math.PI*2); ctx.fill(); }
+};
+function bebe(o){ return gomita({color:'#FFD9C2', expr:'feliz', ...o, disfraz:DISFRAZ_BEBE}); }
